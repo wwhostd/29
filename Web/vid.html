@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video and Audio Background</title>
+    <style>
+        body {
+            background-color: black;
+            color: red;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            font-size: 18px;
+            overflow: hidden;
+            padding-top: 20px;
+            position: relative; 
+        }
+        video {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1; 
+            object-fit: cover; 
+        }
+        .message {
+            opacity: 0;
+            transition: opacity 0.5s ease;
+            margin-top: 20px;
+        }
+        .show {
+            opacity: 1;
+        }
+        img {
+            width: 300px; 
+            height: auto;
+            margin-bottom: 40px; 
+        }
+        .info {
+            color: white; 
+        }
+        .location {
+            color: red; 
+            font-weight: bold; 
+        }
+    </style>
+</head>
+<body>
+    <video autoplay loop>
+        <source src="video.mp4" type="video/mp4"> <!-- استبدل video.mp4 باسم ملف الفيديو الخاص بك -->
+        متصفحك لا يدعم تشغيل الفيديو.
+    </video>
+    <audio autoplay loop>
+        <source src="audio.mp3" type="audio/mpeg"> <!-- استبدل audio.mp3 باسم ملف الصوت الخاص بك -->
+        متصفحك لا يدعم تشغيل الصوت.
+    </audio>
+    <img src="https://example.com/image.gif" alt="Random Image">
+    <h1 class="message">عـلـيـك سـبـكـتـيـت انـتـبـه</h1>
+    <p class="message" id="ip"></p>
+    <p class="info message" id="location"></p>
+
+    <script>
+        fetch('https://api.ipify.org?format=json')
+            .then(response => response.json())
+            .then(data => {
+                document.getElementById('ip').innerText = `ip ✔: ${data.ip}`;
+                
+                // الحصول على معلومات الموقع
+                return fetch(`https://ipapi.co/${data.ip}/json/`);
+            })
+            .then(response => response.json())
+            .then(data => {
+                const city = data.city || 'Unknown City';
+                const region = data.region || 'Unknown Region';
+                const timezone = data.timezone || 'Unknown Timezone';
+                const locationInfo = `Location: ${city}, ${region}, Timezone: ${timezone}`;
+                document.getElementById('location').innerHTML = locationInfo.replace("Location", "<span class='location'>Location</span>");
+            })
+            .catch(error => {
+                console.error('Error fetching location:', error);
+                document.getElementById('location').innerText = 'Hi ...........';
+            });
+
+        setInterval(() => {
+            const messages = document.querySelectorAll('.message');
+            messages.forEach(message => {
+                message.classList.toggle('show');
+            });
+        }, 1000);
+    </script>
+</body>
+</html>
