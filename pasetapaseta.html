@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم التداول مع قاعدة بيانات</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #0e1038;
+            background-image: url('0928.gif');
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .user-section {
+            width: 95%;
+            margin-bottom: 40px;
+            background-color: rgba(41, 59, 85, 0.562);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgb(175, 175, 175);
+        }
+        h2 {
+            color: #e2e4e9;
+            margin-top: 0;
+            box-shadow: 0 0 10px rgb(134, 134, 134);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        td {
+            color: #e2e4e9;
+            font-size: 16px;
+        }
+        th, td {
+            border: 1px solid #757575;
+            padding: 8px;
+            text-align: center;
+        }
+        th {
+            background-color: #9292cc8f;
+            font-size: 16px;
+        }
+        .profit { 
+            background-color: #5c9e5c9f;
+            border-radius: 8px;
+        }
+        .loss { 
+            background-color: #a11f3394; 
+            border-radius: 8px;
+        }
+        input[type="number"] {
+            border-radius: 8px;
+            width: 70px;
+            padding: 5px;
+        }
+        .btn {
+            padding: 10px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn-next {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .btn-share {
+            background-color: #008CBA;
+            color: white;
+        }
+        .btn-save {
+            background-color: #f44336;
+            color: white;
+        }
+        .btn-reset {
+            background-color: #555555;
+            color: white;
+        }
+        @media screen and (max-width: 600px) {
+            .user-section {
+                width: 100%;
+                padding: 10px;
+            }
+            table {
+                font-size: 12px;
+            }
+            input[type="number"] {
+                width: 50px;
+            }
+            .btn {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+        ::-webkit-scrollbar {
+            width: 12px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #000000;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgb(131, 131, 131);
+            border-radius: 6px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: darkred;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+<body>
+<center>
+    <div id="tables-container"></div>
+    <button id="saveAllBtn" class="btn btn-save" style="display:none;">حفظ الكل كـ PDF</button>
+    <button id="resetAllBtn" class="btn btn-reset" style="display:none;">إعادة تعيين</button>
+    
+</center>
+<center>
+    <div id="tables-container"></div>
+    <button id="resetAllBtn" class="btn btn-reset" style="display:none;">إعادة تعيين</button>
+</center>
+
+<script>
+let db;
+let weekCount = 1;
+
+function openDB() {
+    const dbName = 'TradingDashboardDB';
+    const request = indexedDB.open(dbName, 1);
+
+    request.onerror = (event) => {
+        console.error("Error opening database:", event.target.error);
+    };
+
+    request.onsuccess = (event) => {
+        db = event.target.result;
+        createTable("سلوم", weekCount);
+    };
+
+    request.onupgradeneeded = (event) => {
+        db = event.target.result;
+        const objectStore = db.createObjectStore("tradingData", { keyPath: ["user", "week", "day", "type"] });
+    };
+}
+
+function saveData(user, week, day, type, value) {
+    const transaction = db.transaction(["tradingData"], "readwrite");
+    const objectStore = transaction.objectStore("tradingData");
+    const request = objectStore.put({ user, week, day, type, value });
+
+    request.onerror = (event) => {
+        console.error("Error saving data:", event.target.error);
+    };
+}
+
+function loadDataFromDB(user, week) {
+    return new Promise((resolve, reject) => {
+        const transaction = db.transaction(["tradingData"], "readonly");
+        const objectStore = transaction.objectStore("tradingData");
+        const request = objectStore.getAll();
+
+        request.onsuccess = (event) => {
+            const data = event.target.result.filter(item => item.user === user && item.week === week);
+            resolve(data);
+        };
+
+        request.onerror = (event) => {
+            reject(event.target.error);
+        };
+    });
+}
+
+function createTable(user, week) {
+    const container = document.getElementById('tables-container');
+    const userSection = document.createElement('div');
+    userSection.className = 'user-section';
+    userSection.id = `${user}-week-${week}`;
+
+    const weekTitle = week > 1 ? ` - الأسبوع ${week}` : '';
+    userSection.innerHTML = `
+        <h2>${user}${weekTitle}</h2>
+        <table class="tradingTable" data-user="${user}" data-week="${week}">
+            <tr>
+                <th>الإجمالي</th>
+                <th>الجمعة</th>
+                <th>الخميس</th>
+                <th>الأربعاء</th>
+                <th>الثلاثاء</th>
+                <th>الاثنين</th>
+                <th>الملخص</th>
+                <th></th>
+            </tr>
+            ${createTableRows()}
+        </table>
+        <button class="btn btn-next" onclick="createNextTable('${user}')">التالي</button>
+        <button class="btn btn-share" onclick="shareTable('${user}-week-${week}')" disabled>مشاركة</button>
+    `;
+
+    container.appendChild(userSection);
+    loadDataFromDB(user, week).then(data => {
+        data.forEach(item => {
+            const input = userSection.querySelector(`input.${item.type}[data-day="${item.day}"]`);
+            if (input) {
+                input.value = item.value;
+                calculateTotal(input);
+            }
+        });
+    });
+
+    if (week === 4) {
+        document.getElementById('saveAllBtn').style.display = 'inline-block';
+        document.getElementById('resetAllBtn').style.display = 'inline-block';
+    }
+}
+
+function createTableRows() {
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+    const types = ['profit', 'loss', 'successful', 'failed'];
+    let html = '';
+
+    types.forEach((type, index) => {
+        html += `
+            <tr>
+                <td class="total${type.charAt(0).toUpperCase() + type.slice(1)}">0 ${type === 'profit' || type === 'loss' ? 'USD' : ''}</td>
+                ${days.map(day => `<td><input type="number" class="${type}" data-day="${day}" onchange="handleInputChange(this)"> ${type === 'profit' || type === 'loss' ? 'USD' : ''}</td>`).join('')}
+                <td>${['الربح', 'الخسارة', 'الناجحة', 'الفاشلة'][index]}</td>
+                ${index % 2 === 0 ? '<td rowspan="2">' + ['المبالغ', 'الصفقات'][index / 2] + '</td>' : ''}
+            </tr>
+        `;
+    });
+
+    html += `
+        <tr>
+            <td class="successRate">0%</td>
+            ${days.map(day => `<td class="${day}Rate">0%</td>`).join('')}
+            <td>نسبة الصفقات الناجحة</td>
+            <td></td>
+        </tr>
+    `;
+
+    return html;
+}
+
+function handleInputChange(input) {
+    const table = input.closest('table');
+    const user = table.dataset.user;
+    const week = parseInt(table.dataset.week);
+    const day = input.dataset.day;
+    const type = input.className;
+    const value = input.value;
+
+    saveData(user, week, day, type, value);
+    calculateTotal(input);
+    checkShareButton(table);
+}
+
+function calculateTotal(input) {
+    const table = input.closest('table');
+    const types = ['profit', 'loss', 'successful', 'failed'];
+
+    types.forEach(type => {
+        let total = 0;
+        table.querySelectorAll(`.${type}`).forEach(input => total += Number(input.value || 0));
+        table.querySelector(`.total${type.charAt(0).toUpperCase() + type.slice(1)}`).textContent = total + (type === 'profit' || type === 'loss' ? ' USD' : '');
+    });
+
+    const totalSuccessful = Number(table.querySelector('.totalSuccessful').textContent);
+    const totalFailed = Number(table.querySelector('.totalFailed').textContent);
+    const totalTrades = totalSuccessful + totalFailed;
+    const successRate = totalTrades > 0 ? (totalSuccessful / totalTrades * 100).toFixed(2) : 0;
+    table.querySelector('.successRate').textContent = successRate + '%';
+
+    const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+    days.forEach(day => {
+        const successful = Number(table.querySelector(`.successful[data-day="${day}"]`).value || 0);
+        const failed = Number(table.querySelector(`.failed[data-day="${day}"]`).value || 0);
+        const total = successful + failed;
+        const rate = total > 0 ? (successful / total * 100).toFixed(2) : 0;
+        table.querySelector(`.${day}Rate`).textContent = rate + '%';
+    });
+}
+
+function createNextTable(user) {
+    if (weekCount < 4) {
+        weekCount++;
+        createTable(user, weekCount);
+    }
+}
+
+function checkShareButton(table) {
+    const inputs = table.querySelectorAll('input[type="number"]');
+    const shareButton = table.parentElement.querySelector('.btn-share');
+    const allFilled = Array.from(inputs).every(input => input.value !== '');
+    shareButton.disabled = !allFilled;
+}
+
+function shareTable(tableId) {
+    html2canvas(document.getElementById(tableId)).then(canvas => {
+        const imgData = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = imgData;
+        link.download = `${tableId}.png`;
+        link.click();
+    });
+}
+
+function saveAllAsPDF() {
+    const pdf = new jspdf.jsPDF();
+    const elements = document.getElementsByClassName('user-section');
+    let promises = [];
+
+    Array.from(elements).forEach((element, index) => {
+        promises.push(html2canvas(element).then(canvas => {
+            const imgData = canvas.toDataURL('image/png');
+            if (index > 0) {
+                pdf.addPage();
+            }
+            const imgProps = pdf.getImageProperties(imgData);
+            const pdfWidth = pdf.internal.pageSize.getWidth();
+            const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
+            pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
+        }));
+    });
+
+    Promise.all(promises).then(() => {
+        pdf.save("all_trading_data.pdf");
+    });
+}
+
+function resetAll() {
+    if (confirm("هل أنت متأكد أنك تريد إعادة تعيين جميع البيانات؟")) {
+        // Clear all data from IndexedDB
+        const transaction = db.transaction(["tradingData"], "readwrite");
+        const objectStore = transaction.objectStore("tradingData");
+        const clearRequest = objectStore.clear();
+
+        clearRequest.onsuccess = () => {
+            // Reset week count
+            weekCount = 1;
+
+            // Clear all tables except the first one
+            const container = document.getElementById('tables-container');
+            while (container.childNodes.length > 1) {
+                container.removeChild(container.lastChild);
+            }
+
+            // Reset the first table
+            const firstTable = container.firstChild;
+            const inputs = firstTable.querySelectorAll('input[type="number"]');
+            inputs.forEach(input => {
+                input.value = '';
+                handleInputChange(input);
+            });
+
+            // Hide save and reset buttons
+            document.getElementById('saveAllBtn').style.display = 'none';
+            document.getElementById('resetAllBtn').style.display = 'none';
+
+            // Reset the 'Next' button
+            const nextButton = firstTable.querySelector('.btn-next');
+            nextButton.disabled = false;
+
+            alert("تم إعادة تعيين جميع البيانات بنجاح.");
+        };
+
+        clearRequest.onerror = (event) => {
+            console.error("Error clearing data:", event.target.error);
+            alert("حدث خطأ أثناء إعادة تعيين البيانات.");
+        };
+    }
+}
+
+function createNextTable(user) {
+    if (weekCount < 4) {
+        weekCount++;
+        createTable(user, weekCount);
+    }
+    if (weekCount === 4) {
+        // Disable all 'Next' buttons when we reach week 4
+        document.querySelectorAll('.btn-next').forEach(btn => btn.disabled = true);
+    }
+}
+
+// [other functions remain the same]
+
+document.addEventListener('DOMContentLoaded', () => {
+    openDB();
+    document.getElementById('saveAllBtn').addEventListener('click', saveAllAsPDF);
+    document.getElementById('resetAllBtn').addEventListener('click', resetAll);
+});
+</script>
+</body>
+</html>
