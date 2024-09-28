@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<style>
+body {
+        background-image: url('cb07601b2d5a4335c20880ea71b82edd.gif'); /* تأكد من تعديل المسار للصورة الخاصة بك */
+        background-size: cover; /* لجعل الصورة تغطي الخلفية بالكامل */
+        background-position: center; /* لمركز الصورة */
+        background-repeat: no-repeat; /* لمنع تكرار الصورة */
+    }
+</style>  
+<style>
+    /* تصميم شريط التمرير */
+::-webkit-scrollbar {
+    width: 12px; /* عرض الشريط */
+}
+
+::-webkit-scrollbar-track {
+    background: #000000; /* لون خلفية الشريط */
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgb(131, 131, 131); /* لون الشريط */
+    border-radius: 6px; /* جعل الزوايا مستديرة */
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: darkred; /* لون الشريط عند التمرير */
+}
+
+    </style>
+<head>
+
+ <!-- Link To CSS -->
+ <link rel="stylesheet" href="css/style.css">
+ <link rel="stylesheet" href="css/acc.css">
+    <!-- Link Swiper CSS -->
+    <link rel="stylesheet" href="css/swiper-bundle.min.css">
+    <!-- Fav Icon -->
+    <link rel="shortcut icon" href="img/2798007.png" type="image/x-icon">
+    <!-- Box Icons -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Account</title>
+</head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم التداول مع قاعدة بيانات</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background-color: #0e1038;
+        }
+        .user-section {
+            width: 85%;
+            margin-bottom: 40px;
+            background-color: rgb(41, 59, 85);
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgb(175, 175, 175);
+        }
+        h2 {
+            color: #e2e4e9;
+            margin-top: 0;
+            box-shadow: 0 0 10px rgb(134, 134, 134);
+            padding: 10px;
+            border-radius: 8px;
+        }
+        table {
+            width: 85%;
+            border-collapse: collapse;
+            
+        }
+        td {
+            color: #e2e4e9;
+            font-size: 20px;
+            
+        }
+        th, td {
+            border: 1px solid #757575;
+            padding: 10px;
+            text-align: center;
+        }
+        th {
+            background-color: #9292cc;
+            font-size: 20px;
+            
+        }
+        .profit { 
+            background-color: #5c9e5c;
+            border-radius: 8px;
+        }
+        .loss { 
+            background-color: #a11f32; 
+            border-radius: 8px;
+        }
+        input[type="number"] {
+            border-radius: 8px;
+            width: 80px;
+            padding: 5px;
+        }
+    </style>
+</head>
+<body>
+<center>
+    <div id="salloum" class="user-section">
+        <h2>سلوم</h2>
+        <table class="tradingTable" data-user="salloum">
+            <!-- جدول سلوم هنا -->
+        </table>
+    </div>
+</center>
+<center>
+    <div id="wajeeh" class="user-section">
+        <h2>وجيه</h2>
+        <table class="tradingTable" data-user="wajeeh">
+            <!-- جدول وجيه هنا -->
+        </table>
+    </div>
+</center>
+<center>
+    <div id="hass" class="user-section">
+        <h2>حس</h2>
+        <table class="tradingTable" data-user="hass">
+            <!-- جدول حس هنا -->
+        </table>
+    </div>
+</center>
+    <script>
+    let db;
+
+    function openDB() {
+        const dbName = 'TradingDashboardDB';
+        const request = indexedDB.open(dbName, 1);
+
+        request.onerror = (event) => {
+            console.error("Error opening database:", event.target.error);
+        };
+
+        request.onsuccess = (event) => {
+            db = event.target.result;
+            loadDataFromDB();
+        };
+
+        request.onupgradeneeded = (event) => {
+            db = event.target.result;
+            const objectStore = db.createObjectStore("tradingData", { keyPath: ["user", "day", "type"] });
+        };
+    }
+
+    function saveData(user, day, type, value) {
+        const transaction = db.transaction(["tradingData"], "readwrite");
+        const objectStore = transaction.objectStore("tradingData");
+        const request = objectStore.put({ user, day, type, value });
+
+        request.onerror = (event) => {
+            console.error("Error saving data:", event.target.error);
+        };
+    }
+
+    function loadDataFromDB() {
+        const transaction = db.transaction(["tradingData"], "readonly");
+        const objectStore = transaction.objectStore("tradingData");
+        const request = objectStore.getAll();
+
+        request.onsuccess = (event) => {
+            const data = event.target.result;
+            data.forEach(item => {
+                const input = document.querySelector(`table[data-user="${item.user}"] input.${item.type}[data-day="${item.day}"]`);
+                if (input) {
+                    input.value = item.value;
+                    calculateTotal(input);
+                }
+            });
+        };
+    }
+
+    function createTable(tableElement) {
+        const user = tableElement.dataset.user;
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        const types = ['profit', 'loss', 'successful', 'failed'];
+        
+        let tableHTML = `
+            <tr>
+                <th>الإجمالي</th>
+                <th>الجمعة</th>
+                <th>الخميس</th>
+                <th>الأربعاء</th>
+                <th>الثلاثاء</th>
+                <th>الاثنين</th>
+                <th>الملخص</th>
+                <th></th>
+            </tr>
+        `;
+
+        types.forEach((type, index) => {
+            tableHTML += `
+                <tr>
+                    <td class="total${type.charAt(0).toUpperCase() + type.slice(1)}">0</td>
+                    ${days.map(day => `<td><input type="number" class="${type}" data-day="${day}" onchange="handleInputChange(this)"></td>`).join('')}
+                    <td>${['الربح', 'الخسارة', 'الناجحة', 'الفاشلة'][index]}</td>
+                    ${index % 2 === 0 ? '<td rowspan="2">' + ['المبالغ', 'الصفقات'][index / 2] + '</td>' : ''}
+                </tr>
+            `;
+        });
+
+        tableHTML += `
+            <tr>
+                <td class="successRate">0%</td>
+                ${days.map(day => `<td class="${day}Rate">0%</td>`).join('')}
+                <td>نسبة الصفقات الناجحة</td>
+                <td></td>
+            </tr>
+        `;
+
+        tableElement.innerHTML = tableHTML;
+    }
+
+    function handleInputChange(input) {
+        const user = input.closest('table').dataset.user;
+        const day = input.dataset.day;
+        const type = input.className;
+        const value = input.value;
+
+        saveData(user, day, type, value);
+        calculateTotal(input);
+    }
+
+    function calculateTotal(input) {
+        const table = input.closest('table');
+        const types = ['profit', 'loss', 'successful', 'failed'];
+
+        types.forEach(type => {
+            let total = 0;
+            table.querySelectorAll(`.${type}`).forEach(input => total += Number(input.value || 0));
+            table.querySelector(`.total${type.charAt(0).toUpperCase() + type.slice(1)}`).textContent = total;
+        });
+
+        const totalSuccessful = Number(table.querySelector('.totalSuccessful').textContent);
+        const totalFailed = Number(table.querySelector('.totalFailed').textContent);
+        const totalTrades = totalSuccessful + totalFailed;
+        const successRate = totalTrades > 0 ? (totalSuccessful / totalTrades * 100).toFixed(2) : 0;
+        table.querySelector('.successRate').textContent = successRate + '%';
+
+        const days = ['monday', 'tuesday', 'wednesday', 'thursday', 'friday'];
+        days.forEach(day => {
+            const successful = Number(table.querySelector(`.successful[data-day="${day}"]`).value || 0);
+            const failed = Number(table.querySelector(`.failed[data-day="${day}"]`).value || 0);
+            const total = successful + failed;
+            const rate = total > 0 ? (successful / total * 100).toFixed(2) : 0;
+            table.querySelector(`.${day}Rate`).textContent = rate + '%';
+        });
+    }
+
+    // إنشاء الجداول وفتح قاعدة البيانات عند تحميل الصفحة
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelectorAll('.tradingTable').forEach(createTable);
+        openDB();
+    });
+    </script>
+</body>
+
+</html>
