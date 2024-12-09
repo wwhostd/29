@@ -59,9 +59,9 @@
             box-sizing: border-box;
             font-size: 16px;
             min-height: 80px;
-            resize: vertical; /* السماح بتغيير الحجم عمودياً */
+            resize: vertical;
         }
-        .btn-copy {
+        .btn-copy, .btn-translate {
             background-color: #3498db;
             color: white;
             padding: 12px 20px;
@@ -71,7 +71,7 @@
             transition: background-color 0.3s ease;
             font-size: 16px;
         }
-        .btn-copy:hover {
+        .btn-copy:hover, .btn-translate:hover {
             background-color: #2980b9;
         }
         .btn-clear {
@@ -106,55 +106,12 @@
             padding-bottom: 8px;
             margin-bottom: 20px;
         }
-
-        /* Media Queries for smaller screens */
-        @media (max-width: 768px) {
-            .container {
-                padding: 20px;
-                margin: 10px;
-            }
-            h1 {
-                font-size: 24px;
-            }
-            h2 {
-                font-size: 18px;
-            }
-            table th, table td {
-                padding: 10px;
-                font-size: 14px;
-            }
-            textarea {
-                font-size: 14px;
-                padding: 10px;
-                min-height: 60px;
-            }
-            .btn-copy, .btn-clear {
-                width: 100%;
-                font-size: 14px;
-                padding: 12px;
-            }
-        }
-
-        @media (max-width: 480px) {
-            h1 {
-                font-size: 20px;
-            }
-            h2 {
-                font-size: 16px;
-            }
-            table th, table td {
-                font-size: 12px;
-            }
-            textarea {
-                font-size: 12px;
-            }
-        }
     </style>
 </head>
 <body>
     <div id="notification"></div>
     <div class="container">
-        <h1>2موقع تقارير الركاب والقطار</h1>
+        <h1>3موقع تقارير الركاب والقطار</h1>
 
         <div class="section-title">
             <h2>عدد الركاب الي طلعو من مدن مختلفة</h2>
@@ -194,41 +151,49 @@
                 <th>التقرير</th>
                 <th>تفاصيل التقرير</th>
                 <th>نسخ</th>
+                <th>ترجمة</th>
             </tr>
             <tr>
                 <td>ريبورت تجهيز القطار</td>
                 <td><textarea id="trainPreparation" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('trainPreparation')">نسخ</button></td>
+                <td><button class="btn-translate" onclick="translateText('trainPreparation')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت المشاكل التقنية</td>
                 <td><textarea id="techProblems" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('techProblems')">نسخ</button></td>
+                <td><button class="btn-translate" onclick="translateText('techProblems')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت المضيفين</td>
                 <td><textarea id="hostReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('hostReport')">نسخ</button></td>
+                <td><button class="btn-translate" onclick="translateText('hostReport')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت osr</td>
                 <td><textarea id="osrReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('osrReport')">نسخ</button></td>
+                <td><button class="btn-translate" onclick="translateText('osrReport')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت تشيك اوت للرحلة</td>
                 <td><textarea id="checkoutReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('checkoutReport')">نسخ</button></td>
+                <td><button class="btn-translate" onclick="translateText('checkoutReport')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت الأغراض المفقودة</td>
                 <td><textarea id="lostItemsReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('lostItemsReport')">نسخ</button></td>
+                <td><button class="btn-translate" onclick="translateText('lostItemsReport')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت سبيشل للمشاكل</td>
                 <td><textarea id="specialReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('specialReport')">نسخ</button></td>
+                <td><button class="btn-translate" onclick="translateText('specialReport')">ترجمة</button></td>
             </tr>
         </table>
 
@@ -263,6 +228,16 @@
             copyText.select();
             document.execCommand("copy");
             showNotification("تم نسخ النص: " + copyText.value);
+        }
+
+        function translateText(id) {
+            var textToTranslate = document.getElementById(id).value;
+            if (textToTranslate) {
+                var url = `https://libretranslate.com/?source=ar&target=en&q=${encodeURIComponent(textToTranslate)}`;
+                window.open(url, '_blank');
+            } else {
+                showNotification("يرجى إدخال نص للترجمة");
+            }
         }
 
         function clearAllData() {
