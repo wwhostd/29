@@ -62,7 +62,10 @@
             min-height: 100px;
             max-height: 500px; /* Limit maximum height */
             resize: none; /* Disable manual resize */
-            overflow: hidden; /* Hide scrollbar */
+            overflow-wrap: break-word; /* Ensure text wraps */
+            word-wrap: break-word; /* Fallback for older browsers */
+            white-space: pre-wrap; /* Preserve line breaks and wrap */
+            overflow-y: auto; /* Add vertical scrollbar if needed */
             line-height: 1.5;
         }
         .btn-copy, .btn-translate {
@@ -131,7 +134,7 @@
 <body>
     <div id="notification"></div>
     <div class="container">
-        <h1>8موقع تقارير الركاب والقطار</h1>
+        <h1>7موقع تقارير الركاب والقطار</h1>
 
         <div class="section-title">
             <h2>عدد الركاب الي طلعو من مدن مختلفة</h2>
