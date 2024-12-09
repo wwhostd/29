@@ -3,7 +3,6 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
     <title>COOBs Report</title>
     <style>
         body {
@@ -13,6 +12,7 @@
             text-align: right;
             padding: 0;
             margin: 0;
+            touch-action: manipulation; /* Prevent zooming */
         }
         .container {
             border-radius: 6px;
@@ -24,12 +24,10 @@
             box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
         }
         h1 {
-	font-size: 24px; 
-	margin-bottom: 20px;
+            font-size: 30px; 
+            margin-bottom: 30px;
             color: #bfcbd8;
             text-align: center;
-            margin-bottom: 30px;
-            font-size: 30px;
         }
         h2 {
             color: #bfcbd8;
@@ -41,21 +39,7 @@
             margin: 20px 0;
             border-collapse: collapse;
         }
-
-	     table tr {
-	max-width: 1000px;
-	padding: 10px; 
-	font-size: 14px;
-            padding: 15px;
-            text-align: right;
-            border: 2px solid #b8b5b5;
-            font-size: 16px;
-        }
-	    
         table th, table td {
-	max-width: 1000px;
-	padding: 10px; 
-	font-size: 14px;
             padding: 15px;
             text-align: right;
             border: 2px solid #b8b5b5;
@@ -67,7 +51,7 @@
             color: #34495e;
         }
         textarea {
-            width: 100%;
+            width: calc(100% - 40px);
             padding: 12px;
             margin: 10px 0;
             border: 1px solid #ccc;
@@ -75,8 +59,11 @@
             background-color: #bac1c9;
             box-sizing: border-box;
             font-size: 16px;
-            min-height: 80px;
-            resize: vertical;
+            min-height: 100px;
+            max-height: 500px; /* Limit maximum height */
+            resize: none; /* Disable manual resize */
+            overflow: hidden; /* Hide scrollbar */
+            line-height: 1.5;
         }
         .btn-copy, .btn-translate {
             background-color: #3498db;
@@ -87,6 +74,8 @@
             cursor: pointer;
             transition: background-color 0.3s ease;
             font-size: 16px;
+            width: 100%; /* Make buttons full width on mobile */
+            margin-top: 5px;
         }
         .btn-copy:hover, .btn-translate:hover {
             background-color: #2980b9;
@@ -123,12 +112,26 @@
             padding-bottom: 8px;
             margin-bottom: 20px;
         }
+        /* Mobile-specific adjustments */
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            table th, table td {
+                padding: 10px;
+                font-size: 14px;
+            }
+            textarea {
+                font-size: 16px; /* Prevent automatic zoom on iOS */
+            }
+        }
     </style>
 </head>
 <body>
     <div id="notification"></div>
     <div class="container">
-        <h1>7موقع تقارير الركاب والقطار</h1>
+        <h1>8موقع تقارير الركاب والقطار</h1>
 
         <div class="section-title">
             <h2>عدد الركاب الي طلعو من مدن مختلفة</h2>
@@ -172,43 +175,43 @@
             </tr>
             <tr>
                 <td>ريبورت تجهيز القطار</td>
-                <td><textarea id="trainPreparation" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
+                <td><textarea id="trainPreparation" placeholder="أدخل التفاصيل" oninput="autoExpand(this); saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('trainPreparation')">نسخ</button></td>
                 <td><button class="btn-translate" onclick="translateText('trainPreparation')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت المشاكل التقنية</td>
-                <td><textarea id="techProblems" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
+                <td><textarea id="techProblems" placeholder="أدخل التفاصيل" oninput="autoExpand(this); saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('techProblems')">نسخ</button></td>
                 <td><button class="btn-translate" onclick="translateText('techProblems')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت المضيفين</td>
-                <td><textarea id="hostReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
+                <td><textarea id="hostReport" placeholder="أدخل التفاصيل" oninput="autoExpand(this); saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('hostReport')">نسخ</button></td>
                 <td><button class="btn-translate" onclick="translateText('hostReport')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت osr</td>
-                <td><textarea id="osrReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
+                <td><textarea id="osrReport" placeholder="أدخل التفاصيل" oninput="autoExpand(this); saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('osrReport')">نسخ</button></td>
                 <td><button class="btn-translate" onclick="translateText('osrReport')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت تشيك اوت للرحلة</td>
-                <td><textarea id="checkoutReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
+                <td><textarea id="checkoutReport" placeholder="أدخل التفاصيل" oninput="autoExpand(this); saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('checkoutReport')">نسخ</button></td>
                 <td><button class="btn-translate" onclick="translateText('checkoutReport')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت الأغراض المفقودة</td>
-                <td><textarea id="lostItemsReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
+                <td><textarea id="lostItemsReport" placeholder="أدخل التفاصيل" oninput="autoExpand(this); saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('lostItemsReport')">نسخ</button></td>
                 <td><button class="btn-translate" onclick="translateText('lostItemsReport')">ترجمة</button></td>
             </tr>
             <tr>
                 <td>ريبورت سبيشل للمشاكل</td>
-                <td><textarea id="specialReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
+                <td><textarea id="specialReport" placeholder="أدخل التفاصيل" oninput="autoExpand(this); saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('specialReport')">نسخ</button></td>
                 <td><button class="btn-translate" onclick="translateText('specialReport')">ترجمة</button></td>
             </tr>
@@ -229,14 +232,34 @@
         window.onload = function() {
             inputFields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
-                field.value = localStorage.getItem(fieldId) || '';
+                if (field) {
+                    field.value = localStorage.getItem(fieldId) || '';
+                    
+                    // Auto-expand for textareas on load
+                    if (field.tagName.toLowerCase() === 'textarea') {
+                        autoExpand(field);
+                    }
+                }
+            });
+
+            // Prevent zooming on input focus for mobile
+            const inputs = document.querySelectorAll('input, textarea');
+            inputs.forEach(input => {
+                input.addEventListener('focus', function() {
+                    document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+                });
+                input.addEventListener('blur', function() {
+                    document.querySelector('meta[name="viewport"]').setAttribute('content', 'width=device-width, initial-scale=1.0');
+                });
             });
         };
 
         function saveData() {
             inputFields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
-                localStorage.setItem(fieldId, field.value);
+                if (field) {
+                    localStorage.setItem(fieldId, field.value);
+                }
             });
         }
 
@@ -260,8 +283,15 @@
         function clearAllData() {
             inputFields.forEach(fieldId => {
                 const field = document.getElementById(fieldId);
-                field.value = '';
-                localStorage.removeItem(fieldId);
+                if (field) {
+                    field.value = '';
+                    localStorage.removeItem(fieldId);
+                    
+                    // Reset textarea height
+                    if (field.tagName.toLowerCase() === 'textarea') {
+                        field.style.height = '100px';
+                    }
+                }
             });
             showNotification("تم مسح جميع البيانات");
         }
@@ -274,11 +304,17 @@
                 notification.style.display = 'none';
             }, 2000);
         }
-		function autoExpand(field) {
-    field.style.height = 'inherit'; // إعادة تعيين الطول الافتراضي.
-    field.style.height = `${field.scrollHeight}px`; // ضبط الطول حسب المحتوى.
-}
 
+        function autoExpand(field) {
+            // Reset height to auto
+            field.style.height = 'auto';
+            
+            // Calculate the scrollHeight
+            const scrollHeight = field.scrollHeight;
+            
+            // Set the height to the scroll height, but not more than max-height
+            field.style.height = `${Math.min(scrollHeight, 500)}px`;
+        }
     </script>
 </body>
 </html>
