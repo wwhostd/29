@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>COOBs Report</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #364452;
+            direction: rtl;
+            text-align: right;
+            padding: 0;
+            margin: 0;
+        }
+        .container {
+            border-radius: 6px;
+            max-width: 1000px;
+            margin: 40px auto;
+            background-color: #4d6074;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #bfcbd8;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 30px;
+        }
+        h2 {
+            color: #bfcbd8;
+            margin-bottom: 20px;
+            font-size: 22px;
+        }
+        table {
+            width: 100%;
+            margin: 20px 0;
+            border-collapse: collapse;
+        }
+        table th, table td {
+            padding: 15px;
+            text-align: right;
+            border: 2px solid #b8b5b5;
+            font-size: 16px;
+        }
+        table th {
+            border-radius: 6px;
+            background-color: #93a4b6;
+            color: #34495e;
+        }
+        input[type="number"], input[type="text"] {
+            width: calc(100% - 40px);
+            padding: 12px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            background-color: #bac1c9;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+        .btn-copy {
+            background-color: #3498db;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+        .btn-copy:hover {
+            background-color: #2980b9;
+        }
+        .btn-clear {
+            background-color: #e74c3c;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+        }
+        .btn-clear:hover {
+            background-color: #c0392b;
+        }
+        #notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: #27ae60;
+            color: white;
+            padding: 12px;
+            border-radius: 6px;
+            display: none;
+            font-size: 16px;
+            z-index: 1000;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        .section-title {
+            border-bottom: 2px solid #ecf0f1;
+            padding-bottom: 8px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div id="notification"></div>
+    <div class="container">
+        <h1>موقع تقارير الركاب والقطار</h1>
+
+        <div class="section-title">
+            <h2> عدد الركاب الي طلعو من مدن مختلفة </h2>
+        </div>
+        <table>
+            <tr>
+                <th>المدينة</th>
+                <th>عدد الركاب</th>
+            </tr>
+            <tr>
+                <td>المدينة</td>
+                <td><input type="number" id="city" placeholder="أدخل العدد" oninput="saveData()"></td>
+            </tr>
+            <tr>
+                <td>مدينة الملك عبدالله الاقتصادية</td>
+                <td><input type="number" id="kingAbdullah" placeholder="أدخل العدد" oninput="saveData()"></td>
+            </tr>
+            <tr>
+                <td>جدة</td>
+                <td><input type="number" id="jeddah" placeholder="أدخل العدد" oninput="saveData()"></td>
+            </tr>
+            <tr>
+                <td>جدة المطار</td>
+                <td><input type="number" id="jeddahAirport" placeholder="أدخل العدد" oninput="saveData()"></td>
+            </tr>
+            <tr>
+                <td>مكة</td>
+                <td><input type="number" id="makkah" placeholder="أدخل العدد" oninput="saveData()"></td>
+            </tr>
+        </table>
+
+        <div class="section-title">
+            <h2>ريبورتات القطار</h2>
+        </div>
+        <table>
+            <tr>
+                <th>التقرير</th>
+                <th>تفاصيل التقرير</th>
+                <th>نسخ</th>
+            </tr>
+            <tr>
+                <td>ريبورت تجهيز القطار</td>
+                <td><input type="text" id="trainPreparation" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><button class="btn-copy" onclick="copyText('trainPreparation')">نسخ</button></td>
+            </tr>
+            <tr>
+                <td>ريبورت المشاكل التقنية</td>
+                <td><input type="text" id="techProblems" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><button class="btn-copy" onclick="copyText('techProblems')">نسخ</button></td>
+            </tr>
+            <tr>
+                <td>ريبورت المضيفين</td>
+                <td><input type="text" id="hostReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><button class="btn-copy" onclick="copyText('hostReport')">نسخ</button></td>
+            </tr>
+            <tr>
+                <td>ريبورت osr</td>
+                <td><input type="text" id="osrReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><button class="btn-copy" onclick="copyText('osrReport')">نسخ</button></td>
+            </tr>
+            <tr>
+                <td>ريبورت تشيك اوت للرحلة</td>
+                <td><input type="text" id="checkoutReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><button class="btn-copy" onclick="copyText('checkoutReport')">نسخ</button></td>
+            </tr>
+            <tr>
+                <td>ريبورت الأغراض المفقودة</td>
+                <td><input type="text" id="lostItemsReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><button class="btn-copy" onclick="copyText('lostItemsReport')">نسخ</button></td>
+            </tr>
+            <tr>
+                <td>ريبورت سبيشل للمشاكل</td>
+                <td><input type="text" id="specialReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><button class="btn-copy" onclick="copyText('specialReport')">نسخ</button></td>
+            </tr>
+        </table>
+
+        <div style="text-align: center; margin-top: 20px;">
+            <button class="btn-clear" onclick="clearAllData()">مسح كل البيانات</button>
+        </div>
+    </div>
+
+    <script>
+        const inputFields = [
+            'city', 'kingAbdullah', 'jeddah', 'jeddahAirport', 'makkah',
+            'trainPreparation', 'techProblems', 'hostReport', 'osrReport', 
+            'checkoutReport', 'lostItemsReport', 'specialReport'
+        ];
+
+        window.onload = function() {
+            inputFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                field.value = localStorage.getItem(fieldId) || '';
+            });
+        };
+
+        function saveData() {
+            inputFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                localStorage.setItem(fieldId, field.value);
+            });
+        }
+
+        function copyText(id) {
+            var copyText = document.getElementById(id);
+            copyText.select();
+            document.execCommand("copy");
+            showNotification("تم نسخ النص: " + copyText.value);
+        }
+
+        function clearAllData() {
+            inputFields.forEach(fieldId => {
+                const field = document.getElementById(fieldId);
+                field.value = '';
+                localStorage.removeItem(fieldId);
+            });
+            showNotification("تم مسح جميع البيانات");
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.display = 'block';
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
