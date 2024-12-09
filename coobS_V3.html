@@ -40,7 +40,15 @@
             border-collapse: collapse;
         }
         table th, table td {
+            color: #bfcbd8;
             padding: 15px;
+            text-align: right;
+            border: 2px solid #b8b5b5;
+            font-size: 16px;
+        }
+        textarea {
+            color: #000000;
+            border-radius: 6px;
             text-align: right;
             border: 2px solid #b8b5b5;
             font-size: 16px;
@@ -50,25 +58,7 @@
             background-color: #93a4b6;
             color: #34495e;
         }
-        textarea {
-            width: calc(100% - 40px);
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 6px;
-            background-color: #bac1c9;
-            box-sizing: border-box;
-            font-size: 16px;
-            min-height: 100px;
-            max-height: 500px; /* Limit maximum height */
-            resize: none; /* Disable manual resize */
-            overflow-wrap: break-word; /* Ensure text wraps */
-            word-wrap: break-word; /* Fallback for older browsers */
-            white-space: pre-wrap; /* Preserve line breaks and wrap */
-            overflow-y: auto; /* Add vertical scrollbar if needed */
-            line-height: 1.5;
-        }
-        .btn-copy, .btn-translate {
+        .btn-copy {
             background-color: #3498db;
             color: white;
             padding: 12px 20px;
@@ -80,8 +70,23 @@
             width: 100%; /* Make buttons full width on mobile */
             margin-top: 5px;
         }
-        .btn-copy:hover, .btn-translate:hover {
+         .btn-translate {
+            background-color: #1adb71;
+            color: white;
+            padding: 12px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 16px;
+            width: 100%; /* Make buttons full width on mobile */
+            margin-top: 5px;
+        }
+        .btn-copy:hover {
             background-color: #2980b9;
+        }
+        .btn-translate:hover {
+            background-color: #1adb71;
         }
         .btn-clear {
             background-color: #e74c3c;
@@ -125,16 +130,13 @@
                 padding: 10px;
                 font-size: 14px;
             }
-            textarea {
-                font-size: 16px; /* Prevent automatic zoom on iOS */
-            }
         }
     </style>
 </head>
 <body>
     <div id="notification"></div>
     <div class="container">
-        <h1>2موقع تقارير الركاب والقطار</h1>
+        <h1>موقع تقارير الركاب والقطار</h1>
 
         <div class="section-title">
             <h2>عدد الركاب الي طلعو من مدن مختلفة</h2>
@@ -146,23 +148,23 @@
             </tr>
             <tr>
                 <td>المدينة</td>
-                <td><input type="number" id="city" placeholder="أدخل العدد" oninput="saveData()"></td>
+                <td><textarea type="number" id="city" placeholder="أدخل العدد" oninput="saveData()"></textarea></td>
             </tr>
             <tr>
                 <td>مدينة الملك عبدالله الاقتصادية</td>
-                <td><input type="number" id="kingAbdullah" placeholder="أدخل العدد" oninput="saveData()"></td>
+                <td><textarea type="number" id="kingAbdullah" placeholder="أدخل العدد" oninput="saveData()"></textarea></td>
             </tr>
             <tr>
                 <td>جدة</td>
-                <td><input type="number" id="jeddah" placeholder="أدخل العدد" oninput="saveData()"></td>
+                <td><textarea type="number" id="jeddah" placeholder="أدخل العدد" oninput="saveData()"></textarea></td>
             </tr>
             <tr>
                 <td>جدة المطار</td>
-                <td><input type="number" id="jeddahAirport" placeholder="أدخل العدد" oninput="saveData()"></td>
+                <td><textarea type="number" id="jeddahAirport" placeholder="أدخل العدد" oninput="saveData()"></textarea></td>
             </tr>
             <tr>
                 <td>مكة</td>
-                <td><input type="number" id="makkah" placeholder="أدخل العدد" oninput="saveData()"></td>
+                <td><textarea type="number" id="makkah" placeholder="أدخل العدد" oninput="saveData()"></textarea></td>
             </tr>
         </table>
 
