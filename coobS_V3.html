@@ -49,7 +49,7 @@
             background-color: #93a4b6;
             color: #34495e;
         }
-        input[type="number"], input[type="text"] {
+        textarea {
             width: calc(100% - 40px);
             padding: 12px;
             margin: 10px 0;
@@ -58,6 +58,8 @@
             background-color: #bac1c9;
             box-sizing: border-box;
             font-size: 16px;
+            min-height: 80px;
+            resize: vertical; /* السماح بتغيير الحجم عمودياً */
         }
         .btn-copy {
             background-color: #3498db;
@@ -121,10 +123,10 @@
                 padding: 10px;
                 font-size: 14px;
             }
-            input[type="number"], input[type="text"] {
-                width: calc(100% - 30px);
-                padding: 10px;
+            textarea {
                 font-size: 14px;
+                padding: 10px;
+                min-height: 60px;
             }
             .btn-copy, .btn-clear {
                 width: 100%;
@@ -143,7 +145,7 @@
             table th, table td {
                 font-size: 12px;
             }
-            input[type="number"], input[type="text"] {
+            textarea {
                 font-size: 12px;
             }
         }
@@ -152,7 +154,7 @@
 <body>
     <div id="notification"></div>
     <div class="container">
-        <h1>1موقع تقارير الركاب والقطار</h1>
+        <h1>2موقع تقارير الركاب والقطار</h1>
 
         <div class="section-title">
             <h2>عدد الركاب الي طلعو من مدن مختلفة</h2>
@@ -195,37 +197,37 @@
             </tr>
             <tr>
                 <td>ريبورت تجهيز القطار</td>
-                <td><input type="text" id="trainPreparation" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><textarea id="trainPreparation" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('trainPreparation')">نسخ</button></td>
             </tr>
             <tr>
                 <td>ريبورت المشاكل التقنية</td>
-                <td><input type="text" id="techProblems" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><textarea id="techProblems" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('techProblems')">نسخ</button></td>
             </tr>
             <tr>
                 <td>ريبورت المضيفين</td>
-                <td><input type="text" id="hostReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><textarea id="hostReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('hostReport')">نسخ</button></td>
             </tr>
             <tr>
                 <td>ريبورت osr</td>
-                <td><input type="text" id="osrReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><textarea id="osrReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('osrReport')">نسخ</button></td>
             </tr>
             <tr>
                 <td>ريبورت تشيك اوت للرحلة</td>
-                <td><input type="text" id="checkoutReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><textarea id="checkoutReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('checkoutReport')">نسخ</button></td>
             </tr>
             <tr>
                 <td>ريبورت الأغراض المفقودة</td>
-                <td><input type="text" id="lostItemsReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><textarea id="lostItemsReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('lostItemsReport')">نسخ</button></td>
             </tr>
             <tr>
                 <td>ريبورت سبيشل للمشاكل</td>
-                <td><input type="text" id="specialReport" placeholder="أدخل التفاصيل" oninput="saveData()"></td>
+                <td><textarea id="specialReport" placeholder="أدخل التفاصيل" oninput="saveData()"></textarea></td>
                 <td><button class="btn-copy" onclick="copyText('specialReport')">نسخ</button></td>
             </tr>
         </table>
