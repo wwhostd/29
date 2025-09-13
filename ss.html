@@ -13,7 +13,6 @@
         }
 
         body {
-            background: linear-gradient(135deg, 
                 rgba(30, 40, 60, 0.9) 0%,
                 rgba(20, 30, 45, 0.95) 50%,
                 rgba(15, 25, 35, 0.98) 100%
@@ -29,7 +28,6 @@
             left: 0;
             right: 0;
             height: 28px;
-            background: rgba(0, 0, 0, 0.9);
             display: flex;
             align-items: center;
             padding: 0 12px;
@@ -60,7 +58,6 @@
             left: 8px;
             width: 20px;
             height: 300px;
-            background: linear-gradient(180deg, 
                 rgba(20, 20, 20, 0.92) 0%,
                 rgba(30, 30, 30, 0.95) 50%,
                 rgba(20, 20, 20, 0.92) 100%
@@ -76,7 +73,6 @@
         .scrollbar-thumb {
             width: 14px;
             height: 40px;
-            background: linear-gradient(180deg, #ff9500, #ff7f00);
             border-radius: 7px;
             border: 1px solid rgba(255, 140, 0, 0.6);
             box-shadow: 0 0 10px rgba(255, 140, 0, 0.4);
@@ -90,7 +86,6 @@
             top: 60px;
             left: 40px;
             width: 380px;
-            background: linear-gradient(145deg, 
                 rgba(0, 0, 0, 0.96) 0%,
                 rgba(15, 15, 15, 0.92) 100%
             );
@@ -103,7 +98,6 @@
         }
 
         .menu-header {
-            background: linear-gradient(135deg, #ff8c00, #ff7f00);
             padding: 12px 16px;
             font-size: 14px;
             color: #ffffff;
@@ -114,7 +108,6 @@
 
         .tabs-container {
             position: relative;
-            background: rgba(25, 25, 25, 0.95);
             border-bottom: 1px solid rgba(255, 140, 0, 0.3);
             height: 60px;
             display: flex;
@@ -128,7 +121,6 @@
             transform: translateY(-50%);
             width: 30px;
             height: 30px;
-            background: rgba(255, 140, 0, 0.8);
             border: none;
             border-radius: 50%;
             color: white;
@@ -160,7 +152,6 @@
             flex: 1;
             padding: 10px 8px;
             text-align: center;
-            background: rgba(40, 40, 40, 0.8);
             color: #cccccc;
             font-size: 12px;
             font-weight: 600;
@@ -170,7 +161,6 @@
         }
 
         .tab-btn.active {
-            background: #ff8c00;
             color: #ffffff;
             transform: translateY(-1px);
             box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
@@ -189,17 +179,14 @@
             width: 6px;
             height: 6px;
             border-radius: 50%;
-            background: rgba(255, 140, 0, 0.3);
             transition: all 0.3s ease;
         }
 
         .tab-group-dot.active {
-            background: rgba(255, 140, 0, 1);
             transform: scale(1.2);
         }
 
         .content-area {
-            background: rgba(20, 20, 20, 0.95);
             height: 300px;
             position: relative;
             overflow: hidden;
@@ -233,7 +220,6 @@
             margin: 8px 16px 4px 16px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            background: rgba(255, 140, 0, 0.1);
             padding: 4px 8px;
             border-radius: 4px;
             height: 28px;
@@ -251,13 +237,11 @@
         }
 
         .menu-item.highlighted {
-            background: linear-gradient(90deg, rgba(255, 140, 0, 0.3), rgba(255, 140, 0, 0.1));
             border-left: 3px solid #ff8c00;
             transform: translateX(2px);
         }
 
         .menu-item.toggle-active {
-            background: linear-gradient(90deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.05));
             border-left: 2px solid #4CAF50;
         }
 
@@ -283,14 +267,9 @@
         .toggle-switch {
             width: 32px;
             height: 18px;
-            background: #666;
             border-radius: 9px;
             position: relative;
             transition: all 0.3s ease;
-        }
-
-        .toggle-switch.active {
-            background: #4CAF50;
         }
 
         .toggle-switch::after {
@@ -298,7 +277,6 @@
             position: absolute;
             width: 14px;
             height: 14px;
-            background: #fff;
             border-radius: 50%;
             top: 2px;
             left: 2px;
@@ -310,7 +288,6 @@
         }
 
         .action-btn {
-            background: transparent;
             border: 1px solid #ff8c00;
             color: #ff8c00;
             padding: 3px 8px;
@@ -321,13 +298,11 @@
         }
 
         .action-btn.highlighted {
-            background: #ff8c00;
             color: #fff;
             transform: scale(1.05);
         }
 
         .input-field {
-            background: rgba(40, 40, 40, 0.9);
             border: 1px solid rgba(255, 140, 0, 0.3);
             color: #fff;
             padding: 4px 8px;
@@ -339,14 +314,12 @@
 
         .input-field.highlighted {
             border-color: #ff8c00;
-            background: rgba(255, 140, 0, 0.1);
             box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
         }
 
         .input-field:focus {
             outline: none;
             border-color: #ff8c00;
-            background: rgba(255, 140, 0, 0.15);
             box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
         }
 
@@ -361,30 +334,25 @@
         .slider {
             flex: 1;
             height: 3px;
-            background: rgba(255, 140, 0, 0.3);
             border-radius: 2px;
             position: relative;
         }
 
         .slider.highlighted {
-            background: rgba(255, 140, 0, 0.5);
             box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
         }
 
         .slider-active .slider {
-            background: rgba(255, 140, 0, 0.7);
             box-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
             border: 1px solid #ff8c00;
         }
 
         .slider-active .slider-thumb {
-            background: #ffffff;
             box-shadow: 0 0 8px rgba(255, 140, 0, 0.6);
         }
 
         .slider-track {
             height: 100%;
-            background: #ff8c00;
             border-radius: 2px;
             width: 50%;
             position: relative;
@@ -393,7 +361,6 @@
         .slider-thumb {
             width: 10px;
             height: 10px;
-            background: #ff8c00;
             border-radius: 50%;
             position: absolute;
             right: -5px;
@@ -409,7 +376,6 @@
         }
 
         .dropdown {
-            background: rgba(40, 40, 40, 0.9);
             border: 1px solid rgba(255, 140, 0, 0.3);
             color: #fff;
             padding: 4px 6px;
@@ -421,7 +387,6 @@
 
         .dropdown.highlighted {
             border-color: #ff8c00;
-            background: rgba(255, 140, 0, 0.1);
         }
 
         .input-mode-overlay {
@@ -451,7 +416,6 @@
             position: fixed;
             top: 40px;
             right: 20px;
-            background: rgba(255, 140, 0, 0.95);
             color: #fff;
             padding: 8px 16px;
             border-radius: 4px;
@@ -480,7 +444,6 @@
         }
 
         .vehicle-spawner {
-            background: linear-gradient(90deg, rgba(76, 175, 80, 0.15), transparent);
             padding: 12px;
             margin: 8px;
             border-radius: 6px;
@@ -502,7 +465,7 @@
         }
 
         .spawn-btn {
-            background: linear-gradient(135deg, #4CAF50, #45a049);
+
             border: none;
             color: white;
             padding: 6px 12px;
