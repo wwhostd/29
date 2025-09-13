@@ -1,1 +1,1657 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FiveM ALBS Menu</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
 
+        body {
+            background: transparent;
+            min-height: 100vh;
+            overflow: hidden;
+            color: #ffffff;
+        }
+
+        .stats-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.9);
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 11px;
+            font-weight: 500;
+            z-index: 2000;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.2);
+        }
+
+        .stat-item {
+            margin-right: 20px;
+            color: #e0e0e0;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            margin-right: 6px;
+        }
+
+        .stat-value {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .external-scrollbar {
+            display: none;
+        }
+
+        .scrollbar-thumb {
+            width: 14px;
+            height: 40px;
+            background: linear-gradient(180deg, #ff9500, #ff7f00);
+            border-radius: 7px;
+            border: 1px solid rgba(255, 140, 0, 0.6);
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.4);
+            transition: all 0.2s ease;
+            position: absolute;
+            top: 0;
+        }
+
+        .fma-menu {
+            position: fixed;
+            top: 50%;
+            left: 40px;
+            transform: translateY(-50%);
+            width: 380px;
+            background: linear-gradient(145deg, 
+                rgba(0, 0, 0, 0.96) 0%,
+                rgba(15, 15, 15, 0.92) 100%
+            );
+            border: 2px solid #ff8c00;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(255, 140, 0, 0.4);
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            overflow: hidden;
+        }
+
+        .menu-header {
+            background: linear-gradient(135deg, #ff8c00, #ff7f00);
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: 700;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+
+        .tabs-container {
+            position: relative;
+            background: rgba(25, 25, 25, 0.95);
+            border-bottom: 1px solid rgba(255, 140, 0, 0.3);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+        }
+
+        .tab-nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 140, 0, 0.8);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .tab-nav-left {
+            left: 5px;
+        }
+
+        .tab-nav-right {
+            right: 5px;
+        }
+
+        .tabs-display {
+            display: flex;
+            flex: 1;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            text-align: center;
+            background: rgba(40, 40, 40, 0.8);
+            color: #cccccc;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 140, 0, 0.2);
+        }
+
+        .tab-btn.active {
+            background: #ff8c00;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+        }
+
+        .tab-group-indicator {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+        }
+
+        .tab-group-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 140, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .tab-group-dot.active {
+            background: rgba(255, 140, 0, 1);
+            transform: scale(1.2);
+        }
+
+        .content-area {
+            background: rgba(20, 20, 20, 0.95);
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .items-viewport {
+            height: 300px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .items-container {
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .section-title {
+            font-size: 11px;
+            font-weight: 700;
+            color: #ff8c00;
+            margin: 8px 16px 4px 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(255, 140, 0, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            height: 28px;
+        }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 8px 16px;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
+            transition: all 0.2s ease;
+            height: 36px;
+            position: relative;
+        }
+
+        .menu-item.highlighted {
+            background: linear-gradient(90deg, rgba(255, 140, 0, 0.3), rgba(255, 140, 0, 0.1));
+            border-left: 3px solid #ff8c00;
+            transform: translateX(2px);
+        }
+
+        .menu-item.toggle-active {
+            background: linear-gradient(90deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.05));
+            border-left: 2px solid #4CAF50;
+        }
+
+        .item-left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .item-name {
+            color: #ffffff;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .item-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .toggle-switch {
+            width: 32px;
+            height: 18px;
+            background: #666;
+            border-radius: 9px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #4CAF50;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(14px);
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid #ff8c00;
+            color: #ff8c00;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .action-btn.highlighted {
+            background: #ff8c00;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .input-field {
+            background: rgba(40, 40, 40, 0.9);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            width: 100px;
+            transition: all 0.2s ease;
+        }
+
+        .input-field.highlighted {
+            border-color: #ff8c00;
+            background: rgba(255, 140, 0, 0.1);
+            box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #ff8c00;
+            background: rgba(255, 140, 0, 0.15);
+            box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            max-width: 120px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 140, 0, 0.3);
+            border-radius: 2px;
+            position: relative;
+        }
+
+        .slider.highlighted {
+            background: rgba(255, 140, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
+        }
+
+        .slider-active .slider {
+            background: rgba(255, 140, 0, 0.7);
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
+            border: 1px solid #ff8c00;
+        }
+
+        .slider-active .slider-thumb {
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 140, 0, 0.6);
+        }
+
+        .slider-track {
+            height: 100%;
+            background: #ff8c00;
+            border-radius: 2px;
+            width: 50%;
+            position: relative;
+        }
+
+        .slider-thumb {
+            width: 10px;
+            height: 10px;
+            background: #ff8c00;
+            border-radius: 50%;
+            position: absolute;
+            right: -5px;
+            top: -3px;
+        }
+
+        .slider-value {
+            color: #ff8c00;
+            font-size: 9px;
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .dropdown {
+            background: rgba(40, 40, 40, 0.9);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            color: #fff;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            min-width: 80px;
+            transition: all 0.2s ease;
+        }
+
+        .dropdown.highlighted {
+            border-color: #ff8c00;
+            background: rgba(255, 140, 0, 0.1);
+        }
+
+        .input-mode-overlay {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            background: rgba(255, 140, 0, 0.9);
+            color: white;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 600;
+            display: none;
+        }
+
+        .input-mode-overlay.active {
+            display: block;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .notification {
+            position: fixed;
+            top: 40px;
+            right: 20px;
+            background: rgba(255, 140, 0, 0.95);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            z-index: 3000;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .fma-menu.hidden {
+            opacity: 0;
+            transform: translateX(-100%);
+            transition: all 0.4s ease;
+        }
+
+        .external-scrollbar.hidden {
+            opacity: 0;
+            transform: translateX(-100%);
+            transition: all 0.4s ease;
+        }
+
+        .vehicle-spawner {
+            background: linear-gradient(90deg, rgba(76, 175, 80, 0.15), transparent);
+            padding: 12px;
+            margin: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .spawner-title {
+            color: #4CAF50;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .spawn-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .spawn-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .spawn-btn.highlighted {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .controls-info {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-label">FPS:</span>
+            <span class="stat-value">84</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">Ping:</span>
+            <span class="stat-value">91ms</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">PL:</span>
+            <span class="stat-value">4%</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">CPU:</span>
+            <span class="stat-value">50%</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">GPU:</span>
+            <span class="stat-value">45%</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">VRAM:</span>
+            <span class="stat-value">3.2/5.8/15.7 GB</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">ALBS6AWISI</span>
+        </div>
+    </div>
+
+    <div class="external-scrollbar" id="scrollbar">
+        <div class="scrollbar-thumb" id="scrollbarThumb"></div>
+    </div>
+
+    <div class="controls-info">
+        <div><strong>Controls:</strong></div>
+        <div>Q/E: Switch Tabs</div>
+        <div>↑/↓: Navigate Items</div>
+        <div>Enter: Activate</div>
+        <div>ESC: Close</div>
+    </div>
+
+    <div class="fma-menu" id="menu">
+        <div class="menu-header">ALBS6AWISI V1.0</div>
+
+        <div class="tabs-container">
+            <button class="tab-nav-arrow tab-nav-left" id="prevGroup">‹</button>
+            <button class="tab-nav-arrow tab-nav-right" id="nextGroup">›</button>
+            
+            <div class="tabs-display" id="tabsDisplay">
+                <div class="tab-btn active">Main</div>
+                <div class="tab-btn">Weapon</div>
+                <div class="tab-btn">Money</div>
+            </div>
+            
+            <div class="tab-group-indicator" id="tabIndicator">
+                <div class="tab-group-dot active"></div>
+                <div class="tab-group-dot"></div>
+                <div class="tab-group-dot"></div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Tab 1: Main -->
+            <div class="tab-content active" data-tab="0">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">CORE FUNCTIONS</div>
+                        
+                        <div class="menu-item" data-type="button" data-action="jailbreak">
+                            <div class="item-left">
+                                <span class="item-name">Jail Break</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Execute</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="toggle" data-action="infinite-run">
+                            <div class="item-left">
+                                <span class="item-name">Infinite Run</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="toggle" data-action="trigger-bot">
+                            <div class="item-left">
+                                <span class="item-name">Trigger Bot</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="toggle" data-action="clean-exit">
+                            <div class="item-left">
+                                <span class="item-name">Clean Exit on H</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">PLAYER STATUS</div>
+
+                        <div class="menu-item" data-type="button" data-action="food-drink">
+                            <div class="item-left">
+                                <span class="item-name">Food & Drink</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Fill</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="s6llh">
+                            <div class="item-left">
+                                <span class="item-name">S6llh</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Activate</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="handcuff">
+                            <div class="item-left">
+                                <span class="item-name">Handcuff</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Activate</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="back-from-hell">
+                            <div class="item-left">
+                                <span class="item-name">Back From Hell</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Execute</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="toggle" data-action="protection-helmet">
+                            <div class="item-left">
+                                <span class="item-name">Protection Helmet</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Weapon -->
+            <div class="tab-content" data-tab="1">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">STANDARD WEAPONS</div>
+                        
+                        <div class="menu-item" data-type="button" data-action="get-combat-pdw">
+                            <div class="item-left">
+                                <span class="item-name">Combat PDW</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-revolver">
+                            <div class="item-left">
+                                <span class="item-name">Revolver</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-pump-shotgun">
+                            <div class="item-left">
+                                <span class="item-name">Pump Shotgun</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-micro-smg">
+                            <div class="item-left">
+                                <span class="item-name">Micro SMG</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-switchblade">
+                            <div class="item-left">
+                                <span class="item-name">Switchblade</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">DEV 2 WEAPONS</div>
+
+                        <div class="menu-item" data-type="button" data-action="get-micro-smg-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Micro SMG DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-combat-pdw-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Combat PDW DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-revolver-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Revolver DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-pump-shotgun-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Pump Shotgun DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-switchblade-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Switchblade DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">WEAPON UTILITIES</div>
+
+                        <div class="menu-item" data-type="button" data-action="add-ammo">
+                            <div class="item-left">
+                                <span class="item-name">Add Ammo</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Add</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="weapon-license">
+                            <div class="item-left">
+                                <span class="item-name">Weapon License</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">WEAPON REMOVAL</div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-pdw">
+                            <div class="item-left">
+                                <span class="item-name">Remove PDW</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-revolver">
+                            <div class="item-left">
+                                <span class="item-name">Remove Revolver</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-micro-smg">
+                            <div class="item-left">
+                                <span class="item-name">Remove Micro SMG</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-switchblade">
+                            <div class="item-left">
+                                <span class="item-name">Remove Switchblade</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-shotgun">
+                            <div class="item-left">
+                                <span class="item-name">Remove Shotgun</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Money -->
+            <div class="tab-content" data-tab="2">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">MONEY CONTROL</div>
+                        
+                        <div class="menu-item" data-type="slider" data-action="money-amount">
+                            <div class="item-left">
+                                <span class="item-name">Amount (K)</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="slider-container">
+                                    <div class="slider">
+                                        <div class="slider-track" style="width: 50%;">
+                                            <div class="slider-thumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="slider-value">150K</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="withdraw-money">
+                            <div class="item-left">
+                                <span class="item-name">Withdraw Black Money</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Withdraw</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">AUTO LOOPS</div>
+
+                        <div class="menu-item" data-type="toggle" data-action="market-loop">
+                            <div class="item-left">
+                                <span class="item-name">Market Loop</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Item -->
+            <div class="tab-content" data-tab="3">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">VEHICLE TRUNK MANAGEMENT</div>
+                        
+                        <div class="menu-item" data-type="input" data-action="vehicle-plate">
+                            <div class="item-left">
+                                <span class="item-name">Vehicle Plate</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="Enter plate..." maxlength="10">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="dropdown" data-action="select-item">
+                            <div class="item-left">
+                                <span class="item-name">Select Item</span>
+                            </div>
+                            <div class="item-right">
+                                <select class="dropdown">
+                                    <option>C4</option>
+                                    <option>id_card_f</option>
+                                    <option>rob_lap</option>
+                                    <option>drill</option>
+                                    <option>adv_hacking</option>
+                                    <option>oxygen_mask</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="slider" data-action="item-amount">
+                            <div class="item-left">
+                                <span class="item-name">Amount</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="slider-container">
+                                    <div class="slider">
+                                        <div class="slider-track" style="width: 0.33%;">
+                                            <div class="slider-thumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="slider-value">1x</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="add-item-from-trunk">
+                            <div class="item-left">
+                                <span class="item-name">Add Item from Trunk</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Add</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">ITEM SHOP</div>
+
+                        <div class="menu-item" data-type="button" data-action="bulletproof-vest">
+                            <div class="item-left">
+                                <span class="item-name">Bulletproof Vest</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="repair-kit">
+                            <div class="item-left">
+                                <span class="item-name">Repair Kit</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="safety-helmet">
+                            <div class="item-left">
+                                <span class="item-name">Safety Helmet</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">DRUG MANAGEMENT</div>
+
+                        <div class="menu-item" data-type="slider" data-action="drug-amount">
+                            <div class="item-left">
+                                <span class="item-name">Drug Amount</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="slider-container">
+                                    <div class="slider">
+                                        <div class="slider-track" style="width: 21.67%;">
+                                            <div class="slider-thumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="slider-value">65x</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-opium">
+                            <div class="item-left">
+                                <span class="item-name">Get Opium</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-weed">
+                            <div class="item-left">
+                                <span class="item-name">Get Weed</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Vehicle -->
+            <div class="tab-content" data-tab="4">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">GARAGE MANAGEMENT</div>
+                        
+                        <div class="menu-item" data-type="input" data-action="garage-plate">
+                            <div class="item-left">
+                                <span class="item-name">Vehicle Plate</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="e.g: JOX 885" maxlength="10">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="store-garage">
+                            <div class="item-left">
+                                <span class="item-name">Store in Garage</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Store</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">VEHICLE FEATURES</div>
+
+                        <div class="menu-item" data-type="toggle" data-action="seat-belt">
+                            <div class="item-left">
+                                <span class="item-name">Seat Belt</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="fill-fuel">
+                            <div class="item-left">
+                                <span class="item-name">Fill Fuel Tank</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Fill</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 6: Buy -->
+            <div class="tab-content" data-tab="5">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">BUY WEAPONS</div>
+                        
+                        <div class="menu-item" data-type="button" data-action="buy-micro-smg">
+                            <div class="item-left">
+                                <span class="item-name">Buy Micro SMG</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 7: Store -->
+            <div class="tab-content" data-tab="6">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">RESELL ITEM</div>
+                        
+                        <div class="menu-item" data-type="input" data-action="store-number">
+                            <div class="item-left">
+                                <span class="item-name">Store Number</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="number" class="input-field" placeholder="59" min="1" max="999">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="item-price">
+                            <div class="item-left">
+                                <span class="item-name">Item Price</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="number" class="input-field" placeholder="2000" min="0">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="item-code">
+                            <div class="item-left">
+                                <span class="item-name">Item Code</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="boxbig" maxlength="50">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="apply-resell">
+                            <div class="item-left">
+                                <span class="item-name">Apply Resell</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Apply</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">MAKE SHIPMENT</div>
+
+                        <div class="menu-item" data-type="input" data-action="shipment-store-number">
+                            <div class="item-left">
+                                <span class="item-name">Store Number</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="number" class="input-field" placeholder="59" min="1" max="999">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="shipment-item-code">
+                            <div class="item-left">
+                                <span class="item-name">Item Code</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="fixkit" maxlength="50">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="shipment-order-price">
+                            <div class="item-left">
+                                <span class="item-name">Order Price</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="number" class="input-field" placeholder="0" min="0">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="shipment-item-name">
+                            <div class="item-left">
+                                <span class="item-name">Item Name</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="عدة تصليح" maxlength="100">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="slider" data-action="shipment-amount">
+                            <div class="item-left">
+                                <span class="item-name">Shipment Amount</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="slider-container">
+                                    <div class="slider">
+                                        <div class="slider-track" style="width: 0.33%;">
+                                            <div class="slider-thumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="slider-value">1x</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="create-shipment">
+                            <div class="item-left">
+                                <span class="item-name">Create Shipment</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Create</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 8: Trol -->
+            <div class="tab-content" data-tab="7">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">VEHICLE SPAWNER</div>
+                        
+                        <div class="vehicle-spawner">
+                            <div class="spawner-title">SPAWN VEHICLE</div>
+                            
+                            <div class="spawn-inputs">
+                                <div class="menu-item" data-type="input" data-action="vehicle-code">
+                                    <div class="item-left">
+                                        <span class="item-name">Vehicle Code</span>
+                                    </div>
+                                    <div class="item-right">
+                                        <input type="text" class="input-field" placeholder="adder, t20..." maxlength="20">
+                                    </div>
+                                </div>
+                                
+                                <div class="menu-item" data-type="input" data-action="vehicle-new-plate">
+                                    <div class="item-left">
+                                        <span class="item-name">New Plate</span>
+                                    </div>
+                                    <div class="item-right">
+                                        <input type="text" class="input-field" placeholder="ABC 123" maxlength="8">
+                                    </div>
+                                </div>
+                                
+                                <div class="menu-item" data-type="button" data-action="spawn-vehicle">
+                                    <div class="item-left">
+                                        <span class="item-name">Spawn Vehicle</span>
+                                    </div>
+                                    <div class="item-right">
+                                        <div class="spawn-btn">Spawn</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-mode-overlay" id="inputMode">INPUT MODE</div>
+    </div>
+
+    <script>
+        // النظام الجديد - حل جذري لمشكلة السكرول
+        var menuState = {
+            visible: true,
+            currentTab: 0,
+            currentItem: 0,
+            inInputMode: false,
+            allTabs: ['Main', 'Weapon', 'Money', 'Item', 'Vehicle', 'Buy', 'Store', 'Trol'],
+            toggleStates: {},
+            sliderValues: {
+                'money-amount': 150,
+                'item-amount': 1,
+                'drug-amount': 65,
+                'shipment-amount': 1
+            }
+        };
+
+        // الحصول على جميع العناصر (العناوين + العناصر)
+        function getCurrentItems() {
+            var activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) return [];
+            return Array.from(activeTab.querySelectorAll('.section-title, .menu-item'));
+        }
+
+        // الحصول على العناصر القابلة للتحديد فقط
+        function getSelectableItems() {
+            var activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) return [];
+            return Array.from(activeTab.querySelectorAll('.menu-item'));
+        }
+
+        // تبديل التبويبات
+        function switchTab(direction) {
+            if (menuState.inInputMode) return;
+            
+            if (direction === 'left') {
+                menuState.currentTab = menuState.currentTab === 0 ? 7 : menuState.currentTab - 1;
+            } else {
+                menuState.currentTab = menuState.currentTab === 7 ? 0 : menuState.currentTab + 1;
+            }
+            
+            menuState.currentItem = 0;
+            updateDisplay();
+            showNotification('Tab: ' + menuState.allTabs[menuState.currentTab]);
+        }
+
+        // التنقل بين العناصر
+        function navigateItems(direction) {
+            if (menuState.inInputMode) return;
+            
+            var selectableItems = getSelectableItems();
+            if (selectableItems.length === 0) return;
+            
+            var allItems = getCurrentItems();
+            var currentSelectableIndex = -1;
+            var selectableCount = 0;
+            
+            // البحث عن موضع العنصر الحالي في القائمة القابلة للتحديد
+            for (var i = 0; i < allItems.length; i++) {
+                if (allItems[i].classList.contains('menu-item')) {
+                    if (i === menuState.currentItem) {
+                        currentSelectableIndex = selectableCount;
+                        break;
+                    }
+                    selectableCount++;
+                }
+            }
+            
+            // التنقل في القائمة القابلة للتحديد
+            if (direction === 'up' && currentSelectableIndex > 0) {
+                currentSelectableIndex--;
+            } else if (direction === 'down' && currentSelectableIndex < selectableItems.length - 1) {
+                currentSelectableIndex++;
+            }
+            
+            // البحث عن الموضع الجديد في القائمة الكاملة
+            selectableCount = 0;
+            for (var i = 0; i < allItems.length; i++) {
+                if (allItems[i].classList.contains('menu-item')) {
+                    if (selectableCount === currentSelectableIndex) {
+                        menuState.currentItem = i;
+                        break;
+                    }
+                    selectableCount++;
+                }
+            }
+            
+            updateDisplay();
+        }
+
+        // تحديث العرض
+        function updateDisplay() {
+            // إخفاء جميع التبويبات
+            document.querySelectorAll('.tab-content').forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            
+            // إظهار التبويب الحالي
+            var currentTab = document.querySelector('[data-tab="' + menuState.currentTab + '"]');
+            if (currentTab) {
+                currentTab.classList.add('active');
+            }
+            
+            // تحديث أزرار التبويبات
+            updateTabButtons();
+            
+            // تحديث العناصر
+            updateItems();
+            
+            // تحديث السكرول
+            updateScroll();
+        }
+
+        function updateTabButtons() {
+            var currentGroupIndex = Math.floor(menuState.currentTab / 3);
+            var tabButtons = document.querySelectorAll('.tab-btn');
+            var dots = document.querySelectorAll('.tab-group-dot');
+            
+            // تحديث النقاط
+            dots.forEach(function(dot, i) {
+                dot.classList.toggle('active', i === currentGroupIndex);
+            });
+            
+            // تحديث الأزرار
+            var startTab = currentGroupIndex * 3;
+            tabButtons.forEach(function(btn, i) {
+                var tabIndex = startTab + i;
+                if (tabIndex < menuState.allTabs.length) {
+                    btn.textContent = menuState.allTabs[tabIndex];
+                    btn.style.display = 'block';
+                    btn.classList.toggle('active', tabIndex === menuState.currentTab);
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+        }
+
+        function updateItems() {
+            // إزالة التحديدات
+            document.querySelectorAll('.menu-item').forEach(function(item) {
+                item.classList.remove('highlighted');
+                item.querySelectorAll('.action-btn, .toggle-switch, .input-field, .dropdown, .slider, .spawn-btn, .slider-container')
+                    .forEach(function(el) {
+                        el.classList.remove('highlighted');
+                    });
+            });
+            
+            // تحديد العنصر الحالي
+            var allItems = getCurrentItems();
+            if (allItems[menuState.currentItem] && allItems[menuState.currentItem].classList.contains('menu-item')) {
+                var item = allItems[menuState.currentItem];
+                item.classList.add('highlighted');
+                
+                item.querySelectorAll('.action-btn, .toggle-switch, .input-field, .dropdown, .slider, .spawn-btn, .slider-container')
+                    .forEach(function(el) {
+                        el.classList.add('highlighted');
+                    });
+            }
+            
+            // تحديث وضع الإدخال
+            var inputOverlay = document.getElementById('inputMode');
+            if (inputOverlay) {
+                inputOverlay.classList.toggle('active', menuState.inInputMode);
+            }
+        }
+
+        // النظام الجديد للسكرول - بسيط ومضمون
+        function updateScroll() {
+            var container = document.querySelector('.tab-content.active .items-container');
+            var thumb = document.getElementById('scrollbarThumb');
+            
+            if (!container || !thumb) return;
+            
+            var allItems = getCurrentItems();
+            if (allItems.length === 0) return;
+            
+            var currentElement = allItems[menuState.currentItem];
+            if (!currentElement) return;
+            
+            // حساب الارتفاع المطلوب للوصول للعنصر الحالي
+            var scrollY = 0;
+            var viewportHeight = 300; // ارتفاع النافذة المرئية
+            var itemHeight = 0;
+            
+            for (var i = 0; i <= menuState.currentItem; i++) {
+                if (allItems[i]) {
+                    if (allItems[i].classList.contains('section-title')) {
+                        itemHeight = 28;
+                    } else if (allItems[i].classList.contains('menu-item')) {
+                        itemHeight = 36;
+                    }
+                    
+                    if (i < menuState.currentItem) {
+                        scrollY += itemHeight;
+                    }
+                }
+            }
+            
+            // التأكد من أن العنصر مرئي في النافذة
+            var currentScrollY = Math.abs(parseFloat(container.style.transform.replace('translateY(', '').replace('px)', '')) || 0);
+            var targetScrollY = 0;
+            
+            // إذا كان العنصر تحت النافذة المرئية
+            if (scrollY + itemHeight > currentScrollY + viewportHeight) {
+                targetScrollY = scrollY + itemHeight - viewportHeight + 20;
+            }
+            // إذا كان العنصر فوق النافذة المرئية
+            else if (scrollY < currentScrollY) {
+                targetScrollY = Math.max(0, scrollY - 20);
+            }
+            // إذا كان العنصر مرئي، لا نحرك السكرول
+            else {
+                targetScrollY = currentScrollY;
+            }
+            
+            // تطبيق السكرول
+            container.style.transform = 'translateY(-' + targetScrollY + 'px)';
+            
+            // تحديث السكرول بار
+            var totalHeight = 0;
+            allItems.forEach(function(item) {
+                if (item.classList.contains('section-title')) {
+                    totalHeight += 28;
+                } else if (item.classList.contains('menu-item')) {
+                    totalHeight += 36;
+                }
+            });
+            
+            if (totalHeight > viewportHeight) {
+                var scrollPercent = targetScrollY / (totalHeight - viewportHeight);
+                var maxThumbTop = 254; // 300 - 40 (thumb height) - 6 (padding)
+                thumb.style.top = (scrollPercent * maxThumbTop) + 'px';
+            } else {
+                thumb.style.top = '0px';
+            }
+        }
+
+        // تحديث قيمة السلايدر
+        function updateSliderValue(action, value) {
+            menuState.sliderValues[action] = value;
+            var item = document.querySelector('[data-action="' + action + '"]');
+            if (item) {
+                var sliderTrack = item.querySelector('.slider-track');
+                var sliderValue = item.querySelector('.slider-value');
+                
+                if (sliderTrack && sliderValue) {
+                    var percentage = (value / 300) * 100;
+                    sliderTrack.style.width = percentage + '%';
+                    
+                    var suffix = '';
+                    if (action === 'money-amount') {
+                        suffix = 'K';
+                    } else {
+                        suffix = 'x';
+                    }
+                    sliderValue.textContent = value + suffix;
+                }
+            }
+        }
+
+        // التحكم في السلايدر
+        function handleSlider(action, direction) {
+            var currentValue = menuState.sliderValues[action] || 0;
+            var step = 1;
+            
+            if (action === 'money-amount') {
+                step = 10; // خطوات أكبر للمال
+            }
+            
+            if (direction === 'increase' && currentValue < 300) {
+                currentValue += step;
+            } else if (direction === 'decrease' && currentValue > 0) {
+                currentValue -= step;
+            }
+            
+            currentValue = Math.max(0, Math.min(300, currentValue));
+            updateSliderValue(action, currentValue);
+            showNotification(action + ': ' + currentValue);
+        }
+
+        // تفعيل العنصر
+        function activate() {
+            if (menuState.inInputMode) {
+                exitInputMode();
+                return;
+            }
+            
+            var allItems = getCurrentItems();
+            var item = allItems[menuState.currentItem];
+            if (!item || !item.classList.contains('menu-item')) return;
+            
+            var type = item.dataset.type;
+            var action = item.dataset.action;
+            
+            if (type === 'button') {
+                executeAction(action);
+            } else if (type === 'toggle') {
+                toggleAction(action, item);
+            } else if (type === 'input') {
+                enterInputMode(item);
+            } else if (type === 'dropdown') {
+                handleDropdown(item);
+            } else if (type === 'slider') {
+                showNotification('Use Left/Right arrows to adjust ' + action);
+            }
+        }
+
+        function executeAction(action) {
+            showNotification(action + ' executed!');
+        }
+
+        function toggleAction(action, item) {
+            menuState.toggleStates[action] = !menuState.toggleStates[action];
+            var toggle = item.querySelector('.toggle-switch');
+            
+            if (toggle) {
+                toggle.classList.toggle('active', menuState.toggleStates[action]);
+                item.classList.toggle('toggle-active', menuState.toggleStates[action]);
+            }
+            
+            showNotification(action + (menuState.toggleStates[action] ? ' ON' : ' OFF'));
+        }
+
+        function enterInputMode(item) {
+            var input = item.querySelector('input, select');
+            if (input) {
+                menuState.inInputMode = true;
+                input.focus();
+                updateDisplay();
+            }
+        }
+
+        function exitInputMode() {
+            menuState.inInputMode = false;
+            var focused = document.activeElement;
+            if (focused && focused.blur) {
+                focused.blur();
+            }
+            updateDisplay();
+        }
+
+        function handleDropdown(item) {
+            var select = item.querySelector('select');
+            if (select) {
+                var currentIndex = select.selectedIndex;
+                var newIndex = (currentIndex + 1) % select.options.length;
+                select.selectedIndex = newIndex;
+                showNotification('Selected: ' + select.options[newIndex].text);
+            }
+        }
+
+        function showNotification(message) {
+            var notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(function() {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 2000);
+        }
+
+        function toggleVisibility() {
+            menuState.visible = !menuState.visible;
+            var menuEl = document.getElementById('menu');
+            var scrollbarEl = document.getElementById('scrollbar');
+            
+            if (menuEl) menuEl.classList.toggle('hidden', !menuState.visible);
+            if (scrollbarEl) scrollbarEl.classList.toggle('hidden', !menuState.visible);
+            
+            showNotification(menuState.visible ? 'Menu Opened' : 'Menu Closed');
+        }
+
+        // الأحداث
+        document.onkeydown = function(e) {
+            e = e || window.event;
+            
+            if (e.keyCode === 45) { // Insert
+                e.preventDefault();
+                toggleVisibility();
+                return false;
+            }
+            
+            if (!menuState.visible) return true;
+            
+            if (menuState.inInputMode) {
+                if (e.keyCode === 27) { // Escape
+                    e.preventDefault();
+                    exitInputMode();
+                }
+                return true;
+            }
+            
+            e.preventDefault();
+            
+            if (e.keyCode === 81) { // Q
+                switchTab('left');
+            } else if (e.keyCode === 69) { // E
+                switchTab('right');
+            } else if (e.keyCode === 38) { // Arrow Up
+                navigateItems('up');
+            } else if (e.keyCode === 40) { // Arrow Down
+                navigateItems('down');
+            } else if (e.keyCode === 37) { // Left Arrow - decrease slider
+                var allItems = getCurrentItems();
+                var item = allItems[menuState.currentItem];
+                if (item && item.dataset.type === 'slider') {
+                    handleSlider(item.dataset.action, 'decrease');
+                }
+            } else if (e.keyCode === 39) { // Right Arrow - increase slider
+                var allItems = getCurrentItems();
+                var item = allItems[menuState.currentItem];
+                if (item && item.dataset.type === 'slider') {
+                    handleSlider(item.dataset.action, 'increase');
+                }
+            } else if (e.keyCode === 13 || e.keyCode === 32) { // Enter or Space
+                activate();
+            } else if (e.keyCode === 27) { // Escape
+                toggleVisibility();
+            }
+            
+            return false;
+        };
+
+        // التهيئة
+        // تهيئة قيم السلايدر الافتراضية
+        updateSliderValue('money-amount', 150);
+        updateSliderValue('item-amount', 1);
+        updateSliderValue('drug-amount', 65);
+        updateSliderValue('shipment-amount', 1);
+        
+        updateDisplay();
+        showNotification('ALBS Menu Ready - Q/E to switch tabs');
+    </script>
+</body>
+</html>
