@@ -3,811 +3,1673 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHAZE Menu - FiveM</title>
+    <title>FiveM ALBS Menu</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-        
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
 
         body {
-            font-family: 'Inter', sans-serif;
-            background: transparent;
+            background: linear-gradient(135deg, 
+                rgba(30, 40, 60, 0.9) 0%,
+                rgba(20, 30, 45, 0.95) 50%,
+                rgba(15, 25, 35, 0.98) 100%
+            );
+            min-height: 100vh;
             overflow: hidden;
-            height: 100vh;
-            width: 100vw;
-            position: relative;
+            color: #ffffff;
         }
 
-        .menu-container {
+        .stats-bar {
             position: fixed;
-            top: 20px;
-            right: 20px;
-            width: 320px;
-            background: linear-gradient(145deg, rgba(120, 50, 180, 0.95), rgba(80, 30, 120, 0.95));
-            border-radius: 12px;
-            backdrop-filter: blur(10px);
-            box-shadow: 0 8px 32px rgba(120, 50, 180, 0.3);
-            border: 1px solid rgba(120, 50, 180, 0.2);
-            overflow: hidden;
-            font-size: 14px;
-            max-height: 80vh;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 28px;
+            background: rgba(0, 0, 0, 0.9);
             display: flex;
-            flex-direction: column;
+            align-items: center;
+            padding: 0 12px;
+            font-size: 11px;
+            font-weight: 500;
+            z-index: 2000;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.2);
+        }
+
+        .stat-item {
+            margin-right: 20px;
+            color: #e0e0e0;
+        }
+
+        .stat-label {
+            color: #a0a0a0;
+            margin-right: 6px;
+        }
+
+        .stat-value {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .external-scrollbar {
+            position: fixed;
+            top: 185px;
+            left: 8px;
+            width: 20px;
+            height: 300px;
+            background: linear-gradient(180deg, 
+                rgba(20, 20, 20, 0.92) 0%,
+                rgba(30, 30, 30, 0.95) 50%,
+                rgba(20, 20, 20, 0.92) 100%
+            );
+            border-radius: 10px;
+            border: 1px solid rgba(255, 140, 0, 0.4);
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.25);
+            z-index: 1001;
+            backdrop-filter: blur(10px);
+            padding: 3px;
+        }
+
+        .scrollbar-thumb {
+            width: 14px;
+            height: 40px;
+            background: linear-gradient(180deg, #ff9500, #ff7f00);
+            border-radius: 7px;
+            border: 1px solid rgba(255, 140, 0, 0.6);
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.4);
+            transition: all 0.2s ease;
+            position: absolute;
+            top: 0;
+        }
+
+        .fma-menu {
+            position: fixed;
+            top: 60px;
+            left: 40px;
+            width: 380px;
+            background: linear-gradient(145deg, 
+                rgba(0, 0, 0, 0.96) 0%,
+                rgba(15, 15, 15, 0.92) 100%
+            );
+            border: 2px solid #ff8c00;
+            border-radius: 16px;
+            box-shadow: 0 0 30px rgba(255, 140, 0, 0.4);
+            z-index: 1000;
+            backdrop-filter: blur(15px);
+            overflow: hidden;
         }
 
         .menu-header {
-            background: linear-gradient(145deg, rgba(150, 70, 200, 0.3), rgba(100, 40, 140, 0.3));
-            padding: 15px 20px;
+            background: linear-gradient(135deg, #ff8c00, #ff7f00);
+            padding: 12px 16px;
+            font-size: 14px;
+            color: #ffffff;
+            font-weight: 700;
             text-align: center;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            letter-spacing: 1px;
+        }
+
+        .tabs-container {
+            position: relative;
+            background: rgba(25, 25, 25, 0.95);
+            border-bottom: 1px solid rgba(255, 140, 0, 0.3);
+            height: 60px;
+            display: flex;
+            align-items: center;
+            padding: 0 40px;
+        }
+
+        .tab-nav-arrow {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 30px;
+            height: 30px;
+            background: rgba(255, 140, 0, 0.8);
+            border: none;
+            border-radius: 50%;
+            color: white;
+            font-size: 14px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            transition: all 0.3s ease;
+        }
+
+        .tab-nav-left {
+            left: 5px;
+        }
+
+        .tab-nav-right {
+            right: 5px;
+        }
+
+        .tabs-display {
+            display: flex;
+            flex: 1;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px 8px;
+            text-align: center;
+            background: rgba(40, 40, 40, 0.8);
+            color: #cccccc;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 140, 0, 0.2);
+        }
+
+        .tab-btn.active {
+            background: #ff8c00;
+            color: #ffffff;
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px rgba(255, 140, 0, 0.3);
+        }
+
+        .tab-group-indicator {
+            position: absolute;
+            bottom: 5px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 4px;
+        }
+
+        .tab-group-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: rgba(255, 140, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .tab-group-dot.active {
+            background: rgba(255, 140, 0, 1);
+            transform: scale(1.2);
+        }
+
+        .content-area {
+            background: rgba(20, 20, 20, 0.95);
+            height: 300px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .tab-content {
+            display: none;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .items-viewport {
+            height: 300px;
+            overflow: hidden;
             position: relative;
         }
 
-        .phaze-logo {
-            font-size: 24px;
-            font-weight: 800;
-            background: linear-gradient(45deg, #ff6b9d, #c44bff, #4ecdc4);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            letter-spacing: 2px;
-            text-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
+        .items-container {
+            transition: transform 0.3s ease;
+            position: relative;
         }
 
-        .menu-subtitle {
-            color: rgba(255, 255, 255, 0.7);
+        .section-title {
             font-size: 11px;
-            margin-top: 3px;
-            font-weight: 400;
-        }
-
-        .menu-content {
-            padding: 8px 0;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .menu-section {
-            display: none;
-        }
-
-        .menu-section.active {
-            display: block;
+            font-weight: 700;
+            color: #ff8c00;
+            margin: 8px 16px 4px 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(255, 140, 0, 0.1);
+            padding: 4px 8px;
+            border-radius: 4px;
+            height: 28px;
         }
 
         .menu-item {
             display: flex;
-            justify-content: space-between;
             align-items: center;
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.9);
-            cursor: pointer;
+            justify-content: space-between;
+            padding: 8px 16px;
+            border-bottom: 1px solid rgba(255, 140, 0, 0.1);
             transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-            font-weight: 500;
+            height: 36px;
             position: relative;
         }
 
-        .menu-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-left-color: rgba(255, 107, 157, 0.8);
-            color: #ffffff;
+        .menu-item.highlighted {
+            background: linear-gradient(90deg, rgba(255, 140, 0, 0.3), rgba(255, 140, 0, 0.1));
+            border-left: 3px solid #ff8c00;
+            transform: translateX(2px);
         }
 
-        .menu-item.selected {
-            background: rgba(255, 107, 157, 0.15);
-            border-left-color: #ff6b9d;
-            color: #ffffff;
+        .menu-item.toggle-active {
+            background: linear-gradient(90deg, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.05));
+            border-left: 2px solid #4CAF50;
         }
 
-        .menu-item-text {
-            flex: 1;
-            font-size: 13px;
-        }
-
-        .menu-arrow {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 14px;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-
-        .menu-item:hover .menu-arrow {
-            color: #ff6b9d;
-            transform: translateX(3px);
-        }
-
-        .menu-footer {
-            background: linear-gradient(145deg, rgba(100, 40, 140, 0.3), rgba(80, 30, 120, 0.3));
-            padding: 10px 20px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .player-info {
+        .item-left {
             display: flex;
             align-items: center;
             gap: 8px;
-            color: rgba(255, 255, 255, 0.8);
+            flex: 1;
+        }
+
+        .item-name {
+            color: #ffffff;
             font-size: 11px;
-        }
-
-        .player-icon {
-            width: 12px;
-            height: 12px;
-            background: #4ecdc4;
-            border-radius: 50%;
-        }
-
-        .player-count {
-            color: #4ecdc4;
             font-weight: 600;
         }
 
-        .menu-version {
-            color: rgba(255, 255, 255, 0.5);
-            font-size: 10px;
+        .item-right {
+            display: flex;
+            align-items: center;
+            gap: 6px;
         }
 
-        /* Checkbox styles */
-        .checkbox-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.9);
-            cursor: pointer;
+        .toggle-switch {
+            width: 32px;
+            height: 18px;
+            background: #666;
+            border-radius: 9px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active {
+            background: #4CAF50;
+        }
+
+        .toggle-switch::after {
+            content: '';
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            top: 2px;
+            left: 2px;
+            transition: all 0.3s ease;
+        }
+
+        .toggle-switch.active::after {
+            transform: translateX(14px);
+        }
+
+        .action-btn {
+            background: transparent;
+            border: 1px solid #ff8c00;
+            color: #ff8c00;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 9px;
+            font-weight: 600;
             transition: all 0.2s ease;
-            border-left: 3px solid transparent;
-            font-weight: 500;
+        }
+
+        .action-btn.highlighted {
+            background: #ff8c00;
+            color: #fff;
+            transform: scale(1.05);
+        }
+
+        .input-field {
+            background: rgba(40, 40, 40, 0.9);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            color: #fff;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            width: 100px;
+            transition: all 0.2s ease;
+        }
+
+        .input-field.highlighted {
+            border-color: #ff8c00;
+            background: rgba(255, 140, 0, 0.1);
+            box-shadow: 0 0 5px rgba(255, 140, 0, 0.3);
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #ff8c00;
+            background: rgba(255, 140, 0, 0.15);
+            box-shadow: 0 0 8px rgba(255, 140, 0, 0.4);
+        }
+
+        .slider-container {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1;
+            max-width: 120px;
+        }
+
+        .slider {
+            flex: 1;
+            height: 3px;
+            background: rgba(255, 140, 0, 0.3);
+            border-radius: 2px;
             position: relative;
         }
 
-        .checkbox-item:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-left-color: rgba(255, 107, 157, 0.8);
-            color: #ffffff;
+        .slider.highlighted {
+            background: rgba(255, 140, 0, 0.5);
+            box-shadow: 0 0 10px rgba(255, 140, 0, 0.3);
         }
 
-        .checkbox-item.selected {
-            background: rgba(255, 107, 157, 0.15);
-            border-left-color: #ff6b9d;
-            color: #ffffff;
+        .slider-active .slider {
+            background: rgba(255, 140, 0, 0.7);
+            box-shadow: 0 0 15px rgba(255, 140, 0, 0.5);
+            border: 1px solid #ff8c00;
         }
 
-        .checkbox {
-            width: 16px;
-            height: 16px;
-            border: 2px solid rgba(255, 255, 255, 0.6);
-            border-radius: 3px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .slider-active .slider-thumb {
+            background: #ffffff;
+            box-shadow: 0 0 8px rgba(255, 140, 0, 0.6);
+        }
+
+        .slider-track {
+            height: 100%;
+            background: #ff8c00;
+            border-radius: 2px;
+            width: 50%;
+            position: relative;
+        }
+
+        .slider-thumb {
+            width: 10px;
+            height: 10px;
+            background: #ff8c00;
+            border-radius: 50%;
+            position: absolute;
+            right: -5px;
+            top: -3px;
+        }
+
+        .slider-value {
+            color: #ff8c00;
+            font-size: 9px;
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .dropdown {
+            background: rgba(40, 40, 40, 0.9);
+            border: 1px solid rgba(255, 140, 0, 0.3);
+            color: #fff;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 10px;
+            min-width: 80px;
             transition: all 0.2s ease;
         }
 
-        .checkbox.checked {
-            background: #4ecdc4;
-            border-color: #4ecdc4;
+        .dropdown.highlighted {
+            border-color: #ff8c00;
+            background: rgba(255, 140, 0, 0.1);
         }
 
-        .checkbox.checked::after {
-            content: '✓';
+        .input-mode-overlay {
+            position: absolute;
+            bottom: 5px;
+            right: 10px;
+            background: rgba(255, 140, 0, 0.9);
             color: white;
-            font-size: 12px;
-            font-weight: bold;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-size: 9px;
+            font-weight: 600;
+            display: none;
         }
 
-        /* Section header styles */
-        .section-header {
-            padding: 8px 20px;
-            color: rgba(255, 255, 255, 0.5);
+        .input-mode-overlay.active {
+            display: block;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .notification {
+            position: fixed;
+            top: 40px;
+            right: 20px;
+            background: rgba(255, 140, 0, 0.95);
+            color: #fff;
+            padding: 8px 16px;
+            border-radius: 4px;
             font-size: 11px;
             font-weight: 600;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            background: rgba(255, 255, 255, 0.05);
-            border-left: 3px solid #4ecdc4;
-        }
-
-        /* Glowing effects */
-        .menu-container::before {
-            content: '';
-            position: absolute;
-            top: -2px;
-            left: -2px;
-            right: -2px;
-            bottom: -2px;
-            background: linear-gradient(45deg, #ff6b9d, #c44bff, #4ecdc4, #ff6b9d);
-            border-radius: 14px;
-            z-index: -1;
-            animation: glow 3s ease-in-out infinite alternate;
-            opacity: 0.3;
-        }
-
-        @keyframes glow {
-            0% { filter: blur(5px); }
-            100% { filter: blur(8px); }
-        }
-
-        /* Keyboard navigation styles */
-        .menu-item.keyboard-selected,
-        .checkbox-item.keyboard-selected {
-            background: rgba(255, 107, 157, 0.2);
-            border-left-color: #ff6b9d;
-            color: #ffffff;
-            box-shadow: inset 0 0 20px rgba(255, 107, 157, 0.1);
-        }
-
-        .menu-item.keyboard-selected .menu-arrow {
-            color: #ff6b9d;
-            animation: bounce 1s infinite;
-        }
-
-        @keyframes bounce {
-            0%, 100% { transform: translateX(0); }
-            50% { transform: translateX(5px); }
-        }
-
-        /* Hide menu initially */
-        .menu-hidden {
-            transform: translateX(100%);
-            opacity: 0;
-        }
-
-        /* Show menu animation */
-        .menu-show {
-            animation: slideIn 0.3s ease-out forwards;
+            z-index: 3000;
+            box-shadow: 0 4px 15px rgba(255, 140, 0, 0.4);
+            animation: slideIn 0.3s ease-out;
         }
 
         @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+
+        .fma-menu.hidden {
+            opacity: 0;
+            transform: translateX(-100%);
+            transition: all 0.4s ease;
+        }
+
+        .external-scrollbar.hidden {
+            opacity: 0;
+            transform: translateX(-100%);
+            transition: all 0.4s ease;
+        }
+
+        .vehicle-spawner {
+            background: linear-gradient(90deg, rgba(76, 175, 80, 0.15), transparent);
+            padding: 12px;
+            margin: 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(76, 175, 80, 0.3);
+        }
+
+        .spawner-title {
+            color: #4CAF50;
+            font-size: 11px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-align: center;
+        }
+
+        .spawn-inputs {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .spawn-btn {
+            background: linear-gradient(135deg, #4CAF50, #45a049);
+            border: none;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-top: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .spawn-btn.highlighted {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(76, 175, 80, 0.3);
+        }
+
+        .controls-info {
+            display: none;
         }
     </style>
 </head>
 <body>
-    <div class="menu-container menu-show" id="phazeMenu">
-        <div class="menu-header">
-            <div class="phaze-logo">PHAZE</div>
-            <div class="menu-subtitle" id="menuSubtitle">Main menu</div>
+    <div class="stats-bar">
+        <div class="stat-item">
+            <span class="stat-label">FPS:</span>
+            <span class="stat-value">84</span>
         </div>
-
-        <div class="menu-content" id="menuContent">
-            <!-- Main Menu -->
-            <div class="menu-section active" id="main-section">
-                <div class="menu-item keyboard-selected" data-action="main" data-index="0">
-                    <span class="menu-item-text">Main</span>
-                    <span class="menu-arrow">></span>
-                </div>
-                <div class="menu-item" data-action="weapon" data-index="1">
-                    <span class="menu-item-text">Weapon</span>
-                    <span class="menu-arrow">></span>
-                </div>
-                <div class="menu-item" data-action="money" data-index="2">
-                    <span class="menu-item-text">Money</span>
-                    <span class="menu-arrow">></span>
-                </div>
-                <div class="menu-item" data-action="item" data-index="3">
-                    <span class="menu-item-text">Item</span>
-                    <span class="menu-arrow">></span>
-                </div>
-                <div class="menu-item" data-action="vehicle" data-index="4">
-                    <span class="menu-item-text">Vehicle</span>
-                    <span class="menu-arrow">></span>
-                </div>
-                <div class="menu-item" data-action="buy" data-index="5">
-                    <span class="menu-item-text">Buy</span>
-                    <span class="menu-arrow">></span>
-                </div>
-                <div class="menu-item" data-action="store" data-index="6">
-                    <span class="menu-item-text">Store</span>
-                    <span class="menu-arrow">></span>
-                </div>
-                <div class="menu-item" data-action="trol" data-index="7">
-                    <span class="menu-item-text">Trol</span>
-                    <span class="menu-arrow">></span>
-                </div>
-            </div>
-
-            <!-- Main Section -->
-            <div class="menu-section" id="main-content">
-                <div class="section-header">CORE FUNCTIONS</div>
-                <div class="menu-item" data-action="jail-break" data-index="0">
-                    <span class="menu-item-text">Jail Break</span>
-                </div>
-                <div class="checkbox-item" data-action="infinite-run" data-index="1">
-                    <span class="menu-item-text">Infinite Run</span>
-                    <div class="checkbox" id="infinite-run-check"></div>
-                </div>
-                <div class="checkbox-item" data-action="trigger-bot" data-index="2">
-                    <span class="menu-item-text">Trigger Bot</span>
-                    <div class="checkbox" id="trigger-bot-check"></div>
-                </div>
-                <div class="checkbox-item" data-action="clean-exit" data-index="3">
-                    <span class="menu-item-text">Clean Exit on H</span>
-                    <div class="checkbox" id="clean-exit-check"></div>
-                </div>
-
-                <div class="section-header">PLAYER STATUS</div>
-                <div class="menu-item" data-action="food-drink" data-index="4">
-                    <span class="menu-item-text">Food & Drink</span>
-                </div>
-                <div class="menu-item" data-action="drunk" data-index="5">
-                    <span class="menu-item-text">S6llh</span>
-                </div>
-                <div class="menu-item" data-action="handcuff" data-index="6">
-                    <span class="menu-item-text">Handcuff</span>
-                </div>
-                <div class="menu-item" data-action="back-from-hell" data-index="7">
-                    <span class="menu-item-text">!!! Back From Hell !!!</span>
-                </div>
-                <div class="checkbox-item" data-action="protection-helmet" data-index="8">
-                    <span class="menu-item-text">Protection Helmet</span>
-                    <div class="checkbox" id="protection-helmet-check"></div>
-                </div>
-            </div>
-
-            <!-- Weapon Section -->
-            <div class="menu-section" id="weapon-content">
-                <div class="section-header">STANDARD WEAPONS</div>
-                <div class="menu-item" data-action="combat-pdw" data-index="0">
-                    <span class="menu-item-text">Combat PDW</span>
-                </div>
-                <div class="menu-item" data-action="revolver" data-index="1">
-                    <span class="menu-item-text">Revolver</span>
-                </div>
-                <div class="menu-item" data-action="pump-shotgun" data-index="2">
-                    <span class="menu-item-text">Pump Shotgun</span>
-                </div>
-                <div class="menu-item" data-action="micro-smg" data-index="3">
-                    <span class="menu-item-text">Micro SMG</span>
-                </div>
-                <div class="menu-item" data-action="switchblade" data-index="4">
-                    <span class="menu-item-text">Switchblade</span>
-                </div>
-
-                <div class="section-header">DEV 2 WEAPONS</div>
-                <div class="menu-item" data-action="micro-smg-dev2" data-index="5">
-                    <span class="menu-item-text">Micro SMG DEV 2</span>
-                </div>
-                <div class="menu-item" data-action="combat-pdw-dev2" data-index="6">
-                    <span class="menu-item-text">Combat PDW DEV 2</span>
-                </div>
-                <div class="menu-item" data-action="revolver-dev2" data-index="7">
-                    <span class="menu-item-text">Revolver DEV 2</span>
-                </div>
-                <div class="menu-item" data-action="pump-shotgun-dev2" data-index="8">
-                    <span class="menu-item-text">Pump Shotgun DEV 2</span>
-                </div>
-                <div class="menu-item" data-action="switchblade-dev2" data-index="9">
-                    <span class="menu-item-text">Switchblade DEV 2</span>
-                </div>
-
-                <div class="section-header">WEAPON UTILITIES</div>
-                <div class="menu-item" data-action="add-ammo" data-index="10">
-                    <span class="menu-item-text">Add Ammo</span>
-                </div>
-                <div class="menu-item" data-action="weapon-license" data-index="11">
-                    <span class="menu-item-text">Weapon License</span>
-                </div>
-
-                <div class="section-header">WEAPON REMOVAL</div>
-                <div class="menu-item" data-action="remove-pdw" data-index="12">
-                    <span class="menu-item-text">Remove PDW</span>
-                </div>
-                <div class="menu-item" data-action="remove-revolver" data-index="13">
-                    <span class="menu-item-text">Remove Revolver</span>
-                </div>
-                <div class="menu-item" data-action="remove-micro-smg" data-index="14">
-                    <span class="menu-item-text">Remove Micro SMG</span>
-                </div>
-                <div class="menu-item" data-action="remove-switchblade" data-index="15">
-                    <span class="menu-item-text">Remove Switchblade</span>
-                </div>
-                <div class="menu-item" data-action="remove-shotgun" data-index="16">
-                    <span class="menu-item-text">Remove Shotgun</span>
-                </div>
-            </div>
-
-            <!-- Money Section -->
-            <div class="menu-section" id="money-content">
-                <div class="section-header">MONEY CONTROL</div>
-                <div class="menu-item" data-action="withdraw-black-money" data-index="0">
-                    <span class="menu-item-text">Withdraw Black Money (150K)</span>
-                </div>
-                <div class="menu-item" data-action="deposit-black-money" data-index="1">
-                    <span class="menu-item-text">Deposit Black Money (150K)</span>
-                </div>
-
-                <div class="section-header">AUTO MONEY LOOPS</div>
-                <div class="checkbox-item" data-action="market-loop" data-index="2">
-                    <span class="menu-item-text">Market Loop</span>
-                    <div class="checkbox" id="market-loop-check"></div>
-                </div>
-                <div class="checkbox-item" data-action="clothes-loop" data-index="3">
-                    <span class="menu-item-text">Clothes Loop</span>
-                    <div class="checkbox" id="clothes-loop-check"></div>
-                </div>
-            </div>
-
-            <!-- Item Section -->
-            <div class="menu-section" id="item-content">
-                <div class="section-header">VEHICLE TRUNK MANAGEMENT</div>
-                <div class="menu-item" data-action="add-c4" data-index="0">
-                    <span class="menu-item-text">Add C4 (1x)</span>
-                </div>
-                <div class="menu-item" data-action="add-id-card" data-index="1">
-                    <span class="menu-item-text">Add ID Card F (1x)</span>
-                </div>
-                <div class="menu-item" data-action="add-rob-lap" data-index="2">
-                    <span class="menu-item-text">Add Rob Lap (1x)</span>
-                </div>
-                <div class="menu-item" data-action="add-drill" data-index="3">
-                    <span class="menu-item-text">Add Drill (1x)</span>
-                </div>
-                <div class="menu-item" data-action="add-adv-hacking" data-index="4">
-                    <span class="menu-item-text">Add Adv Hacking (1x)</span>
-                </div>
-                <div class="menu-item" data-action="add-oxygen-mask" data-index="5">
-                    <span class="menu-item-text">Add Oxygen Mask (1x)</span>
-                </div>
-
-                <div class="section-header">ITEM SHOP</div>
-                <div class="menu-item" data-action="bulletproof-vest" data-index="6">
-                    <span class="menu-item-text">Bulletproof Vest</span>
-                </div>
-                <div class="menu-item" data-action="repair-kit" data-index="7">
-                    <span class="menu-item-text">Repair Kit</span>
-                </div>
-                <div class="menu-item" data-action="safety-helmet" data-index="8">
-                    <span class="menu-item-text">Safety Helmet</span>
-                </div>
-
-                <div class="section-header">DRUG MANAGEMENT</div>
-                <div class="menu-item" data-action="get-opium" data-index="9">
-                    <span class="menu-item-text">Get Opium (65x)</span>
-                </div>
-                <div class="menu-item" data-action="get-weed" data-index="10">
-                    <span class="menu-item-text">Get Weed (65x)</span>
-                </div>
-            </div>
-
-            <!-- Vehicle Section -->
-            <div class="menu-section" id="vehicle-content">
-                <div class="section-header">GARAGE MANAGEMENT</div>
-                <div class="menu-item" data-action="store-in-garage" data-index="0">
-                    <span class="menu-item-text">Store in Garage</span>
-                </div>
-
-                <div class="section-header">VEHICLE FEATURES</div>
-                <div class="checkbox-item" data-action="seat-belt" data-index="1">
-                    <span class="menu-item-text">Seat Belt</span>
-                    <div class="checkbox" id="seat-belt-check"></div>
-                </div>
-                <div class="checkbox-item" data-action="no-speed-limit" data-index="2">
-                    <span class="menu-item-text">No Speed Limit</span>
-                    <div class="checkbox" id="no-speed-limit-check"></div>
-                </div>
-                <div class="menu-item" data-action="fill-fuel" data-index="3">
-                    <span class="menu-item-text">Fill Fuel Tank</span>
-                </div>
-            </div>
-
-            <!-- Buy Section -->
-            <div class="menu-section" id="buy-content">
-                <div class="section-header">BUY WEAPONS</div>
-                <div class="menu-item" data-action="buy-micro-smg" data-index="0">
-                    <span class="menu-item-text">Buy Micro SMG</span>
-                </div>
-                <div class="menu-item" data-action="buy-revolver" data-index="1">
-                    <span class="menu-item-text">Buy Revolver</span>
-                </div>
-                <div class="menu-item" data-action="buy-pump-shotgun" data-index="2">
-                    <span class="menu-item-text">Buy Pump Shotgun</span>
-                </div>
-
-                <div class="section-header">BUY ITEMS</div>
-                <div class="menu-item" data-action="buy-big-box" data-index="3">
-                    <span class="menu-item-text">Buy Big Box</span>
-                </div>
-            </div>
-
-            <!-- Store Section -->
-            <div class="menu-section" id="store-content">
-                <div class="section-header">STORE MANAGEMENT</div>
-                <div class="menu-item" data-action="resell-item" data-index="0">
-                    <span class="menu-item-text">Resell Item</span>
-                </div>
-                <div class="menu-item" data-action="make-shipment" data-index="1">
-                    <span class="menu-item-text">Make Shipment</span>
-                </div>
-            </div>
-
-            <!-- Trol Section -->
-            <div class="menu-section" id="trol-content">
-                <div class="section-header">VEHICLE SPAWNER</div>
-                <div class="menu-item" data-action="spawn-vehicle" data-index="0">
-                    <span class="menu-item-text">🚗 Spawn Vehicle 🚗</span>
-                </div>
-
-                <div class="section-header">SPAWNER FEATURES</div>
-                <div class="menu-item" data-action="feature-1" data-index="1">
-                    <span class="menu-item-text">🚗 Spawn any vehicle by code</span>
-                </div>
-                <div class="menu-item" data-action="feature-2" data-index="2">
-                    <span class="menu-item-text">🏷️ Custom plate on spawn</span>
-                </div>
-                <div class="menu-item" data-action="feature-3" data-index="3">
-                    <span class="menu-item-text">📍 Spawns in front of you</span>
-                </div>
-                <div class="menu-item" data-action="feature-4" data-index="4">
-                    <span class="menu-item-text">⚡ Instant vehicle creation</span>
-                </div>
-                <div class="menu-item" data-action="feature-5" data-index="5">
-                    <span class="menu-item-text">🔧 Perfect condition & full fuel</span>
-                </div>
-                <div class="menu-item" data-action="feature-6" data-index="6">
-                    <span class="menu-item-text">🎨 Clean black finish</span>
-                </div>
-            </div>
+        <div class="stat-item">
+            <span class="stat-label">Ping:</span>
+            <span class="stat-value">91ms</span>
         </div>
-
-        <div class="menu-footer">
-            <div class="player-info">
-                <div class="player-icon"></div>
-                <span class="player-count">264267</span>
-                <span>| 2d ago</span>
-            </div>
-            <div class="menu-version">v1.0</div>
+        <div class="stat-item">
+            <span class="stat-label">PL:</span>
+            <span class="stat-value">4%</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">CPU:</span>
+            <span class="stat-value">50%</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">GPU:</span>
+            <span class="stat-value">45%</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-label">VRAM:</span>
+            <span class="stat-value">3.2/5.8/15.7 GB</span>
+        </div>
+        <div class="stat-item">
+            <span class="stat-value">ALBS6AWISI</span>
         </div>
     </div>
 
+    <div class="external-scrollbar" id="scrollbar">
+        <div class="scrollbar-thumb" id="scrollbarThumb"></div>
+    </div>
+
+    <div class="controls-info">
+        <div><strong>Controls:</strong></div>
+        <div>Q/E: Switch Tabs</div>
+        <div>↑/↓: Navigate Items</div>
+        <div>Enter: Activate</div>
+        <div>ESC: Close</div>
+    </div>
+
+    <div class="fma-menu" id="menu">
+        <div class="menu-header">ALBS6AWISI V1.0</div>
+
+        <div class="tabs-container">
+            <button class="tab-nav-arrow tab-nav-left" id="prevGroup">‹</button>
+            <button class="tab-nav-arrow tab-nav-right" id="nextGroup">›</button>
+            
+            <div class="tabs-display" id="tabsDisplay">
+                <div class="tab-btn active">Main</div>
+                <div class="tab-btn">Weapon</div>
+                <div class="tab-btn">Money</div>
+            </div>
+            
+            <div class="tab-group-indicator" id="tabIndicator">
+                <div class="tab-group-dot active"></div>
+                <div class="tab-group-dot"></div>
+                <div class="tab-group-dot"></div>
+            </div>
+        </div>
+
+        <div class="content-area">
+            <!-- Tab 1: Main -->
+            <div class="tab-content active" data-tab="0">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">CORE FUNCTIONS</div>
+                        
+                        <div class="menu-item" data-type="button" data-action="jailbreak">
+                            <div class="item-left">
+                                <span class="item-name">Jail Break</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Execute</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="toggle" data-action="infinite-run">
+                            <div class="item-left">
+                                <span class="item-name">Infinite Run</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="toggle" data-action="trigger-bot">
+                            <div class="item-left">
+                                <span class="item-name">Trigger Bot</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="toggle" data-action="clean-exit">
+                            <div class="item-left">
+                                <span class="item-name">Clean Exit on H</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">PLAYER STATUS</div>
+
+                        <div class="menu-item" data-type="button" data-action="food-drink">
+                            <div class="item-left">
+                                <span class="item-name">Food & Drink</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Fill</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="s6llh">
+                            <div class="item-left">
+                                <span class="item-name">S6llh</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Activate</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="handcuff">
+                            <div class="item-left">
+                                <span class="item-name">Handcuff</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Activate</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="back-from-hell">
+                            <div class="item-left">
+                                <span class="item-name">Back From Hell</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Execute</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="toggle" data-action="protection-helmet">
+                            <div class="item-left">
+                                <span class="item-name">Protection Helmet</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Weapon -->
+            <div class="tab-content" data-tab="1">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">STANDARD WEAPONS</div>
+                        
+                        <div class="menu-item" data-type="button" data-action="get-combat-pdw">
+                            <div class="item-left">
+                                <span class="item-name">Combat PDW</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-revolver">
+                            <div class="item-left">
+                                <span class="item-name">Revolver</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-pump-shotgun">
+                            <div class="item-left">
+                                <span class="item-name">Pump Shotgun</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-micro-smg">
+                            <div class="item-left">
+                                <span class="item-name">Micro SMG</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-switchblade">
+                            <div class="item-left">
+                                <span class="item-name">Switchblade</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">DEV 2 WEAPONS</div>
+
+                        <div class="menu-item" data-type="button" data-action="get-micro-smg-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Micro SMG DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-combat-pdw-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Combat PDW DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-revolver-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Revolver DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-pump-shotgun-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Pump Shotgun DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-switchblade-dev2">
+                            <div class="item-left">
+                                <span class="item-name">Switchblade DEV 2</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">WEAPON UTILITIES</div>
+
+                        <div class="menu-item" data-type="button" data-action="add-ammo">
+                            <div class="item-left">
+                                <span class="item-name">Add Ammo</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Add</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="weapon-license">
+                            <div class="item-left">
+                                <span class="item-name">Weapon License</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">WEAPON REMOVAL</div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-pdw">
+                            <div class="item-left">
+                                <span class="item-name">Remove PDW</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-revolver">
+                            <div class="item-left">
+                                <span class="item-name">Remove Revolver</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-micro-smg">
+                            <div class="item-left">
+                                <span class="item-name">Remove Micro SMG</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-switchblade">
+                            <div class="item-left">
+                                <span class="item-name">Remove Switchblade</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="remove-shotgun">
+                            <div class="item-left">
+                                <span class="item-name">Remove Shotgun</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Remove</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Money -->
+            <div class="tab-content" data-tab="2">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">MONEY CONTROL</div>
+                        
+                        <div class="menu-item" data-type="slider" data-action="money-amount">
+                            <div class="item-left">
+                                <span class="item-name">Amount (K)</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="slider-container">
+                                    <div class="slider">
+                                        <div class="slider-track" style="width: 50%;">
+                                            <div class="slider-thumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="slider-value">150K</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="withdraw-money">
+                            <div class="item-left">
+                                <span class="item-name">Withdraw Black Money</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Withdraw</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">AUTO LOOPS</div>
+
+                        <div class="menu-item" data-type="toggle" data-action="market-loop">
+                            <div class="item-left">
+                                <span class="item-name">Market Loop</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 4: Item -->
+            <div class="tab-content" data-tab="3">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">VEHICLE TRUNK MANAGEMENT</div>
+                        
+                        <div class="menu-item" data-type="input" data-action="vehicle-plate">
+                            <div class="item-left">
+                                <span class="item-name">Vehicle Plate</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="Enter plate..." maxlength="10">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="dropdown" data-action="select-item">
+                            <div class="item-left">
+                                <span class="item-name">Select Item</span>
+                            </div>
+                            <div class="item-right">
+                                <select class="dropdown">
+                                    <option>C4</option>
+                                    <option>id_card_f</option>
+                                    <option>rob_lap</option>
+                                    <option>drill</option>
+                                    <option>adv_hacking</option>
+                                    <option>oxygen_mask</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="slider" data-action="item-amount">
+                            <div class="item-left">
+                                <span class="item-name">Amount</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="slider-container">
+                                    <div class="slider">
+                                        <div class="slider-track" style="width: 0.33%;">
+                                            <div class="slider-thumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="slider-value">1x</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="add-item-from-trunk">
+                            <div class="item-left">
+                                <span class="item-name">Add Item from Trunk</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Add</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">ITEM SHOP</div>
+
+                        <div class="menu-item" data-type="button" data-action="bulletproof-vest">
+                            <div class="item-left">
+                                <span class="item-name">Bulletproof Vest</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="repair-kit">
+                            <div class="item-left">
+                                <span class="item-name">Repair Kit</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="safety-helmet">
+                            <div class="item-left">
+                                <span class="item-name">Safety Helmet</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">DRUG MANAGEMENT</div>
+
+                        <div class="menu-item" data-type="slider" data-action="drug-amount">
+                            <div class="item-left">
+                                <span class="item-name">Drug Amount</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="slider-container">
+                                    <div class="slider">
+                                        <div class="slider-track" style="width: 21.67%;">
+                                            <div class="slider-thumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="slider-value">65x</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-opium">
+                            <div class="item-left">
+                                <span class="item-name">Get Opium</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="get-weed">
+                            <div class="item-left">
+                                <span class="item-name">Get Weed</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Get</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 5: Vehicle -->
+            <div class="tab-content" data-tab="4">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">GARAGE MANAGEMENT</div>
+                        
+                        <div class="menu-item" data-type="input" data-action="garage-plate">
+                            <div class="item-left">
+                                <span class="item-name">Vehicle Plate</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="e.g: JOX 885" maxlength="10">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="store-garage">
+                            <div class="item-left">
+                                <span class="item-name">Store in Garage</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Store</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">VEHICLE FEATURES</div>
+
+                        <div class="menu-item" data-type="toggle" data-action="seat-belt">
+                            <div class="item-left">
+                                <span class="item-name">Seat Belt</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="fill-fuel">
+                            <div class="item-left">
+                                <span class="item-name">Fill Fuel Tank</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Fill</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 6: Buy -->
+            <div class="tab-content" data-tab="5">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">BUY WEAPONS</div>
+                        
+                        <div class="menu-item" data-type="button" data-action="buy-micro-smg">
+                            <div class="item-left">
+                                <span class="item-name">Buy Micro SMG</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 7: Store -->
+            <div class="tab-content" data-tab="6">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">RESELL ITEM</div>
+                        
+                        <div class="menu-item" data-type="input" data-action="store-number">
+                            <div class="item-left">
+                                <span class="item-name">Store Number</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="number" class="input-field" placeholder="59" min="1" max="999">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="item-price">
+                            <div class="item-left">
+                                <span class="item-name">Item Price</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="number" class="input-field" placeholder="2000" min="0">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="item-code">
+                            <div class="item-left">
+                                <span class="item-name">Item Code</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="boxbig" maxlength="50">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="apply-resell">
+                            <div class="item-left">
+                                <span class="item-name">Apply Resell</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Apply</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">MAKE SHIPMENT</div>
+
+                        <div class="menu-item" data-type="input" data-action="shipment-store-number">
+                            <div class="item-left">
+                                <span class="item-name">Store Number</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="number" class="input-field" placeholder="59" min="1" max="999">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="shipment-item-code">
+                            <div class="item-left">
+                                <span class="item-name">Item Code</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="fixkit" maxlength="50">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="shipment-order-price">
+                            <div class="item-left">
+                                <span class="item-name">Order Price</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="number" class="input-field" placeholder="0" min="0">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="input" data-action="shipment-item-name">
+                            <div class="item-left">
+                                <span class="item-name">Item Name</span>
+                            </div>
+                            <div class="item-right">
+                                <input type="text" class="input-field" placeholder="عدة تصليح" maxlength="100">
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="slider" data-action="shipment-amount">
+                            <div class="item-left">
+                                <span class="item-name">Shipment Amount</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="slider-container">
+                                    <div class="slider">
+                                        <div class="slider-track" style="width: 0.33%;">
+                                            <div class="slider-thumb"></div>
+                                        </div>
+                                    </div>
+                                    <span class="slider-value">1x</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="create-shipment">
+                            <div class="item-left">
+                                <span class="item-name">Create Shipment</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Create</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 8: Trol -->
+            <div class="tab-content" data-tab="7">
+                <div class="items-viewport">
+                    <div class="items-container">
+                        <div class="section-title">VEHICLE SPAWNER</div>
+                        
+                        <div class="vehicle-spawner">
+                            <div class="spawner-title">SPAWN VEHICLE</div>
+                            
+                            <div class="spawn-inputs">
+                                <div class="menu-item" data-type="input" data-action="vehicle-code">
+                                    <div class="item-left">
+                                        <span class="item-name">Vehicle Code</span>
+                                    </div>
+                                    <div class="item-right">
+                                        <input type="text" class="input-field" placeholder="adder, t20..." maxlength="20">
+                                    </div>
+                                </div>
+                                
+                                <div class="menu-item" data-type="input" data-action="vehicle-new-plate">
+                                    <div class="item-left">
+                                        <span class="item-name">New Plate</span>
+                                    </div>
+                                    <div class="item-right">
+                                        <input type="text" class="input-field" placeholder="ABC 123" maxlength="8">
+                                    </div>
+                                </div>
+                                
+                                <div class="menu-item" data-type="button" data-action="spawn-vehicle">
+                                    <div class="item-left">
+                                        <span class="item-name">Spawn Vehicle</span>
+                                    </div>
+                                    <div class="item-right">
+                                        <div class="spawn-btn">Spawn</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="input-mode-overlay" id="inputMode">INPUT MODE</div>
+    </div>
+
     <script>
-        class PhazeMenuSystem {
-            constructor() {
-                this.currentIndex = 0;
-                this.currentSection = 'main-section';
-                this.isVisible = true;
-                this.menuHistory = [];
-                this.checkboxStates = {};
-                this.init();
+        // النظام الجديد - حل جذري لمشكلة السكرول
+        var menuState = {
+            visible: true,
+            currentTab: 0,
+            currentItem: 0,
+            inInputMode: false,
+            allTabs: ['Main', 'Weapon', 'Money', 'Item', 'Vehicle', 'Buy', 'Store', 'Trol'],
+            toggleStates: {},
+            sliderValues: {
+                'money-amount': 150,
+                'item-amount': 1,
+                'drug-amount': 65,
+                'shipment-amount': 1
             }
+        };
 
-            init() {
-                this.bindKeyboardEvents();
-                this.updateSelection();
-                this.setupMessageListener();
+        // الحصول على جميع العناصر (العناوين + العناصر)
+        function getCurrentItems() {
+            var activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) return [];
+            return Array.from(activeTab.querySelectorAll('.section-title, .menu-item'));
+        }
+
+        // الحصول على العناصر القابلة للتحديد فقط
+        function getSelectableItems() {
+            var activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) return [];
+            return Array.from(activeTab.querySelectorAll('.menu-item'));
+        }
+
+        // تبديل التبويبات
+        function switchTab(direction) {
+            if (menuState.inInputMode) return;
+            
+            if (direction === 'left') {
+                menuState.currentTab = menuState.currentTab === 0 ? 7 : menuState.currentTab - 1;
+            } else {
+                menuState.currentTab = menuState.currentTab === 7 ? 0 : menuState.currentTab + 1;
             }
+            
+            menuState.currentItem = 0;
+            updateDisplay();
+            showNotification('Tab: ' + menuState.allTabs[menuState.currentTab]);
+        }
 
-            setupMessageListener() {
-                window.addEventListener("message", (event) => {
-                    const data = event.data;
-                    if (data.type === "toggleMenu") {
-                        this.toggleMenu();
-                    } else if (data.type === "keyPress") {
-                        this.handleKeyPress(data.key);
+        // التنقل بين العناصر
+        function navigateItems(direction) {
+            if (menuState.inInputMode) return;
+            
+            var selectableItems = getSelectableItems();
+            if (selectableItems.length === 0) return;
+            
+            var allItems = getCurrentItems();
+            var currentSelectableIndex = -1;
+            var selectableCount = 0;
+            
+            // البحث عن موضع العنصر الحالي في القائمة القابلة للتحديد
+            for (var i = 0; i < allItems.length; i++) {
+                if (allItems[i].classList.contains('menu-item')) {
+                    if (i === menuState.currentItem) {
+                        currentSelectableIndex = selectableCount;
+                        break;
                     }
-                });
-            }
-
-            bindKeyboardEvents() {
-                document.addEventListener('keydown', (e) => {
-                    this.handleKeyPress(e.key);
-                });
-            }
-
-            handleKeyPress(key) {
-                if (!this.isVisible) return;
-
-                switch(key) {
-                    case 'ArrowUp':
-                        this.navigateUp();
-                        break;
-                    case 'ArrowDown':
-                        this.navigateDown();
-                        break;
-                    case 'Enter':
-                        this.selectItem();
-                        break;
-                    case 'Backspace':
-                        this.goBack();
-                        break;
-                    case 'Escape':
-                        this.closeMenu();
-                        break;
+                    selectableCount++;
                 }
             }
-
-            navigateUp() {
-                const items = this.getCurrentItems();
-                this.currentIndex = (this.currentIndex - 1 + items.length) % items.length;
-                this.updateSelection();
+            
+            // التنقل في القائمة القابلة للتحديد
+            if (direction === 'up' && currentSelectableIndex > 0) {
+                currentSelectableIndex--;
+            } else if (direction === 'down' && currentSelectableIndex < selectableItems.length - 1) {
+                currentSelectableIndex++;
             }
-
-            navigateDown() {
-                const items = this.getCurrentItems();
-                this.currentIndex = (this.currentIndex + 1) % items.length;
-                this.updateSelection();
+            
+            // البحث عن الموضع الجديد في القائمة الكاملة
+            selectableCount = 0;
+            for (var i = 0; i < allItems.length; i++) {
+                if (allItems[i].classList.contains('menu-item')) {
+                    if (selectableCount === currentSelectableIndex) {
+                        menuState.currentItem = i;
+                        break;
+                    }
+                    selectableCount++;
+                }
             }
+            
+            updateDisplay();
+        }
 
-            getCurrentItems() {
-                const section = document.getElementById(this.currentSection);
-                return section.querySelectorAll('.menu-item, .checkbox-item');
+        // تحديث العرض
+        function updateDisplay() {
+            // إخفاء جميع التبويبات
+            document.querySelectorAll('.tab-content').forEach(function(tab) {
+                tab.classList.remove('active');
+            });
+            
+            // إظهار التبويب الحالي
+            var currentTab = document.querySelector('[data-tab="' + menuState.currentTab + '"]');
+            if (currentTab) {
+                currentTab.classList.add('active');
             }
+            
+            // تحديث أزرار التبويبات
+            updateTabButtons();
+            
+            // تحديث العناصر
+            updateItems();
+            
+            // تحديث السكرول
+            updateScroll();
+        }
 
-            updateSelection() {
-                // Remove all selections
-                document.querySelectorAll('.menu-item, .checkbox-item').forEach(item => {
-                    item.classList.remove('keyboard-selected');
-                });
+        function updateTabButtons() {
+            var currentGroupIndex = Math.floor(menuState.currentTab / 3);
+            var tabButtons = document.querySelectorAll('.tab-btn');
+            var dots = document.querySelectorAll('.tab-group-dot');
+            
+            // تحديث النقاط
+            dots.forEach(function(dot, i) {
+                dot.classList.toggle('active', i === currentGroupIndex);
+            });
+            
+            // تحديث الأزرار
+            var startTab = currentGroupIndex * 3;
+            tabButtons.forEach(function(btn, i) {
+                var tabIndex = startTab + i;
+                if (tabIndex < menuState.allTabs.length) {
+                    btn.textContent = menuState.allTabs[tabIndex];
+                    btn.style.display = 'block';
+                    btn.classList.toggle('active', tabIndex === menuState.currentTab);
+                } else {
+                    btn.style.display = 'none';
+                }
+            });
+        }
 
-                // Add selection to current item
-                const items = this.getCurrentItems();
-                if (items[this.currentIndex]) {
-                    items[this.currentIndex].classList.add('keyboard-selected');
-                    items[this.currentIndex].scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'nearest'
+        function updateItems() {
+            // إزالة التحديدات
+            document.querySelectorAll('.menu-item').forEach(function(item) {
+                item.classList.remove('highlighted');
+                item.querySelectorAll('.action-btn, .toggle-switch, .input-field, .dropdown, .slider, .spawn-btn, .slider-container')
+                    .forEach(function(el) {
+                        el.classList.remove('highlighted');
                     });
-                }
-            }
-
-            selectItem() {
-                const items = this.getCurrentItems();
-                const selectedItem = items[this.currentIndex];
+            });
+            
+            // تحديد العنصر الحالي
+            var allItems = getCurrentItems();
+            if (allItems[menuState.currentItem] && allItems[menuState.currentItem].classList.contains('menu-item')) {
+                var item = allItems[menuState.currentItem];
+                item.classList.add('highlighted');
                 
-                if (!selectedItem) return;
-
-                const action = selectedItem.dataset.action;
-                
-                // Flash effect
-                selectedItem.style.background = 'rgba(255, 107, 157, 0.4)';
-                setTimeout(() => {
-                    selectedItem.style.background = '';
-                }, 150);
-
-                if (selectedItem.classList.contains('checkbox-item')) {
-                    this.toggleCheckbox(action);
-                } else if (this.currentSection === 'main-section') {
-                    this.openSubmenu(action);
-                } else {
-                    this.executeAction(action);
-                }
+                item.querySelectorAll('.action-btn, .toggle-switch, .input-field, .dropdown, .slider, .spawn-btn, .slider-container')
+                    .forEach(function(el) {
+                        el.classList.add('highlighted');
+                    });
             }
-
-            toggleCheckbox(action) {
-                const checkbox = document.getElementById(action + '-check');
-                if (!checkbox) return;
-
-                this.checkboxStates[action] = !this.checkboxStates[action];
-                
-                if (this.checkboxStates[action]) {
-                    checkbox.classList.add('checked');
-                } else {
-                    checkbox.classList.remove('checked');
-                }
-
-                // Send toggle action to Lua
-                this.sendToLua('toggleFeature', { feature: action, enabled: this.checkboxStates[action] });
-            }
-
-            openSubmenu(action) {
-                // Save current state to history
-                this.menuHistory.push({
-                    section: this.currentSection,
-                    index: this.currentIndex
-                });
-
-                // Hide current section
-                document.getElementById(this.currentSection).classList.remove('active');
-
-                // Show new section
-                const newSection = action + '-content';
-                const sectionElement = document.getElementById(newSection);
-                
-                if (sectionElement) {
-                    this.currentSection = newSection;
-                    sectionElement.classList.add('active');
-                    this.currentIndex = 0;
-                    this.updateSelection();
-                    
-                    // Update subtitle
-                    document.getElementById('menuSubtitle').textContent = 
-                        `Main menu > ${action.charAt(0).toUpperCase() + action.slice(1)}`;
-                }
-            }
-
-            goBack() {
-                if (this.menuHistory.length === 0) return;
-
-                // Hide current section
-                document.getElementById(this.currentSection).classList.remove('active');
-
-                // Restore previous state
-                const previousState = this.menuHistory.pop();
-                this.currentSection = previousState.section;
-                this.currentIndex = previousState.index;
-
-                // Show previous section
-                document.getElementById(this.currentSection).classList.add('active');
-                this.updateSelection();
-
-                // Update subtitle
-                if (this.currentSection === 'main-section') {
-                    document.getElementById('menuSubtitle').textContent = 'Main menu';
-                }
-            }
-
-            executeAction(action) {
-                // Send action to Lua
-                this.sendToLua('executeAction', { action: action });
-            }
-
-            sendToLua(type, data) {
-                // Send message to parent window (LUA DUI)
-                if (window.parent && window.parent !== window) {
-                    window.parent.postMessage({
-                        type: type,
-                        data: data
-                    }, '*');
-                }
-                
-                // Also try sending via fetch to a local endpoint (alternative method)
-                try {
-                    fetch('http://phaze-menu/action', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            type: type,
-                            data: data
-                        })
-                    }).catch(() => {}); // Ignore errors for this fallback method
-                } catch (e) {
-                    // Ignore errors
-                }
-                
-                console.log('Sending to LUA:', type, data);
-            }
-
-            toggleMenu() {
-                const menu = document.getElementById('phazeMenu');
-                
-                if (this.isVisible) {
-                    menu.style.transform = 'translateX(100%)';
-                    menu.style.opacity = '0';
-                    this.isVisible = false;
-                } else {
-                    menu.style.transform = 'translateX(0)';
-                    menu.style.opacity = '1';
-                    this.isVisible = true;
-                }
-            }
-
-            closeMenu() {
-                this.toggleMenu();
-                this.sendToLua('closeMenu', {});
+            
+            // تحديث وضع الإدخال
+            var inputOverlay = document.getElementById('inputMode');
+            if (inputOverlay) {
+                inputOverlay.classList.toggle('active', menuState.inInputMode);
             }
         }
 
-        // Initialize the menu system
-        document.addEventListener('DOMContentLoaded', () => {
-            window.phazeMenu = new PhazeMenuSystem();
-        });
+        // النظام الجديد للسكرول - بسيط ومضمون
+        function updateScroll() {
+            var container = document.querySelector('.tab-content.active .items-container');
+            var thumb = document.getElementById('scrollbarThumb');
+            
+            if (!container || !thumb) return;
+            
+            var allItems = getCurrentItems();
+            if (allItems.length === 0) return;
+            
+            var currentElement = allItems[menuState.currentItem];
+            if (!currentElement) return;
+            
+            // حساب الارتفاع المطلوب للوصول للعنصر الحالي
+            var scrollY = 0;
+            var viewportHeight = 300; // ارتفاع النافذة المرئية
+            var itemHeight = 0;
+            
+            for (var i = 0; i <= menuState.currentItem; i++) {
+                if (allItems[i]) {
+                    if (allItems[i].classList.contains('section-title')) {
+                        itemHeight = 28;
+                    } else if (allItems[i].classList.contains('menu-item')) {
+                        itemHeight = 36;
+                    }
+                    
+                    if (i < menuState.currentItem) {
+                        scrollY += itemHeight;
+                    }
+                }
+            }
+            
+            // التأكد من أن العنصر مرئي في النافذة
+            var currentScrollY = Math.abs(parseFloat(container.style.transform.replace('translateY(', '').replace('px)', '')) || 0);
+            var targetScrollY = 0;
+            
+            // إذا كان العنصر تحت النافذة المرئية
+            if (scrollY + itemHeight > currentScrollY + viewportHeight) {
+                targetScrollY = scrollY + itemHeight - viewportHeight + 20;
+            }
+            // إذا كان العنصر فوق النافذة المرئية
+            else if (scrollY < currentScrollY) {
+                targetScrollY = Math.max(0, scrollY - 20);
+            }
+            // إذا كان العنصر مرئي، لا نحرك السكرول
+            else {
+                targetScrollY = currentScrollY;
+            }
+            
+            // تطبيق السكرول
+            container.style.transform = 'translateY(-' + targetScrollY + 'px)';
+            
+            // تحديث السكرول بار
+            var totalHeight = 0;
+            allItems.forEach(function(item) {
+                if (item.classList.contains('section-title')) {
+                    totalHeight += 28;
+                } else if (item.classList.contains('menu-item')) {
+                    totalHeight += 36;
+                }
+            });
+            
+            if (totalHeight > viewportHeight) {
+                var scrollPercent = targetScrollY / (totalHeight - viewportHeight);
+                var maxThumbTop = 254; // 300 - 40 (thumb height) - 6 (padding)
+                thumb.style.top = (scrollPercent * maxThumbTop) + 'px';
+            } else {
+                thumb.style.top = '0px';
+            }
+        }
+
+        // تحديث قيمة السلايدر
+        function updateSliderValue(action, value) {
+            menuState.sliderValues[action] = value;
+            var item = document.querySelector('[data-action="' + action + '"]');
+            if (item) {
+                var sliderTrack = item.querySelector('.slider-track');
+                var sliderValue = item.querySelector('.slider-value');
+                
+                if (sliderTrack && sliderValue) {
+                    var percentage = (value / 300) * 100;
+                    sliderTrack.style.width = percentage + '%';
+                    
+                    var suffix = '';
+                    if (action === 'money-amount') {
+                        suffix = 'K';
+                    } else {
+                        suffix = 'x';
+                    }
+                    sliderValue.textContent = value + suffix;
+                }
+            }
+        }
+
+        // التحكم في السلايدر
+        function handleSlider(action, direction) {
+            var currentValue = menuState.sliderValues[action] || 0;
+            var step = 1;
+            
+            if (action === 'money-amount') {
+                step = 10; // خطوات أكبر للمال
+            }
+            
+            if (direction === 'increase' && currentValue < 300) {
+                currentValue += step;
+            } else if (direction === 'decrease' && currentValue > 0) {
+                currentValue -= step;
+            }
+            
+            currentValue = Math.max(0, Math.min(300, currentValue));
+            updateSliderValue(action, currentValue);
+            showNotification(action + ': ' + currentValue);
+        }
+
+        // تفعيل العنصر
+        function activate() {
+            if (menuState.inInputMode) {
+                exitInputMode();
+                return;
+            }
+            
+            var allItems = getCurrentItems();
+            var item = allItems[menuState.currentItem];
+            if (!item || !item.classList.contains('menu-item')) return;
+            
+            var type = item.dataset.type;
+            var action = item.dataset.action;
+            
+            if (type === 'button') {
+                executeAction(action);
+            } else if (type === 'toggle') {
+                toggleAction(action, item);
+            } else if (type === 'input') {
+                enterInputMode(item);
+            } else if (type === 'dropdown') {
+                handleDropdown(item);
+            } else if (type === 'slider') {
+                showNotification('Use Left/Right arrows to adjust ' + action);
+            }
+        }
+
+        function executeAction(action) {
+            showNotification(action + ' executed!');
+        }
+
+        function toggleAction(action, item) {
+            menuState.toggleStates[action] = !menuState.toggleStates[action];
+            var toggle = item.querySelector('.toggle-switch');
+            
+            if (toggle) {
+                toggle.classList.toggle('active', menuState.toggleStates[action]);
+                item.classList.toggle('toggle-active', menuState.toggleStates[action]);
+            }
+            
+            showNotification(action + (menuState.toggleStates[action] ? ' ON' : ' OFF'));
+        }
+
+        function enterInputMode(item) {
+            var input = item.querySelector('input, select');
+            if (input) {
+                menuState.inInputMode = true;
+                input.focus();
+                updateDisplay();
+            }
+        }
+
+        function exitInputMode() {
+            menuState.inInputMode = false;
+            var focused = document.activeElement;
+            if (focused && focused.blur) {
+                focused.blur();
+            }
+            updateDisplay();
+        }
+
+        function handleDropdown(item) {
+            var select = item.querySelector('select');
+            if (select) {
+                var currentIndex = select.selectedIndex;
+                var newIndex = (currentIndex + 1) % select.options.length;
+                select.selectedIndex = newIndex;
+                showNotification('Selected: ' + select.options[newIndex].text);
+            }
+        }
+
+        function showNotification(message) {
+            var notification = document.createElement('div');
+            notification.className = 'notification';
+            notification.textContent = message;
+            document.body.appendChild(notification);
+            
+            setTimeout(function() {
+                if (notification.parentNode) {
+                    notification.parentNode.removeChild(notification);
+                }
+            }, 2000);
+        }
+
+        function toggleVisibility() {
+            menuState.visible = !menuState.visible;
+            var menuEl = document.getElementById('menu');
+            var scrollbarEl = document.getElementById('scrollbar');
+            
+            if (menuEl) menuEl.classList.toggle('hidden', !menuState.visible);
+            if (scrollbarEl) scrollbarEl.classList.toggle('hidden', !menuState.visible);
+            
+            showNotification(menuState.visible ? 'Menu Opened' : 'Menu Closed');
+        }
+
+        // الأحداث
+        document.onkeydown = function(e) {
+            e = e || window.event;
+            
+            if (e.keyCode === 45) { // Insert
+                e.preventDefault();
+                toggleVisibility();
+                return false;
+            }
+            
+            if (!menuState.visible) return true;
+            
+            if (menuState.inInputMode) {
+                if (e.keyCode === 27) { // Escape
+                    e.preventDefault();
+                    exitInputMode();
+                }
+                return true;
+            }
+            
+            e.preventDefault();
+            
+            if (e.keyCode === 81) { // Q
+                switchTab('left');
+            } else if (e.keyCode === 69) { // E
+                switchTab('right');
+            } else if (e.keyCode === 38) { // Arrow Up
+                navigateItems('up');
+            } else if (e.keyCode === 40) { // Arrow Down
+                navigateItems('down');
+            } else if (e.keyCode === 37) { // Left Arrow - decrease slider
+                var allItems = getCurrentItems();
+                var item = allItems[menuState.currentItem];
+                if (item && item.dataset.type === 'slider') {
+                    handleSlider(item.dataset.action, 'decrease');
+                }
+            } else if (e.keyCode === 39) { // Right Arrow - increase slider
+                var allItems = getCurrentItems();
+                var item = allItems[menuState.currentItem];
+                if (item && item.dataset.type === 'slider') {
+                    handleSlider(item.dataset.action, 'increase');
+                }
+            } else if (e.keyCode === 13 || e.keyCode === 32) { // Enter or Space
+                activate();
+            } else if (e.keyCode === 27) { // Escape
+                toggleVisibility();
+            }
+            
+            return false;
+        };
+
+        // التهيئة
+        // تهيئة قيم السلايدر الافتراضية
+        updateSliderValue('money-amount', 150);
+        updateSliderValue('item-amount', 1);
+        updateSliderValue('drug-amount', 65);
+        updateSliderValue('shipment-amount', 1);
+        
+        updateDisplay();
+        showNotification('ALBS Menu Ready - Q/E to switch tabs');
     </script>
 </body>
 </html>
