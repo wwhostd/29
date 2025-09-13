@@ -1184,357 +1184,206 @@
     </div>
 
     <script>
-        // النظام الجديد - حل جذري لمشكلة السكرول
-        var menuState = {
-            visible: true,
+        // نظام التحكم المبسط القابل للتحكم من Lua
+        var luaState = {
+            visible: false,
             currentTab: 0,
             currentItem: 0,
-            inInputMode: false,
-            allTabs: ['Main', 'Weapon', 'Money', 'Item', 'Vehicle', 'Buy', 'Store', 'Trol'],
-            toggleStates: {},
-            sliderValues: {
-                'money-amount': 150,
-                'item-amount': 1,
-                'drug-amount': 65,
-                'shipment-amount': 1
-            }
+            allTabs: ['Main', 'Weapon', 'Money', 'Item', 'Vehicle', 'Buy', 'Store', 'Trol']
         };
 
-        // الحصول على جميع العناصر (العناوين + العناصر)
-        function getCurrentItems() {
-            var activeTab = document.querySelector('.tab-content.active');
-            if (!activeTab) return [];
-            return Array.from(activeTab.querySelectorAll('.section-title, .menu-item'));
-        }
-
-        // الحصول على العناصر القابلة للتحديد فقط
-        function getSelectableItems() {
-            var activeTab = document.querySelector('.tab-content.active');
-            if (!activeTab) return [];
-            return Array.from(activeTab.querySelectorAll('.menu-item'));
-        }
-
-        // تبديل التبويبات
-        function switchTab(direction) {
-            if (menuState.inInputMode) return;
+        // دالة تحديث التبويب من Lua
+        window.luaUpdateTab = function(tabIndex) {
+            luaState.currentTab = tabIndex;
             
-            if (direction === 'left') {
-                menuState.currentTab = menuState.currentTab === 0 ? 7 : menuState.currentTab - 1;
-            } else {
-                menuState.currentTab = menuState.currentTab === 7 ? 0 : menuState.currentTab + 1;
-            }
-            
-            menuState.currentItem = 0;
-            updateDisplay();
-            showNotification('Tab: ' + menuState.allTabs[menuState.currentTab]);
-        }
-
-        // التنقل بين العناصر
-        function navigateItems(direction) {
-            if (menuState.inInputMode) return;
-            
-            var selectableItems = getSelectableItems();
-            if (selectableItems.length === 0) return;
-            
-            var allItems = getCurrentItems();
-            var currentSelectableIndex = -1;
-            var selectableCount = 0;
-            
-            // البحث عن موضع العنصر الحالي في القائمة القابلة للتحديد
-            for (var i = 0; i < allItems.length; i++) {
-                if (allItems[i].classList.contains('menu-item')) {
-                    if (i === menuState.currentItem) {
-                        currentSelectableIndex = selectableCount;
-                        break;
-                    }
-                    selectableCount++;
-                }
-            }
-            
-            // التنقل في القائمة القابلة للتحديد
-            if (direction === 'up' && currentSelectableIndex > 0) {
-                currentSelectableIndex--;
-            } else if (direction === 'down' && currentSelectableIndex < selectableItems.length - 1) {
-                currentSelectableIndex++;
-            }
-            
-            // البحث عن الموضع الجديد في القائمة الكاملة
-            selectableCount = 0;
-            for (var i = 0; i < allItems.length; i++) {
-                if (allItems[i].classList.contains('menu-item')) {
-                    if (selectableCount === currentSelectableIndex) {
-                        menuState.currentItem = i;
-                        break;
-                    }
-                    selectableCount++;
-                }
-            }
-            
-            updateDisplay();
-        }
-
-        // تحديث العرض
-        function updateDisplay() {
             // إخفاء جميع التبويبات
-            document.querySelectorAll('.tab-content').forEach(function(tab) {
-                tab.classList.remove('active');
-            });
+            var tabContents = document.querySelectorAll('.tab-content');
+            for (var i = 0; i < tabContents.length; i++) {
+                tabContents[i].classList.remove('active');
+            }
             
-            // إظهار التبويب الحالي
-            var currentTab = document.querySelector('[data-tab="' + menuState.currentTab + '"]');
-            if (currentTab) {
-                currentTab.classList.add('active');
+            // إظهار التبويب المحدد
+            var targetTab = document.querySelector('.tab-content[data-tab="' + tabIndex + '"]');
+            if (targetTab) {
+                targetTab.classList.add('active');
             }
             
             // تحديث أزرار التبويبات
-            updateTabButtons();
-            
-            // تحديث العناصر
-            updateItems();
-            
-            // تحديث السكرول
-            updateScroll();
-        }
-
-        function updateTabButtons() {
-            var currentGroupIndex = Math.floor(menuState.currentTab / 3);
+            var currentGroupIndex = Math.floor(tabIndex / 3);
             var tabButtons = document.querySelectorAll('.tab-btn');
             var dots = document.querySelectorAll('.tab-group-dot');
             
             // تحديث النقاط
-            dots.forEach(function(dot, i) {
-                dot.classList.toggle('active', i === currentGroupIndex);
-            });
+            for (var i = 0; i < dots.length; i++) {
+                if (i === currentGroupIndex) {
+                    dots[i].classList.add('active');
+                } else {
+                    dots[i].classList.remove('active');
+                }
+            }
             
             // تحديث الأزرار
             var startTab = currentGroupIndex * 3;
-            tabButtons.forEach(function(btn, i) {
-                var tabIndex = startTab + i;
-                if (tabIndex < menuState.allTabs.length) {
-                    btn.textContent = menuState.allTabs[tabIndex];
-                    btn.style.display = 'block';
-                    btn.classList.toggle('active', tabIndex === menuState.currentTab);
+            for (var i = 0; i < tabButtons.length; i++) {
+                var tabIdx = startTab + i;
+                if (tabIdx < luaState.allTabs.length) {
+                    tabButtons[i].textContent = luaState.allTabs[tabIdx];
+                    if (tabIdx === tabIndex) {
+                        tabButtons[i].classList.add('active');
+                    } else {
+                        tabButtons[i].classList.remove('active');
+                    }
+                    tabButtons[i].style.display = 'block';
                 } else {
-                    btn.style.display = 'none';
+                    tabButtons[i].style.display = 'none';
                 }
-            });
-        }
+            }
+        };
 
-        function updateItems() {
-            // إزالة التحديدات
-            document.querySelectorAll('.menu-item').forEach(function(item) {
-                item.classList.remove('highlighted');
-                item.querySelectorAll('.action-btn, .toggle-switch, .input-field, .dropdown, .slider, .spawn-btn, .slider-container')
-                    .forEach(function(el) {
-                        el.classList.remove('highlighted');
-                    });
-            });
+        // دالة تحديث العنصر من Lua
+        window.luaUpdateItem = function(itemIndex) {
+            luaState.currentItem = itemIndex;
+            
+            var activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) return;
+            
+            // إزالة التحديد من جميع العناصر
+            var allItems = activeTab.querySelectorAll('.menu-item');
+            for (var i = 0; i < allItems.length; i++) {
+                allItems[i].classList.remove('highlighted');
+                
+                var interactive = allItems[i].querySelectorAll('.action-btn, .toggle-switch, .input-field, .dropdown, .slider-container, .spawn-btn');
+                for (var j = 0; j < interactive.length; j++) {
+                    interactive[j].classList.remove('highlighted');
+                }
+            }
             
             // تحديد العنصر الحالي
-            var allItems = getCurrentItems();
-            if (allItems[menuState.currentItem] && allItems[menuState.currentItem].classList.contains('menu-item')) {
-                var item = allItems[menuState.currentItem];
-                item.classList.add('highlighted');
+            if (allItems[itemIndex]) {
+                allItems[itemIndex].classList.add('highlighted');
                 
-                item.querySelectorAll('.action-btn, .toggle-switch, .input-field, .dropdown, .slider, .spawn-btn, .slider-container')
-                    .forEach(function(el) {
-                        el.classList.add('highlighted');
-                    });
-            }
-            
-            // تحديث وضع الإدخال
-            var inputOverlay = document.getElementById('inputMode');
-            if (inputOverlay) {
-                inputOverlay.classList.toggle('active', menuState.inInputMode);
-            }
-        }
-
-        // النظام الجديد للسكرول - بسيط ومضمون
-        function updateScroll() {
-            var container = document.querySelector('.tab-content.active .items-container');
-            var thumb = document.getElementById('scrollbarThumb');
-            
-            if (!container || !thumb) return;
-            
-            var allItems = getCurrentItems();
-            if (allItems.length === 0) return;
-            
-            var currentElement = allItems[menuState.currentItem];
-            if (!currentElement) return;
-            
-            // حساب الارتفاع المطلوب للوصول للعنصر الحالي
-            var scrollY = 0;
-            var viewportHeight = 300; // ارتفاع النافذة المرئية
-            var itemHeight = 0;
-            
-            for (var i = 0; i <= menuState.currentItem; i++) {
-                if (allItems[i]) {
-                    if (allItems[i].classList.contains('section-title')) {
-                        itemHeight = 28;
-                    } else if (allItems[i].classList.contains('menu-item')) {
-                        itemHeight = 36;
-                    }
-                    
-                    if (i < menuState.currentItem) {
-                        scrollY += itemHeight;
-                    }
+                var interactive = allItems[itemIndex].querySelectorAll('.action-btn, .toggle-switch, .input-field, .dropdown, .slider-container, .spawn-btn');
+                for (var j = 0; j < interactive.length; j++) {
+                    interactive[j].classList.add('highlighted');
                 }
-            }
-            
-            // التأكد من أن العنصر مرئي في النافذة
-            var currentScrollY = Math.abs(parseFloat(container.style.transform.replace('translateY(', '').replace('px)', '')) || 0);
-            var targetScrollY = 0;
-            
-            // إذا كان العنصر تحت النافذة المرئية
-            if (scrollY + itemHeight > currentScrollY + viewportHeight) {
-                targetScrollY = scrollY + itemHeight - viewportHeight + 20;
-            }
-            // إذا كان العنصر فوق النافذة المرئية
-            else if (scrollY < currentScrollY) {
-                targetScrollY = Math.max(0, scrollY - 20);
-            }
-            // إذا كان العنصر مرئي، لا نحرك السكرول
-            else {
-                targetScrollY = currentScrollY;
-            }
-            
-            // تطبيق السكرول
-            container.style.transform = 'translateY(-' + targetScrollY + 'px)';
-            
-            // تحديث السكرول بار
-            var totalHeight = 0;
-            allItems.forEach(function(item) {
-                if (item.classList.contains('section-title')) {
-                    totalHeight += 28;
-                } else if (item.classList.contains('menu-item')) {
-                    totalHeight += 36;
-                }
-            });
-            
-            if (totalHeight > viewportHeight) {
-                var scrollPercent = targetScrollY / (totalHeight - viewportHeight);
-                var maxThumbTop = 254; // 300 - 40 (thumb height) - 6 (padding)
-                thumb.style.top = (scrollPercent * maxThumbTop) + 'px';
-            } else {
-                thumb.style.top = '0px';
-            }
-        }
-
-        // تحديث قيمة السلايدر
-        function updateSliderValue(action, value) {
-            menuState.sliderValues[action] = value;
-            var item = document.querySelector('[data-action="' + action + '"]');
-            if (item) {
-                var sliderTrack = item.querySelector('.slider-track');
-                var sliderValue = item.querySelector('.slider-value');
                 
-                if (sliderTrack && sliderValue) {
-                    var percentage = (value / 300) * 100;
-                    sliderTrack.style.width = percentage + '%';
+                // تحريك السكرول
+                var container = activeTab.querySelector('.items-container');
+                var itemTop = 0;
+                var allElements = activeTab.querySelectorAll('.section-title, .menu-item');
+                
+                for (var i = 0; i < allElements.length; i++) {
+                    if (allElements[i] === allItems[itemIndex]) break;
                     
-                    var suffix = '';
-                    if (action === 'money-amount') {
-                        suffix = 'K';
+                    if (allElements[i].classList.contains('section-title')) {
+                        itemTop += 28;
                     } else {
-                        suffix = 'x';
+                        itemTop += 36;
                     }
-                    sliderValue.textContent = value + suffix;
                 }
+                
+                var viewportHeight = 300;
+                var currentScroll = Math.abs(parseFloat(container.style.transform.replace(/[^-\d.]/g, '')) || 0);
+                var targetScroll = currentScroll;
+                
+                if (itemTop + 36 > currentScroll + viewportHeight) {
+                    targetScroll = itemTop + 36 - viewportHeight + 20;
+                } else if (itemTop < currentScroll) {
+                    targetScroll = Math.max(0, itemTop - 20);
+                }
+                
+                container.style.transform = 'translateY(-' + targetScroll + 'px)';
             }
-        }
+        };
 
-        // التحكم في السلايدر
-        function handleSlider(action, direction) {
-            var currentValue = menuState.sliderValues[action] || 0;
-            var step = 1;
+        // دالة تفعيل العنصر من Lua
+        window.luaActivateItem = function() {
+            var activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) return;
             
-            if (action === 'money-amount') {
-                step = 10; // خطوات أكبر للمال
-            }
+            var allItems = activeTab.querySelectorAll('.menu-item');
+            var currentItem = allItems[luaState.currentItem];
+            if (!currentItem) return;
             
-            if (direction === 'increase' && currentValue < 300) {
-                currentValue += step;
-            } else if (direction === 'decrease' && currentValue > 0) {
-                currentValue -= step;
-            }
-            
-            currentValue = Math.max(0, Math.min(300, currentValue));
-            updateSliderValue(action, currentValue);
-            showNotification(action + ': ' + currentValue);
-        }
-
-        // تفعيل العنصر
-        function activate() {
-            if (menuState.inInputMode) {
-                exitInputMode();
-                return;
-            }
-            
-            var allItems = getCurrentItems();
-            var item = allItems[menuState.currentItem];
-            if (!item || !item.classList.contains('menu-item')) return;
-            
-            var type = item.dataset.type;
-            var action = item.dataset.action;
+            var type = currentItem.getAttribute('data-type');
+            var action = currentItem.getAttribute('data-action') || 'unknown';
             
             if (type === 'button') {
-                executeAction(action);
+                var btn = currentItem.querySelector('.action-btn, .spawn-btn');
+                if (btn) {
+                    btn.style.transform = 'scale(0.9)';
+                    btn.style.background = '#ff6600';
+                    setTimeout(function() {
+                        btn.style.transform = 'scale(1)';
+                        btn.style.background = '';
+                    }, 150);
+                }
+                luaShowNotification('Activated: ' + action);
+                
             } else if (type === 'toggle') {
-                toggleAction(action, item);
-            } else if (type === 'input') {
-                enterInputMode(item);
-            } else if (type === 'dropdown') {
-                handleDropdown(item);
+                var toggle = currentItem.querySelector('.toggle-switch');
+                if (toggle) {
+                    if (toggle.classList.contains('active')) {
+                        toggle.classList.remove('active');
+                        currentItem.classList.remove('toggle-active');
+                        luaShowNotification(action + ' OFF');
+                    } else {
+                        toggle.classList.add('active');
+                        currentItem.classList.add('toggle-active');
+                        luaShowNotification(action + ' ON');
+                    }
+                }
             } else if (type === 'slider') {
-                showNotification('Use Left/Right arrows to adjust ' + action);
+                luaShowNotification('Use arrows to adjust ' + action);
+            } else {
+                luaShowNotification('Selected: ' + action);
             }
-        }
+        };
 
-        function executeAction(action) {
-            showNotification(action + ' executed!');
-        }
-
-        function toggleAction(action, item) {
-            menuState.toggleStates[action] = !menuState.toggleStates[action];
-            var toggle = item.querySelector('.toggle-switch');
+        // دالة تعديل السلايدر من Lua
+        window.luaAdjustSlider = function(direction) {
+            var activeTab = document.querySelector('.tab-content.active');
+            if (!activeTab) return false;
             
-            if (toggle) {
-                toggle.classList.toggle('active', menuState.toggleStates[action]);
-                item.classList.toggle('toggle-active', menuState.toggleStates[action]);
+            var allItems = activeTab.querySelectorAll('.menu-item');
+            var currentItem = allItems[luaState.currentItem];
+            
+            if (!currentItem || currentItem.getAttribute('data-type') !== 'slider') return false;
+            
+            var sliderTrack = currentItem.querySelector('.slider-track');
+            var sliderValue = currentItem.querySelector('.slider-value');
+            
+            if (!sliderTrack || !sliderValue) return false;
+            
+            var currentWidth = parseFloat(sliderTrack.style.width) || 50;
+            var step = 5;
+            
+            if (direction === 'increase' && currentWidth < 100) {
+                currentWidth = Math.min(100, currentWidth + step);
+            } else if (direction === 'decrease' && currentWidth > 0) {
+                currentWidth = Math.max(0, currentWidth - step);
             }
             
-            showNotification(action + (menuState.toggleStates[action] ? ' ON' : ' OFF'));
-        }
-
-        function enterInputMode(item) {
-            var input = item.querySelector('input, select');
-            if (input) {
-                menuState.inInputMode = true;
-                input.focus();
-                updateDisplay();
+            sliderTrack.style.width = currentWidth + '%';
+            
+            var value = Math.round((currentWidth / 100) * 300);
+            var action = currentItem.getAttribute('data-action');
+            var suffix = (action === 'money-amount') ? 'K' : 'x';
+            sliderValue.textContent = value + suffix;
+            
+            var slider = currentItem.querySelector('.slider');
+            if (slider) {
+                slider.style.boxShadow = '0 0 15px rgba(255, 140, 0, 0.8)';
+                setTimeout(function() {
+                    slider.style.boxShadow = '';
+                }, 300);
             }
-        }
+            
+            return true;
+        };
 
-        function exitInputMode() {
-            menuState.inInputMode = false;
-            var focused = document.activeElement;
-            if (focused && focused.blur) {
-                focused.blur();
-            }
-            updateDisplay();
-        }
-
-        function handleDropdown(item) {
-            var select = item.querySelector('select');
-            if (select) {
-                var currentIndex = select.selectedIndex;
-                var newIndex = (currentIndex + 1) % select.options.length;
-                select.selectedIndex = newIndex;
-                showNotification('Selected: ' + select.options[newIndex].text);
-            }
-        }
-
-        function showNotification(message) {
+        // دالة الإشعارات
+        function luaShowNotification(message) {
             var notification = document.createElement('div');
             notification.className = 'notification';
             notification.textContent = message;
@@ -1547,78 +1396,27 @@
             }, 2000);
         }
 
-        function toggleVisibility() {
-            menuState.visible = !menuState.visible;
+        // دالة إظهار/إخفاء القائمة من Lua
+        window.luaToggleMenu = function(visible) {
+            luaState.visible = visible;
             var menuEl = document.getElementById('menu');
-            var scrollbarEl = document.getElementById('scrollbar');
-            
-            if (menuEl) menuEl.classList.toggle('hidden', !menuState.visible);
-            if (scrollbarEl) scrollbarEl.classList.toggle('hidden', !menuState.visible);
-            
-            showNotification(menuState.visible ? 'Menu Opened' : 'Menu Closed');
-        }
-
-        // الأحداث
-        document.onkeydown = function(e) {
-            e = e || window.event;
-            
-            if (e.keyCode === 45) { // Insert
-                e.preventDefault();
-                toggleVisibility();
-                return false;
-            }
-            
-            if (!menuState.visible) return true;
-            
-            if (menuState.inInputMode) {
-                if (e.keyCode === 27) { // Escape
-                    e.preventDefault();
-                    exitInputMode();
+            if (menuEl) {
+                if (visible) {
+                    menuEl.classList.remove('hidden');
+                    menuEl.style.opacity = '1';
+                    menuEl.style.transform = 'translateY(-50%)';
+                } else {
+                    menuEl.classList.add('hidden');
+                    menuEl.style.opacity = '0';
                 }
-                return true;
             }
-            
-            e.preventDefault();
-            
-            if (e.keyCode === 81) { // Q
-                switchTab('left');
-            } else if (e.keyCode === 69) { // E
-                switchTab('right');
-            } else if (e.keyCode === 38) { // Arrow Up
-                navigateItems('up');
-            } else if (e.keyCode === 40) { // Arrow Down
-                navigateItems('down');
-            } else if (e.keyCode === 37) { // Left Arrow - decrease slider
-                var allItems = getCurrentItems();
-                var item = allItems[menuState.currentItem];
-                if (item && item.dataset.type === 'slider') {
-                    handleSlider(item.dataset.action, 'decrease');
-                }
-            } else if (e.keyCode === 39) { // Right Arrow - increase slider
-                var allItems = getCurrentItems();
-                var item = allItems[menuState.currentItem];
-                if (item && item.dataset.type === 'slider') {
-                    handleSlider(item.dataset.action, 'increase');
-                }
-            } else if (e.keyCode === 13 || e.keyCode === 32) { // Enter or Space
-                activate();
-            } else if (e.keyCode === 27) { // Escape
-                toggleVisibility();
-            }
-            
-            return false;
         };
 
-        // التهيئة
-        // تهيئة قيم السلايدر الافتراضية
-        updateSliderValue('money-amount', 150);
-        updateSliderValue('item-amount', 1);
-        updateSliderValue('drug-amount', 65);
-        updateSliderValue('shipment-amount', 1);
+        // تحديث أولي
+        window.luaUpdateTab(0);
+        window.luaUpdateItem(0);
         
-        updateDisplay();
-        showNotification('ALBS Menu Ready - Q/E to switch tabs');
+        console.log('ALBS Menu ready for Lua control');
     </script>
 </body>
 </html>
-
