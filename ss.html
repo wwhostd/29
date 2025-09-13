@@ -3,17 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>v7</title>
+    <title>v8</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        html {
-
         }
 
         body {
@@ -51,22 +47,6 @@
         .stat-value {
             color: #ffffff;
             font-weight: 600;
-        }
-
-        .external-scrollbar {
-            display: none;
-        }
-
-        .scrollbar-thumb {
-            width: 14px;
-            height: 40px;
-            background: linear-gradient(180deg, #ff9500, #ff7f00);
-            border-radius: 7px;
-            border: 1px solid rgba(255, 140, 0, 0.6);
-            box-shadow: 0 0 10px rgba(255, 140, 0, 0.4);
-            transition: all 0.2s ease;
-            position: absolute;
-            top: 0;
         }
 
         .fma-menu {
@@ -452,12 +432,6 @@
             transition: all 0.4s ease;
         }
 
-        .external-scrollbar.hidden {
-            opacity: 0;
-            transform: translateX(-100%);
-            transition: all 0.4s ease;
-        }
-
         .vehicle-spawner {
             background: linear-gradient(90deg, rgba(76, 175, 80, 0.15), transparent);
             padding: 12px;
@@ -502,7 +476,7 @@
         }
     </style>
 </head>
-
+<body>
     <div class="controls-info">
         <div><strong>Controls:</strong></div>
         <div>Q/E: Switch Tabs</div>
@@ -512,7 +486,7 @@
     </div>
 
     <div class="fma-menu" id="menu">
-        <div class="menu-header">ALBS6AWISI V1.0</div>
+        <div class="menu-header">ALBS6AWISI v1.0 - COMPLETE</div>
 
         <div class="tabs-container">
             <button class="tab-nav-arrow tab-nav-left" id="prevGroup">‹</button>
@@ -792,7 +766,7 @@
                 </div>
             </div>
 
-            <!-- Tab 3: Money -->
+            <!-- Tab 3: Money - UPDATED WITH NEW FEATURES -->
             <div class="tab-content" data-tab="2">
                 <div class="items-viewport">
                     <div class="items-container">
@@ -805,7 +779,7 @@
                             <div class="item-right">
                                 <div class="slider-container">
                                     <div class="slider">
-                                        <div class="slider-track" style="width: 50%;">
+                                        <div class="slider-track" style="width: 37.5%;">
                                             <div class="slider-thumb"></div>
                                         </div>
                                     </div>
@@ -823,11 +797,29 @@
                             </div>
                         </div>
 
+                        <div class="menu-item" data-type="button" data-action="deposit-money">
+                            <div class="item-left">
+                                <span class="item-name">Deposit Black Money</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Deposit</div>
+                            </div>
+                        </div>
+
                         <div class="section-title">AUTO LOOPS</div>
 
                         <div class="menu-item" data-type="toggle" data-action="market-loop">
                             <div class="item-left">
                                 <span class="item-name">Market Loop</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="toggle" data-action="clothes-loop">
+                            <div class="item-left">
+                                <span class="item-name">Clothes Loop</span>
                             </div>
                             <div class="item-right">
                                 <div class="toggle-switch"></div>
@@ -875,7 +867,7 @@
                             <div class="item-right">
                                 <div class="slider-container">
                                     <div class="slider">
-                                        <div class="slider-track" style="width: 0.33%;">
+                                        <div class="slider-track" style="width: 2%;">
                                             <div class="slider-thumb"></div>
                                         </div>
                                     </div>
@@ -931,7 +923,7 @@
                             <div class="item-right">
                                 <div class="slider-container">
                                     <div class="slider">
-                                        <div class="slider-track" style="width: 21.67%;">
+                                        <div class="slider-track" style="width: 64%;">
                                             <div class="slider-thumb"></div>
                                         </div>
                                     </div>
@@ -961,7 +953,7 @@
                 </div>
             </div>
 
-            <!-- Tab 5: Vehicle -->
+            <!-- Tab 5: Vehicle - UPDATED WITH NEW FEATURES -->
             <div class="tab-content" data-tab="4">
                 <div class="items-viewport">
                     <div class="items-container">
@@ -996,6 +988,15 @@
                             </div>
                         </div>
 
+                        <div class="menu-item" data-type="toggle" data-action="no-speed-limit">
+                            <div class="item-left">
+                                <span class="item-name">No Speed Limit</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="toggle-switch"></div>
+                            </div>
+                        </div>
+
                         <div class="menu-item" data-type="button" data-action="fill-fuel">
                             <div class="item-left">
                                 <span class="item-name">Fill Fuel Tank</span>
@@ -1008,7 +1009,7 @@
                 </div>
             </div>
 
-            <!-- Tab 6: Buy -->
+            <!-- Tab 6: Buy - UPDATED WITH MORE OPTIONS -->
             <div class="tab-content" data-tab="5">
                 <div class="items-viewport">
                     <div class="items-container">
@@ -1017,6 +1018,35 @@
                         <div class="menu-item" data-type="button" data-action="buy-micro-smg">
                             <div class="item-left">
                                 <span class="item-name">Buy Micro SMG</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="buy-revolver">
+                            <div class="item-left">
+                                <span class="item-name">Buy Revolver</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+
+                        <div class="menu-item" data-type="button" data-action="buy-pump-shotgun">
+                            <div class="item-left">
+                                <span class="item-name">Buy Pump Shotgun</span>
+                            </div>
+                            <div class="item-right">
+                                <div class="action-btn">Buy</div>
+                            </div>
+                        </div>
+
+                        <div class="section-title">BUY ITEMS</div>
+
+                        <div class="menu-item" data-type="button" data-action="buy-big-box">
+                            <div class="item-left">
+                                <span class="item-name">Buy Big Box</span>
                             </div>
                             <div class="item-right">
                                 <div class="action-btn">Buy</div>
@@ -1113,7 +1143,7 @@
                             <div class="item-right">
                                 <div class="slider-container">
                                     <div class="slider">
-                                        <div class="slider-track" style="width: 0.33%;">
+                                        <div class="slider-track" style="width: 0.1%;">
                                             <div class="slider-thumb"></div>
                                         </div>
                                     </div>
@@ -1181,12 +1211,30 @@
     </div>
 
     <script>
-        // نظام التحكم المبسط القابل للتحكم من Lua
+        // نظام التحكم الكامل المحدث لجميع الميزات
         var luaState = {
             visible: false,
             currentTab: 0,
             currentItem: 0,
-            allTabs: ['Main', 'Weapon', 'Money', 'Item', 'Vehicle', 'Buy', 'Store', 'Trol']
+            allTabs: ['Main', 'Weapon', 'Money', 'Item', 'Vehicle', 'Buy', 'Store', 'Trol'],
+            // حالات التبديل
+            toggleStates: {
+                infiniteRun: false,
+                triggerBot: false,
+                cleanExit: false,
+                protectionHelmet: false,
+                seatBelt: false,
+                noSpeedLimit: false,
+                marketLoop: false,
+                clothesLoop: false
+            },
+            // قيم السلايدرات
+            sliderValues: {
+                moneyAmount: 150,
+                itemAmount: 1,
+                drugAmount: 65,
+                shipmentAmount: 1
+            }
         };
 
         // دالة تحديث التبويب من Lua
@@ -1293,7 +1341,7 @@
             }
         };
 
-        // دالة تفعيل العنصر من Lua
+        // دالة تفعيل العنصر من Lua - محدثة
         window.luaActivateItem = function() {
             var activeTab = document.querySelector('.tab-content.active');
             if (!activeTab) return;
@@ -1315,29 +1363,49 @@
                         btn.style.background = '';
                     }, 150);
                 }
-                luaShowNotification('Activated: ' + action);
                 
             } else if (type === 'toggle') {
                 var toggle = currentItem.querySelector('.toggle-switch');
                 if (toggle) {
-                    if (toggle.classList.contains('active')) {
-                        toggle.classList.remove('active');
-                        currentItem.classList.remove('toggle-active');
-                        luaShowNotification(action + ' OFF');
-                    } else {
-                        toggle.classList.add('active');
-                        currentItem.classList.add('toggle-active');
-                        luaShowNotification(action + ' ON');
+                    var toggleName = getToggleNameFromAction(action);
+                    if (toggleName && luaState.toggleStates.hasOwnProperty(toggleName)) {
+                        luaState.toggleStates[toggleName] = !luaState.toggleStates[toggleName];
+                        
+                        if (luaState.toggleStates[toggleName]) {
+                            toggle.classList.add('active');
+                            currentItem.classList.add('toggle-active');
+                        } else {
+                            toggle.classList.remove('active');
+                            currentItem.classList.remove('toggle-active');
+                        }
                     }
                 }
-            } else if (type === 'slider') {
-                luaShowNotification('Use arrows to adjust ' + action);
-            } else {
-                luaShowNotification('Selected: ' + action);
+                
+            } else if (type === 'dropdown') {
+                var dropdown = currentItem.querySelector('.dropdown');
+                if (dropdown) {
+                    var currentIndex = dropdown.selectedIndex;
+                    dropdown.selectedIndex = (currentIndex + 1) % dropdown.options.length;
+                }
             }
         };
 
-        // دالة تعديل السلايدر من Lua
+        // دالة مساعدة لتحويل action إلى toggle name
+        function getToggleNameFromAction(action) {
+            var toggleMap = {
+                'infinite-run': 'infiniteRun',
+                'trigger-bot': 'triggerBot',
+                'clean-exit': 'cleanExit',
+                'protection-helmet': 'protectionHelmet',
+                'seat-belt': 'seatBelt',
+                'no-speed-limit': 'noSpeedLimit',
+                'market-loop': 'marketLoop',
+                'clothes-loop': 'clothesLoop'
+            };
+            return toggleMap[action] || null;
+        }
+
+        // دالة تعديل السلايدر من Lua - محدثة بالكامل
         window.luaAdjustSlider = function(direction) {
             var activeTab = document.querySelector('.tab-content.active');
             if (!activeTab) return false;
@@ -1349,25 +1417,65 @@
             
             var sliderTrack = currentItem.querySelector('.slider-track');
             var sliderValue = currentItem.querySelector('.slider-value');
+            var action = currentItem.getAttribute('data-action');
             
             if (!sliderTrack || !sliderValue) return false;
             
             var currentWidth = parseFloat(sliderTrack.style.width) || 50;
             var step = 5;
+            var value, suffix, maxValue, minValue;
             
+            // تحديد القيم حسب نوع السلايدر
+            if (action === 'money-amount') {
+                minValue = 50;
+                maxValue = 2000;
+                step = 2.5; // للحصول على تحكم أفضل
+                suffix = 'K';
+            } else if (action === 'item-amount') {
+                minValue = 1;
+                maxValue = 50;
+                step = 2;
+                suffix = 'x';
+            } else if (action === 'drug-amount') {
+                minValue = 1;
+                maxValue = 100;
+                step = 1;
+                suffix = 'x';
+            } else if (action === 'shipment-amount') {
+                minValue = 1;
+                maxValue = 1000;
+                step = 0.1; // للتحكم الدقيق في الكميات الكبيرة
+                suffix = 'x';
+            } else {
+                return false;
+            }
+            
+            // تعديل النسبة
             if (direction === 'increase' && currentWidth < 100) {
                 currentWidth = Math.min(100, currentWidth + step);
             } else if (direction === 'decrease' && currentWidth > 0) {
                 currentWidth = Math.max(0, currentWidth - step);
             }
             
-            sliderTrack.style.width = currentWidth + '%';
+            // حساب القيمة الجديدة
+            value = Math.round(minValue + (currentWidth / 100) * (maxValue - minValue));
             
-            var value = Math.round((currentWidth / 100) * 300);
-            var action = currentItem.getAttribute('data-action');
-            var suffix = (action === 'money-amount') ? 'K' : 'x';
+            // تحديث العرض
+            sliderTrack.style.width = currentWidth + '%';
             sliderValue.textContent = value + suffix;
             
+            // حفظ القيمة في الحالة
+            if (action === 'money-amount') {
+                luaState.sliderValues.moneyAmount = value;
+            } else if (action === 'item-amount') {
+                luaState.sliderValues.itemAmount = value;
+            } else if (action === 'drug-amount') {
+                luaState.sliderValues.drugAmount = value;
+            } else if (action === 'shipment-amount') {
+                luaState.sliderValues.shipmentAmount = value;
+            }
+            
+            // تأثير بصري
             var slider = currentItem.querySelector('.slider');
             if (slider) {
                 slider.style.boxShadow = '0 0 15px rgba(255, 140, 0, 0.8)';
@@ -1380,7 +1488,7 @@
         };
 
         // دالة الإشعارات
-        function luaShowNotification(message) {
+        window.luaShowNotification = function(message) {
             var notification = document.createElement('div');
             notification.className = 'notification';
             notification.textContent = message;
@@ -1390,8 +1498,8 @@
                 if (notification.parentNode) {
                     notification.parentNode.removeChild(notification);
                 }
-            }, 2000);
-        }
+            }, 3000);
+        };
 
         // دالة إظهار/إخفاء القائمة من Lua
         window.luaToggleMenu = function(visible) {
@@ -1413,11 +1521,10 @@
         window.luaUpdateTab(0);
         window.luaUpdateItem(0);
         
-        console.log('ALBS Menu ready for Lua control');
+        console.log('ALBS Complete Menu ready for Lua control - All features integrated');
+        console.log('Features: All toggles, sliders, buttons, and inputs supported');
+        console.log('Toggle states available:', Object.keys(luaState.toggleStates));
+        console.log('Slider values available:', Object.keys(luaState.sliderValues));
     </script>
 </body>
 </html>
-
-
-
-
