@@ -3,8 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Macho Mod Menu</title>
+    <title>PHAZE Menu - FiveM</title>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
         * {
             margin: 0;
             padding: 0;
@@ -12,1089 +14,800 @@
         }
 
         body {
+            font-family: 'Inter', sans-serif;
             background: transparent;
-            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
             overflow: hidden;
-            width: 400px;
-            height: 600px;
-            user-select: none;
+            height: 100vh;
+            width: 100vw;
+            position: relative;
         }
 
         .menu-container {
-            width: 400px;
-            height: 600px;
-            background: linear-gradient(145deg, #1e1e2e 0%, #2a2a3e 100%);
-            border: 2px solid #6c63ff;
-            border-radius: 16px;
-            box-shadow: 0 15px 35px rgba(108, 99, 255, 0.4), 
-                        inset 0 1px 0 rgba(255, 255, 255, 0.1);
-            position: relative;
-            overflow: hidden;
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            background: linear-gradient(145deg, rgba(120, 50, 180, 0.95), rgba(80, 30, 120, 0.95));
+            border-radius: 12px;
             backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(120, 50, 180, 0.3);
+            border: 1px solid rgba(120, 50, 180, 0.2);
+            overflow: hidden;
+            font-size: 14px;
+            max-height: 80vh;
+            display: flex;
+            flex-direction: column;
         }
 
-        .header {
-            background: linear-gradient(135deg, #6c63ff 0%, #8b5cf6 50%, #a855f7 100%);
-            padding: 16px 20px;
+        .menu-header {
+            background: linear-gradient(145deg, rgba(150, 70, 200, 0.3), rgba(100, 40, 140, 0.3));
+            padding: 15px 20px;
             text-align: center;
-            border-radius: 14px 14px 0 0;
-            box-shadow: 0 4px 20px rgba(108, 99, 255, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
         }
 
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, transparent, rgba(255,255,255,0.15), transparent);
-            pointer-events: none;
-        }
-
-        .header h1 {
-            color: #ffffff;
+        .phaze-logo {
             font-size: 24px;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-            margin-bottom: 4px;
+            font-weight: 800;
+            background: linear-gradient(45deg, #ff6b9d, #c44bff, #4ecdc4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: 2px;
+            text-shadow: 0 0 20px rgba(255, 107, 157, 0.3);
         }
 
-        .header .subtitle {
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 12px;
-            font-weight: 400;
-            letter-spacing: 0.5px;
-        }
-
-        .nav-tabs {
-            display: flex;
-            background: rgba(255, 255, 255, 0.05);
-            border-bottom: 1px solid rgba(108, 99, 255, 0.3);
-            overflow-x: auto;
-        }
-
-        .nav-tab {
-            flex: 1;
-            padding: 12px 8px;
-            text-align: center;
+        .menu-subtitle {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border-bottom: 2px solid transparent;
-            white-space: nowrap;
+            font-size: 11px;
+            margin-top: 3px;
+            font-weight: 400;
         }
 
-        .nav-tab:hover {
-            color: #ffffff;
-            background: rgba(108, 99, 255, 0.1);
-        }
-
-        .nav-tab.active {
-            color: #6c63ff;
-            background: rgba(108, 99, 255, 0.15);
-            border-bottom-color: #6c63ff;
-        }
-
-        .content {
-            height: calc(100% - 140px);
+        .menu-content {
+            padding: 8px 0;
             overflow-y: auto;
-            overflow-x: hidden;
-            padding: 16px;
+            flex: 1;
         }
 
-        .tab-content {
+        .menu-section {
             display: none;
         }
 
-        .tab-content.active {
+        .menu-section.active {
             display: block;
-            animation: fadeIn 0.3s ease;
         }
 
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+        .menu-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
+            font-weight: 500;
+            position: relative;
         }
 
-        .feature-group {
-            margin-bottom: 20px;
+        .menu-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-left-color: rgba(255, 107, 157, 0.8);
+            color: #ffffff;
         }
 
-        .group-title {
-            color: #6c63ff;
+        .menu-item.selected {
+            background: rgba(255, 107, 157, 0.15);
+            border-left-color: #ff6b9d;
+            color: #ffffff;
+        }
+
+        .menu-item-text {
+            flex: 1;
+            font-size: 13px;
+        }
+
+        .menu-arrow {
+            color: rgba(255, 255, 255, 0.6);
             font-size: 14px;
             font-weight: 600;
-            margin-bottom: 12px;
-            padding-left: 4px;
-            position: relative;
+            margin-left: 10px;
         }
 
-        .group-title::before {
-            content: '';
-            position: absolute;
-            left: -8px;
-            top: 50%;
-            transform: translateY(-50%);
-            width: 3px;
-            height: 16px;
-            background: linear-gradient(to bottom, #6c63ff, #a855f7);
-            border-radius: 2px;
+        .menu-item:hover .menu-arrow {
+            color: #ff6b9d;
+            transform: translateX(3px);
         }
 
-        .feature-item {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(108, 99, 255, 0.2);
-            border-radius: 10px;
-            padding: 14px 16px;
-            margin-bottom: 8px;
+        .menu-footer {
+            background: linear-gradient(145deg, rgba(100, 40, 140, 0.3), rgba(80, 30, 120, 0.3));
+            padding: 10px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .player-info {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .feature-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(108, 99, 255, 0.1), transparent);
-            transition: left 0.5s ease;
-        }
-
-        .feature-item:hover::before {
-            left: 100%;
-        }
-
-        .feature-item:hover {
-            background: rgba(108, 99, 255, 0.1);
-            border-color: #6c63ff;
-            transform: translateX(4px);
-            box-shadow: 0 4px 15px rgba(108, 99, 255, 0.2);
-        }
-
-        .feature-item.active {
-            background: rgba(108, 99, 255, 0.2);
-            border-color: #6c63ff;
-            box-shadow: 0 0 20px rgba(108, 99, 255, 0.4);
-        }
-
-        .feature-info {
-            display: flex;
-            flex-direction: column;
-            flex: 1;
-        }
-
-        .feature-name {
-            color: #ffffff;
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 2px;
-        }
-
-        .feature-desc {
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 11px;
-            line-height: 1.3;
-        }
-
-        .feature-toggle {
-            width: 50px;
-            height: 26px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 13px;
-            position: relative;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .feature-toggle.active {
-            background: linear-gradient(135deg, #6c63ff, #a855f7);
-            border-color: #6c63ff;
-        }
-
-        .toggle-slider {
-            width: 20px;
-            height: 20px;
-            background: #ffffff;
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 3px;
-            transition: all 0.3s ease;
-            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
-        }
-
-        .feature-toggle.active .toggle-slider {
-            transform: translateX(24px);
-        }
-
-        .input-group {
-            display: flex;
             gap: 8px;
-            align-items: center;
-        }
-
-        .input-field {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(108, 99, 255, 0.3);
-            border-radius: 6px;
-            color: #ffffff;
-            padding: 6px 10px;
-            font-size: 12px;
-            width: 80px;
-            transition: all 0.3s ease;
-        }
-
-        .input-field:focus {
-            outline: none;
-            border-color: #6c63ff;
-            background: rgba(108, 99, 255, 0.1);
-        }
-
-        .btn {
-            background: linear-gradient(135deg, #6c63ff, #8b5cf6);
-            border: none;
-            border-radius: 6px;
-            color: #ffffff;
-            padding: 6px 12px;
+            color: rgba(255, 255, 255, 0.8);
             font-size: 11px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
-        .btn:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(108, 99, 255, 0.4);
+        .player-icon {
+            width: 12px;
+            height: 12px;
+            background: #4ecdc4;
+            border-radius: 50%;
         }
 
-        .btn:active {
-            transform: translateY(0);
+        .player-count {
+            color: #4ecdc4;
+            font-weight: 600;
         }
 
-        .status-bar {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: rgba(0, 0, 0, 0.5);
-            border-top: 1px solid rgba(108, 99, 255, 0.3);
-            padding: 8px 16px;
+        .menu-version {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 10px;
+        }
+
+        /* Checkbox styles */
+        .checkbox-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-radius: 0 0 14px 14px;
-        }
-
-        .status-info {
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 11px;
-        }
-
-        .status-indicator {
-            width: 8px;
-            height: 8px;
-            background: #10b981;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: linear-gradient(to bottom, #6c63ff, #a855f7);
-            border-radius: 3px;
-        }
-
-        .hotkey-display {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            background: rgba(0, 0, 0, 0.7);
-            color: #6c63ff;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 10px;
+            padding: 12px 20px;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            border-left: 3px solid transparent;
             font-weight: 500;
+            position: relative;
         }
 
-        .notification {
-            position: absolute;
-            top: 80px;
-            right: 20px;
-            background: linear-gradient(135deg, #10b981, #059669);
-            color: white;
-            padding: 8px 12px;
-            border-radius: 8px;
-            font-size: 12px;
-            transform: translateX(100%);
-            transition: transform 0.3s ease;
-            z-index: 1000;
-        }
-
-        .notification.show {
-            transform: translateX(0);
-        }
-
-        .search-box {
+        .checkbox-item:hover {
             background: rgba(255, 255, 255, 0.1);
-            border: 1px solid rgba(108, 99, 255, 0.3);
-            border-radius: 8px;
+            border-left-color: rgba(255, 107, 157, 0.8);
             color: #ffffff;
-            padding: 10px 12px;
-            font-size: 13px;
-            width: 100%;
-            margin-bottom: 16px;
-            transition: all 0.3s ease;
         }
 
-        .search-box:focus {
-            outline: none;
-            border-color: #6c63ff;
-            background: rgba(108, 99, 255, 0.1);
+        .checkbox-item.selected {
+            background: rgba(255, 107, 157, 0.15);
+            border-left-color: #ff6b9d;
+            color: #ffffff;
         }
 
-        .search-box::placeholder {
+        .checkbox {
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 3px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .checkbox.checked {
+            background: #4ecdc4;
+            border-color: #4ecdc4;
+        }
+
+        .checkbox.checked::after {
+            content: '✓';
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        /* Section header styles */
+        .section-header {
+            padding: 8px 20px;
             color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            background: rgba(255, 255, 255, 0.05);
+            border-left: 3px solid #4ecdc4;
+        }
+
+        /* Glowing effects */
+        .menu-container::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: linear-gradient(45deg, #ff6b9d, #c44bff, #4ecdc4, #ff6b9d);
+            border-radius: 14px;
+            z-index: -1;
+            animation: glow 3s ease-in-out infinite alternate;
+            opacity: 0.3;
+        }
+
+        @keyframes glow {
+            0% { filter: blur(5px); }
+            100% { filter: blur(8px); }
+        }
+
+        /* Keyboard navigation styles */
+        .menu-item.keyboard-selected,
+        .checkbox-item.keyboard-selected {
+            background: rgba(255, 107, 157, 0.2);
+            border-left-color: #ff6b9d;
+            color: #ffffff;
+            box-shadow: inset 0 0 20px rgba(255, 107, 157, 0.1);
+        }
+
+        .menu-item.keyboard-selected .menu-arrow {
+            color: #ff6b9d;
+            animation: bounce 1s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateX(0); }
+            50% { transform: translateX(5px); }
+        }
+
+        /* Hide menu initially */
+        .menu-hidden {
+            transform: translateX(100%);
+            opacity: 0;
+        }
+
+        /* Show menu animation */
+        .menu-show {
+            animation: slideIn 0.3s ease-out forwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="menu-container">
-        <div class="hotkey-display">F2</div>
-        
-        <div class="header">
-            <h1>MACHO</h1>
-            <div class="subtitle">Advanced Mod Menu</div>
+    <div class="menu-container menu-show" id="phazeMenu">
+        <div class="menu-header">
+            <div class="phaze-logo">PHAZE</div>
+            <div class="menu-subtitle" id="menuSubtitle">Main menu</div>
         </div>
 
-        <div class="nav-tabs">
-            <div class="nav-tab active" data-tab="player">Player</div>
-            <div class="nav-tab" data-tab="weapon">Weapon</div>
-            <div class="nav-tab" data-tab="vehicle">Vehicle</div>
-            <div class="nav-tab" data-tab="world">World</div>
-            <div class="nav-tab" data-tab="misc">Misc</div>
-        </div>
-
-        <div class="content">
-            <input type="text" class="search-box" placeholder="Search features..." id="searchBox">
-
-            <!-- Player Tab -->
-            <div class="tab-content active" id="player">
-                <div class="feature-group">
-                    <div class="group-title">Health & Armor</div>
-                    
-                    <div class="feature-item" data-action="god_mode">
-                        <div class="feature-info">
-                            <div class="feature-name">God Mode</div>
-                            <div class="feature-desc">Infinite health and armor</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="infinite_health">
-                        <div class="feature-info">
-                            <div class="feature-name">Infinite Health</div>
-                            <div class="feature-desc">Never lose health</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="infinite_armor">
-                        <div class="feature-info">
-                            <div class="feature-name">Infinite Armor</div>
-                            <div class="feature-desc">Never lose armor</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+        <div class="menu-content" id="menuContent">
+            <!-- Main Menu -->
+            <div class="menu-section active" id="main-section">
+                <div class="menu-item keyboard-selected" data-action="main" data-index="0">
+                    <span class="menu-item-text">Main</span>
+                    <span class="menu-arrow">></span>
                 </div>
-
-                <div class="feature-group">
-                    <div class="group-title">Movement</div>
-                    
-                    <div class="feature-item" data-action="super_speed">
-                        <div class="feature-info">
-                            <div class="feature-name">Super Speed</div>
-                            <div class="feature-desc">Run faster than normal</div>
-                        </div>
-                        <div class="input-group">
-                            <input type="number" class="input-field" placeholder="2.0" id="speedMultiplier" min="1" max="10" step="0.1">
-                            <div class="feature-toggle">
-                                <div class="toggle-slider"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="super_jump">
-                        <div class="feature-info">
-                            <div class="feature-name">Super Jump</div>
-                            <div class="feature-desc">Jump higher than normal</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="no_clip">
-                        <div class="feature-info">
-                            <div class="feature-name">No Clip</div>
-                            <div class="feature-desc">Fly through objects</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+                <div class="menu-item" data-action="weapon" data-index="1">
+                    <span class="menu-item-text">Weapon</span>
+                    <span class="menu-arrow">></span>
                 </div>
-
-                <div class="feature-group">
-                    <div class="group-title">Teleportation</div>
-                    
-                    <div class="feature-item" data-action="teleport_waypoint">
-                        <div class="feature-info">
-                            <div class="feature-name">Teleport to Waypoint</div>
-                            <div class="feature-desc">Instantly go to map marker</div>
-                        </div>
-                        <button class="btn">Teleport</button>
-                    </div>
-
-                    <div class="feature-item" data-action="save_location">
-                        <div class="feature-info">
-                            <div class="feature-name">Save Location</div>
-                            <div class="feature-desc">Save current position</div>
-                        </div>
-                        <button class="btn">Save</button>
-                    </div>
-
-                    <div class="feature-item" data-action="load_location">
-                        <div class="feature-info">
-                            <div class="feature-name">Load Location</div>
-                            <div class="feature-desc">Return to saved position</div>
-                        </div>
-                        <button class="btn">Load</button>
-                    </div>
+                <div class="menu-item" data-action="money" data-index="2">
+                    <span class="menu-item-text">Money</span>
+                    <span class="menu-arrow">></span>
+                </div>
+                <div class="menu-item" data-action="item" data-index="3">
+                    <span class="menu-item-text">Item</span>
+                    <span class="menu-arrow">></span>
+                </div>
+                <div class="menu-item" data-action="vehicle" data-index="4">
+                    <span class="menu-item-text">Vehicle</span>
+                    <span class="menu-arrow">></span>
+                </div>
+                <div class="menu-item" data-action="buy" data-index="5">
+                    <span class="menu-item-text">Buy</span>
+                    <span class="menu-arrow">></span>
+                </div>
+                <div class="menu-item" data-action="store" data-index="6">
+                    <span class="menu-item-text">Store</span>
+                    <span class="menu-arrow">></span>
+                </div>
+                <div class="menu-item" data-action="trol" data-index="7">
+                    <span class="menu-item-text">Trol</span>
+                    <span class="menu-arrow">></span>
                 </div>
             </div>
 
-            <!-- Weapon Tab -->
-            <div class="tab-content" id="weapon">
-                <div class="feature-group">
-                    <div class="group-title">Weapon Management</div>
-                    
-                    <div class="feature-item" data-action="give_all_weapons">
-                        <div class="feature-info">
-                            <div class="feature-name">Give All Weapons</div>
-                            <div class="feature-desc">Add all weapons to inventory</div>
-                        </div>
-                        <button class="btn">Give</button>
-                    </div>
-
-                    <div class="feature-item" data-action="remove_all_weapons">
-                        <div class="feature-info">
-                            <div class="feature-name">Remove All Weapons</div>
-                            <div class="feature-desc">Clear weapon inventory</div>
-                        </div>
-                        <button class="btn">Remove</button>
-                    </div>
-
-                    <div class="feature-item" data-action="infinite_ammo">
-                        <div class="feature-info">
-                            <div class="feature-name">Infinite Ammo</div>
-                            <div class="feature-desc">Never run out of bullets</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="no_reload">
-                        <div class="feature-info">
-                            <div class="feature-name">No Reload</div>
-                            <div class="feature-desc">Skip reload animations</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+            <!-- Main Section -->
+            <div class="menu-section" id="main-content">
+                <div class="section-header">CORE FUNCTIONS</div>
+                <div class="menu-item" data-action="jail-break" data-index="0">
+                    <span class="menu-item-text">Jail Break</span>
+                </div>
+                <div class="checkbox-item" data-action="infinite-run" data-index="1">
+                    <span class="menu-item-text">Infinite Run</span>
+                    <div class="checkbox" id="infinite-run-check"></div>
+                </div>
+                <div class="checkbox-item" data-action="trigger-bot" data-index="2">
+                    <span class="menu-item-text">Trigger Bot</span>
+                    <div class="checkbox" id="trigger-bot-check"></div>
+                </div>
+                <div class="checkbox-item" data-action="clean-exit" data-index="3">
+                    <span class="menu-item-text">Clean Exit on H</span>
+                    <div class="checkbox" id="clean-exit-check"></div>
                 </div>
 
-                <div class="feature-group">
-                    <div class="group-title">Combat Enhancement</div>
-                    
-                    <div class="feature-item" data-action="no_recoil">
-                        <div class="feature-info">
-                            <div class="feature-name">No Recoil</div>
-                            <div class="feature-desc">Remove weapon recoil</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="rapid_fire">
-                        <div class="feature-info">
-                            <div class="feature-name">Rapid Fire</div>
-                            <div class="feature-desc">Increase firing rate</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="explosive_ammo">
-                        <div class="feature-info">
-                            <div class="feature-name">Explosive Ammo</div>
-                            <div class="feature-desc">Bullets cause explosions</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+                <div class="section-header">PLAYER STATUS</div>
+                <div class="menu-item" data-action="food-drink" data-index="4">
+                    <span class="menu-item-text">Food & Drink</span>
+                </div>
+                <div class="menu-item" data-action="drunk" data-index="5">
+                    <span class="menu-item-text">S6llh</span>
+                </div>
+                <div class="menu-item" data-action="handcuff" data-index="6">
+                    <span class="menu-item-text">Handcuff</span>
+                </div>
+                <div class="menu-item" data-action="back-from-hell" data-index="7">
+                    <span class="menu-item-text">!!! Back From Hell !!!</span>
+                </div>
+                <div class="checkbox-item" data-action="protection-helmet" data-index="8">
+                    <span class="menu-item-text">Protection Helmet</span>
+                    <div class="checkbox" id="protection-helmet-check"></div>
                 </div>
             </div>
 
-            <!-- Vehicle Tab -->
-            <div class="tab-content" id="vehicle">
-                <div class="feature-group">
-                    <div class="group-title">Vehicle Spawning</div>
-                    
-                    <div class="feature-item" data-action="spawn_vehicle">
-                        <div class="feature-info">
-                            <div class="feature-name">Spawn Vehicle</div>
-                            <div class="feature-desc">Spawn any vehicle by name</div>
-                        </div>
-                        <div class="input-group">
-                            <input type="text" class="input-field" placeholder="adder" id="vehicleName" style="width: 100px;">
-                            <button class="btn">Spawn</button>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="delete_vehicle">
-                        <div class="feature-info">
-                            <div class="feature-name">Delete Vehicle</div>
-                            <div class="feature-desc">Remove current vehicle</div>
-                        </div>
-                        <button class="btn">Delete</button>
-                    </div>
+            <!-- Weapon Section -->
+            <div class="menu-section" id="weapon-content">
+                <div class="section-header">STANDARD WEAPONS</div>
+                <div class="menu-item" data-action="combat-pdw" data-index="0">
+                    <span class="menu-item-text">Combat PDW</span>
+                </div>
+                <div class="menu-item" data-action="revolver" data-index="1">
+                    <span class="menu-item-text">Revolver</span>
+                </div>
+                <div class="menu-item" data-action="pump-shotgun" data-index="2">
+                    <span class="menu-item-text">Pump Shotgun</span>
+                </div>
+                <div class="menu-item" data-action="micro-smg" data-index="3">
+                    <span class="menu-item-text">Micro SMG</span>
+                </div>
+                <div class="menu-item" data-action="switchblade" data-index="4">
+                    <span class="menu-item-text">Switchblade</span>
                 </div>
 
-                <div class="feature-group">
-                    <div class="group-title">Vehicle Modifications</div>
-                    
-                    <div class="feature-item" data-action="vehicle_god_mode">
-                        <div class="feature-info">
-                            <div class="feature-name">Vehicle God Mode</div>
-                            <div class="feature-desc">Indestructible vehicle</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+                <div class="section-header">DEV 2 WEAPONS</div>
+                <div class="menu-item" data-action="micro-smg-dev2" data-index="5">
+                    <span class="menu-item-text">Micro SMG DEV 2</span>
+                </div>
+                <div class="menu-item" data-action="combat-pdw-dev2" data-index="6">
+                    <span class="menu-item-text">Combat PDW DEV 2</span>
+                </div>
+                <div class="menu-item" data-action="revolver-dev2" data-index="7">
+                    <span class="menu-item-text">Revolver DEV 2</span>
+                </div>
+                <div class="menu-item" data-action="pump-shotgun-dev2" data-index="8">
+                    <span class="menu-item-text">Pump Shotgun DEV 2</span>
+                </div>
+                <div class="menu-item" data-action="switchblade-dev2" data-index="9">
+                    <span class="menu-item-text">Switchblade DEV 2</span>
+                </div>
 
-                    <div class="feature-item" data-action="super_speed_vehicle">
-                        <div class="feature-info">
-                            <div class="feature-name">Super Speed</div>
-                            <div class="feature-desc">Increase vehicle speed</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+                <div class="section-header">WEAPON UTILITIES</div>
+                <div class="menu-item" data-action="add-ammo" data-index="10">
+                    <span class="menu-item-text">Add Ammo</span>
+                </div>
+                <div class="menu-item" data-action="weapon-license" data-index="11">
+                    <span class="menu-item-text">Weapon License</span>
+                </div>
 
-                    <div class="feature-item" data-action="repair_vehicle">
-                        <div class="feature-info">
-                            <div class="feature-name">Repair Vehicle</div>
-                            <div class="feature-desc">Fix current vehicle</div>
-                        </div>
-                        <button class="btn">Repair</button>
-                    </div>
-
-                    <div class="feature-item" data-action="flip_vehicle">
-                        <div class="feature-info">
-                            <div class="feature-name">Flip Vehicle</div>
-                            <div class="feature-desc">Upright flipped vehicle</div>
-                        </div>
-                        <button class="btn">Flip</button>
-                    </div>
+                <div class="section-header">WEAPON REMOVAL</div>
+                <div class="menu-item" data-action="remove-pdw" data-index="12">
+                    <span class="menu-item-text">Remove PDW</span>
+                </div>
+                <div class="menu-item" data-action="remove-revolver" data-index="13">
+                    <span class="menu-item-text">Remove Revolver</span>
+                </div>
+                <div class="menu-item" data-action="remove-micro-smg" data-index="14">
+                    <span class="menu-item-text">Remove Micro SMG</span>
+                </div>
+                <div class="menu-item" data-action="remove-switchblade" data-index="15">
+                    <span class="menu-item-text">Remove Switchblade</span>
+                </div>
+                <div class="menu-item" data-action="remove-shotgun" data-index="16">
+                    <span class="menu-item-text">Remove Shotgun</span>
                 </div>
             </div>
 
-            <!-- World Tab -->
-            <div class="tab-content" id="world">
-                <div class="feature-group">
-                    <div class="group-title">Time & Weather</div>
-                    
-                    <div class="feature-item" data-action="freeze_time">
-                        <div class="feature-info">
-                            <div class="feature-name">Freeze Time</div>
-                            <div class="feature-desc">Stop time progression</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="set_time">
-                        <div class="feature-info">
-                            <div class="feature-name">Set Time</div>
-                            <div class="feature-desc">Change current time</div>
-                        </div>
-                        <div class="input-group">
-                            <input type="number" class="input-field" placeholder="12" id="timeHour" min="0" max="23">
-                            <button class="btn">Set</button>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="clear_weather">
-                        <div class="feature-info">
-                            <div class="feature-name">Clear Weather</div>
-                            <div class="feature-desc">Set sunny weather</div>
-                        </div>
-                        <button class="btn">Clear</button>
-                    </div>
-
-                    <div class="feature-item" data-action="stormy_weather">
-                        <div class="feature-info">
-                            <div class="feature-name">Stormy Weather</div>
-                            <div class="feature-desc">Set thunderstorm weather</div>
-                        </div>
-                        <button class="btn">Storm</button>
-                    </div>
+            <!-- Money Section -->
+            <div class="menu-section" id="money-content">
+                <div class="section-header">MONEY CONTROL</div>
+                <div class="menu-item" data-action="withdraw-black-money" data-index="0">
+                    <span class="menu-item-text">Withdraw Black Money (150K)</span>
+                </div>
+                <div class="menu-item" data-action="deposit-black-money" data-index="1">
+                    <span class="menu-item-text">Deposit Black Money (150K)</span>
                 </div>
 
-                <div class="feature-group">
-                    <div class="group-title">World Effects</div>
-                    
-                    <div class="feature-item" data-action="no_wanted_level">
-                        <div class="feature-info">
-                            <div class="feature-name">No Wanted Level</div>
-                            <div class="feature-desc">Disable police pursuit</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="never_wanted">
-                        <div class="feature-info">
-                            <div class="feature-name">Never Wanted</div>
-                            <div class="feature-desc">Prevent getting wanted</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+                <div class="section-header">AUTO MONEY LOOPS</div>
+                <div class="checkbox-item" data-action="market-loop" data-index="2">
+                    <span class="menu-item-text">Market Loop</span>
+                    <div class="checkbox" id="market-loop-check"></div>
+                </div>
+                <div class="checkbox-item" data-action="clothes-loop" data-index="3">
+                    <span class="menu-item-text">Clothes Loop</span>
+                    <div class="checkbox" id="clothes-loop-check"></div>
                 </div>
             </div>
 
-            <!-- Misc Tab -->
-            <div class="tab-content" id="misc">
-                <div class="feature-group">
-                    <div class="group-title">Visual Effects</div>
-                    
-                    <div class="feature-item" data-action="esp_players">
-                        <div class="feature-info">
-                            <div class="feature-name">Player ESP</div>
-                            <div class="feature-desc">See players through walls</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="esp_vehicles">
-                        <div class="feature-info">
-                            <div class="feature-name">Vehicle ESP</div>
-                            <div class="feature-desc">See vehicles through walls</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="thermal_vision">
-                        <div class="feature-info">
-                            <div class="feature-name">Thermal Vision</div>
-                            <div class="feature-desc">Heat signature view</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
-
-                    <div class="feature-item" data-action="night_vision">
-                        <div class="feature-info">
-                            <div class="feature-name">Night Vision</div>
-                            <div class="feature-desc">Enhanced night visibility</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+            <!-- Item Section -->
+            <div class="menu-section" id="item-content">
+                <div class="section-header">VEHICLE TRUNK MANAGEMENT</div>
+                <div class="menu-item" data-action="add-c4" data-index="0">
+                    <span class="menu-item-text">Add C4 (1x)</span>
+                </div>
+                <div class="menu-item" data-action="add-id-card" data-index="1">
+                    <span class="menu-item-text">Add ID Card F (1x)</span>
+                </div>
+                <div class="menu-item" data-action="add-rob-lap" data-index="2">
+                    <span class="menu-item-text">Add Rob Lap (1x)</span>
+                </div>
+                <div class="menu-item" data-action="add-drill" data-index="3">
+                    <span class="menu-item-text">Add Drill (1x)</span>
+                </div>
+                <div class="menu-item" data-action="add-adv-hacking" data-index="4">
+                    <span class="menu-item-text">Add Adv Hacking (1x)</span>
+                </div>
+                <div class="menu-item" data-action="add-oxygen-mask" data-index="5">
+                    <span class="menu-item-text">Add Oxygen Mask (1x)</span>
                 </div>
 
-                <div class="feature-group">
-                    <div class="group-title">Utility</div>
-                    
-                    <div class="feature-item" data-action="spectate_mode">
-                        <div class="feature-info">
-                            <div class="feature-name">Spectate Mode</div>
-                            <div class="feature-desc">Free camera movement</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+                <div class="section-header">ITEM SHOP</div>
+                <div class="menu-item" data-action="bulletproof-vest" data-index="6">
+                    <span class="menu-item-text">Bulletproof Vest</span>
+                </div>
+                <div class="menu-item" data-action="repair-kit" data-index="7">
+                    <span class="menu-item-text">Repair Kit</span>
+                </div>
+                <div class="menu-item" data-action="safety-helmet" data-index="8">
+                    <span class="menu-item-text">Safety Helmet</span>
+                </div>
 
-                    <div class="feature-item" data-action="freeze_all_players">
-                        <div class="feature-info">
-                            <div class="feature-name">Freeze All Players</div>
-                            <div class="feature-desc">Stop all player movement</div>
-                        </div>
-                        <div class="feature-toggle">
-                            <div class="toggle-slider"></div>
-                        </div>
-                    </div>
+                <div class="section-header">DRUG MANAGEMENT</div>
+                <div class="menu-item" data-action="get-opium" data-index="9">
+                    <span class="menu-item-text">Get Opium (65x)</span>
+                </div>
+                <div class="menu-item" data-action="get-weed" data-index="10">
+                    <span class="menu-item-text">Get Weed (65x)</span>
+                </div>
+            </div>
+
+            <!-- Vehicle Section -->
+            <div class="menu-section" id="vehicle-content">
+                <div class="section-header">GARAGE MANAGEMENT</div>
+                <div class="menu-item" data-action="store-in-garage" data-index="0">
+                    <span class="menu-item-text">Store in Garage</span>
+                </div>
+
+                <div class="section-header">VEHICLE FEATURES</div>
+                <div class="checkbox-item" data-action="seat-belt" data-index="1">
+                    <span class="menu-item-text">Seat Belt</span>
+                    <div class="checkbox" id="seat-belt-check"></div>
+                </div>
+                <div class="checkbox-item" data-action="no-speed-limit" data-index="2">
+                    <span class="menu-item-text">No Speed Limit</span>
+                    <div class="checkbox" id="no-speed-limit-check"></div>
+                </div>
+                <div class="menu-item" data-action="fill-fuel" data-index="3">
+                    <span class="menu-item-text">Fill Fuel Tank</span>
+                </div>
+            </div>
+
+            <!-- Buy Section -->
+            <div class="menu-section" id="buy-content">
+                <div class="section-header">BUY WEAPONS</div>
+                <div class="menu-item" data-action="buy-micro-smg" data-index="0">
+                    <span class="menu-item-text">Buy Micro SMG</span>
+                </div>
+                <div class="menu-item" data-action="buy-revolver" data-index="1">
+                    <span class="menu-item-text">Buy Revolver</span>
+                </div>
+                <div class="menu-item" data-action="buy-pump-shotgun" data-index="2">
+                    <span class="menu-item-text">Buy Pump Shotgun</span>
+                </div>
+
+                <div class="section-header">BUY ITEMS</div>
+                <div class="menu-item" data-action="buy-big-box" data-index="3">
+                    <span class="menu-item-text">Buy Big Box</span>
+                </div>
+            </div>
+
+            <!-- Store Section -->
+            <div class="menu-section" id="store-content">
+                <div class="section-header">STORE MANAGEMENT</div>
+                <div class="menu-item" data-action="resell-item" data-index="0">
+                    <span class="menu-item-text">Resell Item</span>
+                </div>
+                <div class="menu-item" data-action="make-shipment" data-index="1">
+                    <span class="menu-item-text">Make Shipment</span>
+                </div>
+            </div>
+
+            <!-- Trol Section -->
+            <div class="menu-section" id="trol-content">
+                <div class="section-header">VEHICLE SPAWNER</div>
+                <div class="menu-item" data-action="spawn-vehicle" data-index="0">
+                    <span class="menu-item-text">🚗 Spawn Vehicle 🚗</span>
+                </div>
+
+                <div class="section-header">SPAWNER FEATURES</div>
+                <div class="menu-item" data-action="feature-1" data-index="1">
+                    <span class="menu-item-text">🚗 Spawn any vehicle by code</span>
+                </div>
+                <div class="menu-item" data-action="feature-2" data-index="2">
+                    <span class="menu-item-text">🏷️ Custom plate on spawn</span>
+                </div>
+                <div class="menu-item" data-action="feature-3" data-index="3">
+                    <span class="menu-item-text">📍 Spawns in front of you</span>
+                </div>
+                <div class="menu-item" data-action="feature-4" data-index="4">
+                    <span class="menu-item-text">⚡ Instant vehicle creation</span>
+                </div>
+                <div class="menu-item" data-action="feature-5" data-index="5">
+                    <span class="menu-item-text">🔧 Perfect condition & full fuel</span>
+                </div>
+                <div class="menu-item" data-action="feature-6" data-index="6">
+                    <span class="menu-item-text">🎨 Clean black finish</span>
                 </div>
             </div>
         </div>
 
-        <div class="status-bar">
-            <div class="status-info">Macho v2.1 | Connected</div>
-            <div class="status-indicator"></div>
+        <div class="menu-footer">
+            <div class="player-info">
+                <div class="player-icon"></div>
+                <span class="player-count">264267</span>
+                <span>| 2d ago</span>
+            </div>
+            <div class="menu-version">v1.0</div>
         </div>
-
-        <div class="notification" id="notification"></div>
     </div>
 
     <script>
-        class MachoMenu {
+        class PhazeMenuSystem {
             constructor() {
-                this.features = new Map();
-                this.savedLocation = null;
-                this.isVisible = false;
-                this.currentSearch = '';
-                
+                this.currentIndex = 0;
+                this.currentSection = 'main-section';
+                this.isVisible = true;
+                this.menuHistory = [];
+                this.checkboxStates = {};
                 this.init();
             }
 
             init() {
-                this.setupEventListeners();
-                this.setupKeyboardNavigation();
-                this.loadFeatureStates();
+                this.bindKeyboardEvents();
+                this.updateSelection();
+                this.setupMessageListener();
             }
 
-            setupEventListeners() {
-                // Tab switching
-                document.querySelectorAll('.nav-tab').forEach(tab => {
-                    tab.addEventListener('click', (e) => {
-                        this.switchTab(e.target.dataset.tab);
-                    });
-                });
-
-                // Feature toggles
-                document.querySelectorAll('.feature-toggle').forEach(toggle => {
-                    toggle.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const item = e.target.closest('.feature-item');
-                        const action = item.dataset.action;
-                        this.toggleFeature(action, toggle);
-                    });
-                });
-
-                // Buttons
-                document.querySelectorAll('.btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => {
-                        e.stopPropagation();
-                        const item = e.target.closest('.feature-item');
-                        const action = item.dataset.action;
-                        this.executeAction(action);
-                    });
-                });
-
-                // Search functionality
-                document.getElementById('searchBox').addEventListener('input', (e) => {
-                    this.searchFeatures(e.target.value);
-                });
-
-                // Input field changes
-                document.querySelectorAll('.input-field').forEach(input => {
-                    input.addEventListener('change', (e) => {
-                        this.handleInputChange(e.target.id, e.target.value);
-                    });
-                });
-            }
-
-            setupKeyboardNavigation() {
-                let selectedIndex = 0;
-                const selectableItems = () => document.querySelectorAll('.feature-item:not([style*="display: none"])');
-
-                document.addEventListener('keydown', (e) => {
-                    if (!this.isVisible) return;
-
-                    const items = selectableItems();
-                    
-                    switch(e.key) {
-                        case 'ArrowUp':
-                            e.preventDefault();
-                            selectedIndex = Math.max(0, selectedIndex - 1);
-                            this.highlightItem(items[selectedIndex]);
-                            break;
-                        case 'ArrowDown':
-                            e.preventDefault();
-                            selectedIndex = Math.min(items.length - 1, selectedIndex + 1);
-                            this.highlightItem(items[selectedIndex]);
-                            break;
-                        case 'Enter':
-                            e.preventDefault();
-                            if (items[selectedIndex]) {
-                                const toggle = items[selectedIndex].querySelector('.feature-toggle');
-                                const btn = items[selectedIndex].querySelector('.btn');
-                                if (toggle) {
-                                    toggle.click();
-                                } else if (btn) {
-                                    btn.click();
-                                }
-                            }
-                            break;
+            setupMessageListener() {
+                window.addEventListener("message", (event) => {
+                    const data = event.data;
+                    if (data.type === "toggleMenu") {
+                        this.toggleMenu();
+                    } else if (data.type === "keyPress") {
+                        this.handleKeyPress(data.key);
                     }
                 });
             }
 
-            highlightItem(item) {
-                document.querySelectorAll('.feature-item').forEach(i => i.classList.remove('highlighted'));
-                if (item) {
-                    item.classList.add('highlighted');
-                    item.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            bindKeyboardEvents() {
+                document.addEventListener('keydown', (e) => {
+                    this.handleKeyPress(e.key);
+                });
+            }
+
+            handleKeyPress(key) {
+                if (!this.isVisible) return;
+
+                switch(key) {
+                    case 'ArrowUp':
+                        this.navigateUp();
+                        break;
+                    case 'ArrowDown':
+                        this.navigateDown();
+                        break;
+                    case 'Enter':
+                        this.selectItem();
+                        break;
+                    case 'Backspace':
+                        this.goBack();
+                        break;
+                    case 'Escape':
+                        this.closeMenu();
+                        break;
                 }
             }
 
-            switchTab(tabId) {
-                // Update nav tabs
-                document.querySelectorAll('.nav-tab').forEach(tab => {
-                    tab.classList.remove('active');
-                });
-                document.querySelector(`[data-tab="${tabId}"]`).classList.add('active');
-
-                // Update content
-                document.querySelectorAll('.tab-content').forEach(content => {
-                    content.classList.remove('active');
-                });
-                document.getElementById(tabId).classList.add('active');
-
-                // Clear search when switching tabs
-                document.getElementById('searchBox').value = '';
-                this.searchFeatures('');
+            navigateUp() {
+                const items = this.getCurrentItems();
+                this.currentIndex = (this.currentIndex - 1 + items.length) % items.length;
+                this.updateSelection();
             }
 
-            toggleFeature(action, toggleElement) {
-                const isActive = toggleElement.classList.toggle('active');
-                const item = toggleElement.closest('.feature-item');
+            navigateDown() {
+                const items = this.getCurrentItems();
+                this.currentIndex = (this.currentIndex + 1) % items.length;
+                this.updateSelection();
+            }
+
+            getCurrentItems() {
+                const section = document.getElementById(this.currentSection);
+                return section.querySelectorAll('.menu-item, .checkbox-item');
+            }
+
+            updateSelection() {
+                // Remove all selections
+                document.querySelectorAll('.menu-item, .checkbox-item').forEach(item => {
+                    item.classList.remove('keyboard-selected');
+                });
+
+                // Add selection to current item
+                const items = this.getCurrentItems();
+                if (items[this.currentIndex]) {
+                    items[this.currentIndex].classList.add('keyboard-selected');
+                    items[this.currentIndex].scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'nearest'
+                    });
+                }
+            }
+
+            selectItem() {
+                const items = this.getCurrentItems();
+                const selectedItem = items[this.currentIndex];
                 
-                if (isActive) {
-                    item.classList.add('active');
+                if (!selectedItem) return;
+
+                const action = selectedItem.dataset.action;
+                
+                // Flash effect
+                selectedItem.style.background = 'rgba(255, 107, 157, 0.4)';
+                setTimeout(() => {
+                    selectedItem.style.background = '';
+                }, 150);
+
+                if (selectedItem.classList.contains('checkbox-item')) {
+                    this.toggleCheckbox(action);
+                } else if (this.currentSection === 'main-section') {
+                    this.openSubmenu(action);
                 } else {
-                    item.classList.remove('active');
+                    this.executeAction(action);
+                }
+            }
+
+            toggleCheckbox(action) {
+                const checkbox = document.getElementById(action + '-check');
+                if (!checkbox) return;
+
+                this.checkboxStates[action] = !this.checkboxStates[action];
+                
+                if (this.checkboxStates[action]) {
+                    checkbox.classList.add('checked');
+                } else {
+                    checkbox.classList.remove('checked');
                 }
 
-                this.features.set(action, isActive);
-                this.sendToLua({
-                    type: 'toggle_feature',
-                    action: action,
-                    enabled: isActive,
-                    value: this.getFeatureValue(action)
+                // Send toggle action to Lua
+                this.sendToLua('toggleFeature', { feature: action, enabled: this.checkboxStates[action] });
+            }
+
+            openSubmenu(action) {
+                // Save current state to history
+                this.menuHistory.push({
+                    section: this.currentSection,
+                    index: this.currentIndex
                 });
 
-                this.showNotification(`${action.replace(/_/g, ' ')} ${isActive ? 'enabled' : 'disabled'}`);
+                // Hide current section
+                document.getElementById(this.currentSection).classList.remove('active');
+
+                // Show new section
+                const newSection = action + '-content';
+                const sectionElement = document.getElementById(newSection);
+                
+                if (sectionElement) {
+                    this.currentSection = newSection;
+                    sectionElement.classList.add('active');
+                    this.currentIndex = 0;
+                    this.updateSelection();
+                    
+                    // Update subtitle
+                    document.getElementById('menuSubtitle').textContent = 
+                        `Main menu > ${action.charAt(0).toUpperCase() + action.slice(1)}`;
+                }
+            }
+
+            goBack() {
+                if (this.menuHistory.length === 0) return;
+
+                // Hide current section
+                document.getElementById(this.currentSection).classList.remove('active');
+
+                // Restore previous state
+                const previousState = this.menuHistory.pop();
+                this.currentSection = previousState.section;
+                this.currentIndex = previousState.index;
+
+                // Show previous section
+                document.getElementById(this.currentSection).classList.add('active');
+                this.updateSelection();
+
+                // Update subtitle
+                if (this.currentSection === 'main-section') {
+                    document.getElementById('menuSubtitle').textContent = 'Main menu';
+                }
             }
 
             executeAction(action) {
-                const value = this.getFeatureValue(action);
-                
-                this.sendToLua({
-                    type: 'execute_action',
-                    action: action,
-                    value: value
-                });
-
-                this.showNotification(`Executed: ${action.replace(/_/g, ' ')}`);
+                // Send action to Lua
+                this.sendToLua('executeAction', { action: action });
             }
 
-            getFeatureValue(action) {
-                const item = document.querySelector(`[data-action="${action}"]`);
-                const input = item?.querySelector('.input-field');
-                
-                if (input) {
-                    return input.value || input.placeholder;
+            sendToLua(type, data) {
+                // Send message to parent window (LUA DUI)
+                if (window.parent && window.parent !== window) {
+                    window.parent.postMessage({
+                        type: type,
+                        data: data
+                    }, '*');
                 }
                 
-                return null;
-            }
-
-            handleInputChange(inputId, value) {
-                console.log(`Input ${inputId} changed to: ${value}`);
-            }
-
-            searchFeatures(query) {
-                this.currentSearch = query.toLowerCase();
-                const items = document.querySelectorAll('.feature-item');
-                
-                items.forEach(item => {
-                    const name = item.querySelector('.feature-name').textContent.toLowerCase();
-                    const desc = item.querySelector('.feature-desc').textContent.toLowerCase();
-                    
-                    if (name.includes(this.currentSearch) || desc.includes(this.currentSearch)) {
-                        item.style.display = '';
-                    } else {
-                        item.style.display = 'none';
-                    }
-                });
-
-                // Hide empty groups
-                document.querySelectorAll('.feature-group').forEach(group => {
-                    const visibleItems = group.querySelectorAll('.feature-item:not([style*="display: none"])');
-                    group.style.display = visibleItems.length > 0 ? '' : 'none';
-                });
-            }
-
-            showNotification(message) {
-                const notification = document.getElementById('notification');
-                notification.textContent = message;
-                notification.classList.add('show');
-                
-                setTimeout(() => {
-                    notification.classList.remove('show');
-                }, 3000);
-            }
-
-            sendToLua(data) {
-                // Send message to Lua backend
-                console.log('Sending to Lua:', data);
-                
-                // In a real implementation, this would interface with the Macho API
+                // Also try sending via fetch to a local endpoint (alternative method)
                 try {
-                    if (window.invokeNative) {
-                        window.invokeNative('sendUIMessage', JSON.stringify(data));
-                    }
+                    fetch('http://phaze-menu/action', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            type: type,
+                            data: data
+                        })
+                    }).catch(() => {}); // Ignore errors for this fallback method
                 } catch (e) {
-                    console.log('Development mode - Lua message:', data);
+                    // Ignore errors
                 }
+                
+                console.log('Sending to LUA:', type, data);
             }
 
-            loadFeatureStates() {
-                // Load saved feature states from localStorage or Lua
-                const saved = localStorage.getItem('macho_features');
-                if (saved) {
-                    const states = JSON.parse(saved);
-                    Object.entries(states).forEach(([action, enabled]) => {
-                        const toggle = document.querySelector(`[data-action="${action}"] .feature-toggle`);
-                        if (toggle && enabled) {
-                            toggle.classList.add('active');
-                            toggle.closest('.feature-item').classList.add('active');
-                            this.features.set(action, true);
-                        }
-                    });
-                }
-            }
-
-            saveFeatureStates() {
-                const states = Object.fromEntries(this.features);
-                localStorage.setItem('macho_features', JSON.stringify(states));
-            }
-
-            show() {
-                this.isVisible = true;
-                document.body.style.display = 'block';
-            }
-
-            hide() {
-                this.isVisible = false;
-                document.body.style.display = 'none';
-                this.saveFeatureStates();
-            }
-
-            toggle() {
+            toggleMenu() {
+                const menu = document.getElementById('phazeMenu');
+                
                 if (this.isVisible) {
-                    this.hide();
+                    menu.style.transform = 'translateX(100%)';
+                    menu.style.opacity = '0';
+                    this.isVisible = false;
                 } else {
-                    this.show();
+                    menu.style.transform = 'translateX(0)';
+                    menu.style.opacity = '1';
+                    this.isVisible = true;
                 }
+            }
+
+            closeMenu() {
+                this.toggleMenu();
+                this.sendToLua('closeMenu', {});
             }
         }
 
-        // Initialize menu
-        const menu = new MachoMenu();
-
-        // Listen for messages from Lua
-        window.addEventListener('message', (event) => {
-            try {
-                const data = JSON.parse(event.data);
-                
-                switch(data.type) {
-                    case 'toggle_menu':
-                        menu.toggle();
-                        break;
-                    case 'show_menu':
-                        menu.show();
-                        break;
-                    case 'hide_menu':
-                        menu.hide();
-                        break;
-                    case 'notification':
-                        menu.showNotification(data.message);
-                        break;
-                    case 'update_feature':
-                        // Update feature state from Lua
-                        const toggle = document.querySelector(`[data-action="${data.action}"] .feature-toggle`);
-                        if (toggle) {
-                            if (data.enabled) {
-                                toggle.classList.add('active');
-                                toggle.closest('.feature-item').classList.add('active');
-                            } else {
-                                toggle.classList.remove('active');
-                                toggle.closest('.feature-item').classList.remove('active');
-                            }
-                        }
-                        break;
-                }
-            } catch (e) {
-                console.error('Error parsing message:', e);
-            }
+        // Initialize the menu system
+        document.addEventListener('DOMContentLoaded', () => {
+            window.phazeMenu = new PhazeMenuSystem();
         });
-
-        // Initialize as hidden
-        menu.hide();
     </script>
 </body>
 </html>
