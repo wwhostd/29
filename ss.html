@@ -13,15 +13,21 @@
             box-sizing: border-box;
         }
 
+        html {
+            background: transparent !important;
+        }
+
         body {
             font-family: Arial, sans-serif;
-            background: transparent;
+            background: none !important;
+            background-color: transparent !important;
             min-height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
             padding: 20px;
             color: #ffffff;
+            overflow: hidden;
         }
 
         .main-container {
@@ -1565,121 +1571,3 @@
             toggle.classList.toggle('active', toggleStates[action]);
             item.classList.toggle('toggle-active', toggleStates[action]);
         }
-
-        function activateItem() {
-            if (!menuItems[activeItem]) return;
-
-            const item = menuItems[activeItem];
-            const type = item.dataset.type;
-
-            switch (type) {
-                case 'toggle':
-                    toggleSwitch(item);
-                    break;
-                case 'button':
-                    const btn = item.querySelector('.action-btn, .spawn-btn');
-                    if (btn) {
-                        btn.style.transform = 'scale(0.95)';
-                        setTimeout(() => { btn.style.transform = ''; }, 150);
-                    }
-                    break;
-                case 'input':
-                    const input = item.querySelector('.input-field');
-                    if (input) input.focus();
-                    break;
-            }
-        }
-
-        // Keyboard event handler
-        window.addEventListener('keydown', function(e) {
-            // Don't intercept if typing in input field
-            if (document.activeElement.tagName === 'INPUT') {
-                return;
-            }
-
-            // Q key - previous tab
-            if (e.keyCode === 81 || e.key === 'q' || e.key === 'Q') {
-                e.preventDefault();
-                e.stopPropagation();
-                changeTab(currentTab - 1);
-                return false;
-            }
-            
-            // E key - next tab
-            if (e.keyCode === 69 || e.key === 'e' || e.key === 'E') {
-                e.preventDefault();
-                e.stopPropagation();
-                changeTab(currentTab + 1);
-                return false;
-            }
-
-            // Arrow Down
-            if (e.keyCode === 40 || e.key === 'ArrowDown') {
-                e.preventDefault();
-                if (menuItems.length > 0) {
-                    activeItem = (activeItem + 1) % menuItems.length;
-                    updateSelection();
-                    updateItemCounter();
-                }
-                return false;
-            }
-
-            // Arrow Up
-            if (e.keyCode === 38 || e.key === 'ArrowUp') {
-                e.preventDefault();
-                if (menuItems.length > 0) {
-                    activeItem = (activeItem - 1 + menuItems.length) % menuItems.length;
-                    updateSelection();
-                    updateItemCounter();
-                }
-                return false;
-            }
-
-            // Arrow Right
-            if (e.keyCode === 39 || e.key === 'ArrowRight') {
-                e.preventDefault();
-                if (menuItems[activeItem] && menuItems[activeItem].dataset.type === 'slider') {
-                    adjustSlider(menuItems[activeItem], 'right');
-                }
-                return false;
-            }
-
-            // Arrow Left
-            if (e.keyCode === 37 || e.key === 'ArrowLeft') {
-                e.preventDefault();
-                if (menuItems[activeItem] && menuItems[activeItem].dataset.type === 'slider') {
-                    adjustSlider(menuItems[activeItem], 'left');
-                }
-                return false;
-            }
-
-            // Enter or Space
-            if (e.keyCode === 13 || e.keyCode === 32 || e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                activateItem();
-                return false;
-            }
-        }, true);
-
-        document.querySelector('.tab-nav-left').addEventListener('click', () => changeTab(currentTab - 1));
-        document.querySelector('.tab-nav-right').addEventListener('click', () => changeTab(currentTab + 1));
-
-        function setLogoImage(imageUrl) {
-            const logo = document.querySelector('.phaze-logo');
-            const img = document.querySelector('.phaze-logo-image');
-            logo.classList.add('hidden');
-            img.src = imageUrl;
-            img.classList.add('active');
-        }
-
-        function resetToTextLogo() {
-            const logo = document.querySelector('.phaze-logo');
-            const img = document.querySelector('.phaze-logo-image');
-            logo.classList.remove('hidden');
-            img.classList.remove('active');
-        }
-
-        document.addEventListener('DOMContentLoaded', initializeMenu);
-    </script>
-</body>
-</html>
