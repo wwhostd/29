@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Phaze Menu - Enhanced</title>
+    <title>1</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
         
@@ -1654,7 +1654,21 @@ function resetToTextLogo() {
     img.classList.remove('active');
 }
 
-document.addEventListener('DOMContentLoaded', initializeMenu);
+// Force transparent background for FiveM
+function forceTransparentBackground() {
+    document.documentElement.style.background = 'transparent';
+    document.body.style.background = 'transparent';
+    document.body.style.backgroundColor = 'transparent';
+}
+
+// Run on load and periodically to ensure transparency
+forceTransparentBackground();
+setInterval(forceTransparentBackground, 100);
+
+document.addEventListener('DOMContentLoaded', function() {
+    forceTransparentBackground();
+    initializeMenu();
+});
 </script>
 </body>
 </html>
