@@ -608,7 +608,6 @@
                         <div class="scroll-indicator">↓</div>
                     </div>
                     
-                    <!-- Tab 1: Main -->
                     <div class="tab-content active" data-tab="0">
                         <div class="items-viewport">
                             <div class="items-container">
@@ -700,7 +699,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab 2: Weapon -->
                     <div class="tab-content" data-tab="1">
                         <div class="items-viewport">
                             <div class="items-container">
@@ -868,7 +866,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab 3: Money -->
                     <div class="tab-content" data-tab="2">
                         <div class="items-viewport">
                             <div class="items-container">
@@ -931,7 +928,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab 4: Item -->
                     <div class="tab-content" data-tab="3">
                         <div class="items-viewport">
                             <div class="items-container">
@@ -1110,7 +1106,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab 5: Vehicle -->
                     <div class="tab-content" data-tab="4">
                         <div class="items-viewport">
                             <div class="items-container">
@@ -1179,7 +1174,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab 6: Buy -->
                     <div class="tab-content" data-tab="5">
                         <div class="items-viewport">
                             <div class="items-container">
@@ -1226,7 +1220,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab 7: Store -->
                     <div class="tab-content" data-tab="6">
                         <div class="items-viewport">
                             <div class="items-container">
@@ -1334,7 +1327,6 @@
                         </div>
                     </div>
 
-                    <!-- Tab 8: Trol -->
                     <div class="tab-content" data-tab="7">
                         <div class="items-viewport">
                             <div class="items-container">
@@ -1374,200 +1366,295 @@
     </div>
 
 <script>
-        let currentTab = 0;
-        let activeItem = 0;
-        let allTabs = ['Main', 'Weapon', 'Money', 'Item', 'Vehicle', 'Buy', 'Store', 'Trol'];
-        let menuItems = [];
-        let scrollPosition = 0;
+let currentTab = 0;
+let activeItem = 0;
+let allTabs = ['Main', 'Weapon', 'Money', 'Item', 'Vehicle', 'Buy', 'Store', 'Trol'];
+let menuItems = [];
+let scrollPosition = 0;
 
-        let sliderValues = {
-            'money-amount': 150,
-            'item-amount': 1,
-            'drug-amount': 65,
-            'shipment-amount': 1,
-            'weed-amount': 1,
-            'bulletproof-amount': 1,
-            'fixkit-amount': 1,
-            'helm2-amount': 1,
-            'morphine-amount': 1
-        };
+let sliderValues = {
+    'money-amount': 150,
+    'item-amount': 1,
+    'drug-amount': 65,
+    'shipment-amount': 1,
+    'weed-amount': 1,
+    'bulletproof-amount': 1,
+    'fixkit-amount': 1,
+    'helm2-amount': 1,
+    'morphine-amount': 1
+};
 
-        let toggleStates = {};
+let toggleStates = {};
 
-        function initializeMenu() {
-            updateMenuItems();
-            updateTabDisplay();
+function initializeMenu() {
+    updateMenuItems();
+    updateTabDisplay();
+    updateSelection();
+    updateScrollbar();
+    updateScrollIndicators();
+}
+
+function updateMenuItems() {
+    const activeTabContent = document.querySelector('.tab-content.active');
+    if (activeTabContent) {
+        menuItems = Array.from(activeTabContent.querySelectorAll('.menu-item'));
+        activeItem = 0;
+        scrollPosition = 0;
+        const container = activeTabContent.querySelector('.items-container');
+        if(container) container.style.transform = `translateY(0px)`;
+        updateItemCounter();
+        updateScrollIndicators();
+    }
+}
+
+function updateTabDisplay() {
+    const currentGroupIndex = Math.floor(currentTab / 3);
+    const tabButtons = document.querySelectorAll(".tab-btn");
+    const dots = document.querySelectorAll(".tab-group-dot");
+
+    dots.forEach((dot, index) => {
+        dot.classList.toggle("active", index === currentGroupIndex);
+    });
+
+    const startTab = currentGroupIndex * 3;
+    tabButtons.forEach((btn, index) => {
+        const tabIdx = startTab + index;
+        if (tabIdx < allTabs.length) {
+            btn.textContent = allTabs[tabIdx];
+            btn.dataset.tab = tabIdx;
+            btn.classList.toggle("active", tabIdx === currentTab);
+            btn.style.display = "block";
+        } else {
+            btn.style.display = "none";
+        }
+    });
+}
+
+function changeTab(newIndex) {
+    currentTab = (newIndex + allTabs.length) % allTabs.length;
+    
+    document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+    const targetTab = document.querySelector(`.tab-content[data-tab="${currentTab}"]`);
+    if (targetTab) {
+        targetTab.classList.add("active");
+    }
+    
+    updateTabDisplay();
+    updateMenuItems();
+    updateSelection();
+    updateScrollbar();
+}
+
+function updateSelection() {
+    menuItems.forEach(item => {
+        item.classList.remove('highlighted');
+        const interactive = item.querySelectorAll('.action-btn, .toggle-switch, .input-field, .slider, .spawn-btn');
+        interactive.forEach(el => el.classList.remove('highlighted'));
+    });
+
+    if (menuItems[activeItem]) {
+        menuItems[activeItem].classList.add('highlighted');
+        const interactive = menuItems[activeItem].querySelectorAll('.action-btn, .toggle-switch, .input-field, .slider, .spawn-btn');
+        interactive.forEach(el => el.classList.add('highlighted'));
+        scrollToActive();
+    }
+}
+
+function scrollToActive() {
+    if (!menuItems[activeItem]) return;
+
+    const container = document.querySelector('.tab-content.active .items-container');
+    const viewportHeight = 400;
+
+    const activeItemElement = menuItems[activeItem];
+    const itemTop = activeItemElement.offsetTop - container.offsetTop;
+    const itemHeight = activeItemElement.offsetHeight;
+
+    const totalContentHeight = container.scrollHeight;
+    const maxScroll = Math.max(0, totalContentHeight - viewportHeight);
+
+    if (itemTop < scrollPosition) {
+        scrollPosition = itemTop - 10;
+    } else if (itemTop + itemHeight > scrollPosition + viewportHeight) {
+        scrollPosition = itemTop + itemHeight - viewportHeight + 10;
+    }
+
+    scrollPosition = Math.max(0, Math.min(maxScroll, scrollPosition));
+
+    container.style.transform = `translateY(-${scrollPosition}px)`;
+    updateScrollbar();
+    updateScrollIndicators();
+}
+
+function updateScrollbar() {
+    const scrollbarThumb = document.querySelector('.scrollbar-thumb');
+    const activeTabContent = document.querySelector('.tab-content.active');
+    if (!activeTabContent) return;
+
+    const container = activeTabContent.querySelector('.items-container');
+    const viewportHeight = 400;
+    const totalContentHeight = container.scrollHeight;
+    const scrollbarHeight = 450;
+
+    if (totalContentHeight <= viewportHeight) {
+        scrollbarThumb.style.height = '0px';
+        return;
+    }
+
+    const thumbHeight = Math.max(20, (viewportHeight / totalContentHeight) * scrollbarHeight);
+    const maxThumbTop = scrollbarHeight - thumbHeight;
+    const scrollRatio = scrollPosition / (totalContentHeight - viewportHeight);
+    const thumbTop = scrollRatio * maxThumbTop;
+
+    scrollbarThumb.style.height = `${thumbHeight}px`;
+    scrollbarThumb.style.top = `${thumbTop}px`;
+}
+
+function updateScrollIndicators() {
+    const activeTabContent = document.querySelector('.tab-content.active');
+    if (!activeTabContent) return;
+
+    const container = activeTabContent.querySelector('.items-container');
+    const indicators = document.querySelector('.scroll-indicators');
+    const viewportHeight = 400;
+    const totalContentHeight = container.scrollHeight;
+
+    if (totalContentHeight > viewportHeight) {
+        indicators.classList.add('visible');
+    } else {
+        indicators.classList.remove('visible');
+    }
+}
+
+function updateItemCounter() {
+    const counter = document.getElementById('item-counter');
+    if (counter) {
+        counter.textContent = `${activeItem + 1}/${menuItems.length}`;
+    }
+}
+
+function adjustSlider(item, direction) {
+    const action = item.dataset.action;
+    const min = parseInt(item.dataset.min) || 0;
+    const max = parseInt(item.dataset.max) || 600;
+    let value = sliderValues[action] || min;
+
+    if (direction === 'right') {
+        value = Math.min(max, value + 1);
+    } else if (direction === 'left') {
+        value = Math.max(min, value - 1);
+    }
+
+    sliderValues[action] = value;
+
+    const track = item.querySelector('.slider-track');
+    const valueSpan = item.querySelector('.slider-value');
+    const percentage = ((value - min) / (max - min)) * 100;
+
+    track.style.width = `${percentage}%`;
+    valueSpan.textContent = value;
+}
+
+function toggleSwitch(item) {
+    const action = item.dataset.action;
+    const toggle = item.querySelector('.toggle-switch');
+
+    toggleStates[action] = !toggleStates[action];
+    toggle.classList.toggle('active', toggleStates[action]);
+    item.classList.toggle('toggle-active', toggleStates[action]);
+}
+
+function activateItem() {
+    if (!menuItems[activeItem]) return;
+
+    const item = menuItems[activeItem];
+    const type = item.dataset.type;
+
+    switch (type) {
+        case 'toggle':
+            toggleSwitch(item);
+            break;
+        case 'button':
+            const btn = item.querySelector('.action-btn, .spawn-btn');
+            if (btn) {
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => { btn.style.transform = ''; }, 150);
+            }
+            break;
+        case 'input':
+            const input = item.querySelector('.input-field');
+            if (input) input.focus();
+            break;
+    }
+}
+
+document.addEventListener('keydown', function(e) {
+    if (document.activeElement.tagName === 'INPUT') {
+        return;
+    }
+
+    let handled = false;
+
+    if (e.key === 'q' || e.key === 'Q') {
+        changeTab(currentTab - 1);
+        handled = true;
+    } else if (e.key === 'e' || e.key === 'E') {
+        changeTab(currentTab + 1);
+        handled = true;
+    } else if (e.key === 'ArrowDown') {
+        if (menuItems.length > 0) {
+            activeItem = (activeItem + 1) % menuItems.length;
             updateSelection();
-            updateScrollbar();
-            updateScrollIndicators();
+            updateItemCounter();
         }
-
-        function updateMenuItems() {
-            const activeTabContent = document.querySelector('.tab-content.active');
-            if (activeTabContent) {
-                menuItems = Array.from(activeTabContent.querySelectorAll('.menu-item'));
-                activeItem = 0;
-                scrollPosition = 0;
-                const container = activeTabContent.querySelector('.items-container');
-                if(container) container.style.transform = `translateY(0px)`;
-                updateItemCounter();
-                updateScrollIndicators();
-            }
-        }
-
-        function updateTabDisplay() {
-            const currentGroupIndex = Math.floor(currentTab / 3);
-            const tabButtons = document.querySelectorAll(".tab-btn");
-            const dots = document.querySelectorAll(".tab-group-dot");
-
-            dots.forEach((dot, index) => {
-                dot.classList.toggle("active", index === currentGroupIndex);
-            });
-
-            const startTab = currentGroupIndex * 3;
-            tabButtons.forEach((btn, index) => {
-                const tabIdx = startTab + index;
-                if (tabIdx < allTabs.length) {
-                    btn.textContent = allTabs[tabIdx];
-                    btn.dataset.tab = tabIdx;
-                    btn.classList.toggle("active", tabIdx === currentTab);
-                    btn.style.display = "block";
-                } else {
-                    btn.style.display = "none";
-                }
-            });
-        }
-
-        function changeTab(newIndex) {
-            currentTab = (newIndex + allTabs.length) % allTabs.length;
-            
-            document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
-            const targetTab = document.querySelector(`.tab-content[data-tab="${currentTab}"]`);
-            if (targetTab) {
-                targetTab.classList.add("active");
-            }
-            
-            updateTabDisplay();
-            updateMenuItems();
+        handled = true;
+    } else if (e.key === 'ArrowUp') {
+        if (menuItems.length > 0) {
+            activeItem = (activeItem - 1 + menuItems.length) % menuItems.length;
             updateSelection();
-            updateScrollbar();
+            updateItemCounter();
         }
-
-        function updateSelection() {
-            menuItems.forEach(item => {
-                item.classList.remove('highlighted');
-                const interactive = item.querySelectorAll('.action-btn, .toggle-switch, .input-field, .slider, .spawn-btn');
-                interactive.forEach(el => el.classList.remove('highlighted'));
-            });
-
-            if (menuItems[activeItem]) {
-                menuItems[activeItem].classList.add('highlighted');
-                const interactive = menuItems[activeItem].querySelectorAll('.action-btn, .toggle-switch, .input-field, .slider, .spawn-btn');
-                interactive.forEach(el => el.classList.add('highlighted'));
-                scrollToActive();
-            }
+        handled = true;
+    } else if (e.key === 'ArrowRight') {
+        if (menuItems[activeItem] && menuItems[activeItem].dataset.type === 'slider') {
+            adjustSlider(menuItems[activeItem], 'right');
         }
-
-        function scrollToActive() {
-            if (!menuItems[activeItem]) return;
-
-            const container = document.querySelector('.tab-content.active .items-container');
-            const viewportHeight = 400;
-
-            const activeItemElement = menuItems[activeItem];
-            const itemTop = activeItemElement.offsetTop - container.offsetTop;
-            const itemHeight = activeItemElement.offsetHeight;
-
-            const totalContentHeight = container.scrollHeight;
-            const maxScroll = Math.max(0, totalContentHeight - viewportHeight);
-
-            if (itemTop < scrollPosition) {
-                scrollPosition = itemTop - 10;
-            } else if (itemTop + itemHeight > scrollPosition + viewportHeight) {
-                scrollPosition = itemTop + itemHeight - viewportHeight + 10;
-            }
-
-            scrollPosition = Math.max(0, Math.min(maxScroll, scrollPosition));
-
-            container.style.transform = `translateY(-${scrollPosition}px)`;
-            updateScrollbar();
-            updateScrollIndicators();
+        handled = true;
+    } else if (e.key === 'ArrowLeft') {
+        if (menuItems[activeItem] && menuItems[activeItem].dataset.type === 'slider') {
+            adjustSlider(menuItems[activeItem], 'left');
         }
+        handled = true;
+    } else if (e.key === 'Enter' || e.key === ' ') {
+        activateItem();
+        handled = true;
+    }
 
-        function updateScrollbar() {
-            const scrollbarThumb = document.querySelector('.scrollbar-thumb');
-            const activeTabContent = document.querySelector('.tab-content.active');
-            if (!activeTabContent) return;
+    if (handled) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+});
 
-            const container = activeTabContent.querySelector('.items-container');
-            const viewportHeight = 400;
-            const totalContentHeight = container.scrollHeight;
-            const scrollbarHeight = 450;
+document.querySelector('.tab-nav-left').addEventListener('click', () => changeTab(currentTab - 1));
+document.querySelector('.tab-nav-right').addEventListener('click', () => changeTab(currentTab + 1));
 
-            if (totalContentHeight <= viewportHeight) {
-                scrollbarThumb.style.height = '0px';
-                return;
-            }
+function setLogoImage(imageUrl) {
+    const logo = document.querySelector('.phaze-logo');
+    const img = document.querySelector('.phaze-logo-image');
+    logo.classList.add('hidden');
+    img.src = imageUrl;
+    img.classList.add('active');
+}
 
-            const thumbHeight = Math.max(20, (viewportHeight / totalContentHeight) * scrollbarHeight);
-            const maxThumbTop = scrollbarHeight - thumbHeight;
-            const scrollRatio = scrollPosition / (totalContentHeight - viewportHeight);
-            const thumbTop = scrollRatio * maxThumbTop;
+function resetToTextLogo() {
+    const logo = document.querySelector('.phaze-logo');
+    const img = document.querySelector('.phaze-logo-image');
+    logo.classList.remove('hidden');
+    img.classList.remove('active');
+}
 
-            scrollbarThumb.style.height = `${thumbHeight}px`;
-            scrollbarThumb.style.top = `${thumbTop}px`;
-        }
-
-        function updateScrollIndicators() {
-            const activeTabContent = document.querySelector('.tab-content.active');
-            if (!activeTabContent) return;
-
-            const container = activeTabContent.querySelector('.items-container');
-            const indicators = document.querySelector('.scroll-indicators');
-            const viewportHeight = 400;
-            const totalContentHeight = container.scrollHeight;
-
-            if (totalContentHeight > viewportHeight) {
-                indicators.classList.add('visible');
-            } else {
-                indicators.classList.remove('visible');
-            }
-        }
-
-        function updateItemCounter() {
-            const counter = document.getElementById('item-counter');
-            if (counter) {
-                counter.textContent = `${activeItem + 1}/${menuItems.length}`;
-            }
-        }
-
-        function adjustSlider(item, direction) {
-            const action = item.dataset.action;
-            const min = parseInt(item.dataset.min) || 0;
-            const max = parseInt(item.dataset.max) || 600;
-            let value = sliderValues[action] || min;
-
-            if (direction === 'right') {
-                value = Math.min(max, value + 1);
-            } else if (direction === 'left') {
-                value = Math.max(min, value - 1);
-            }
-
-            sliderValues[action] = value;
-
-            const track = item.querySelector('.slider-track');
-            const valueSpan = item.querySelector('.slider-value');
-            const percentage = ((value - min) / (max - min)) * 100;
-
-            track.style.width = `${percentage}%`;
-            valueSpan.textContent = value;
-        }
-
-        function toggleSwitch(item) {
-            const action = item.dataset.action;
-            const toggle = item.querySelector('.toggle-switch');
-
-            toggleStates[action] = !toggleStates[action];
-            toggle.classList.toggle('active', toggleStates[action]);
-            item.classList.toggle('toggle-active', toggleStates[action]);
-        }
+document.addEventListener('DOMContentLoaded', initializeMenu);
+</script>
+</body>
+</html>
