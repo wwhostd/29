@@ -1,6 +1,6 @@
 import { Client, Events, GatewayIntentBits } from 'discord.js';
 import { config, validateConfig } from './config.js';
-import { handleCommand } from './commands/index.js';
+import { handleCommand, handlePanelButton, handlePanelModal } from './commands/index.js';
 import { MusicManager } from './utils/player.js';
 
 validateConfig();
@@ -19,10 +19,21 @@ client.once(Events.ClientReady, (readyClient) => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
-  if (!interaction.isChatInputCommand()) return;
-
   try {
-    await handleCommand(interaction, musicManager);
+    if (interaction.isButton()) {
+      const handled = await handlePanelButton(interaction, musicManager);
+      if (handled) return;
+    }
+
+    if (interaction.isModalSubmit()) {
+      const handled = await handlePanelModal(interaction, musicManager);
+      if (handled) return;
+    }
+
+    if (interaction.isChatInputCommand()) {
+      await handleCommand(interaction, musicManager);
+      return;
+    }
   } catch (error) {
     const payload = {
       content: 'حدث خطأ غير متوقع أثناء تنفيذ الأمر.',
@@ -30,11 +41,11 @@ client.on(Events.InteractionCreate, async (interaction) => {
     };
 
     if (interaction.deferred || interaction.replied) {
-      await interaction.followUp(payload);
+      await interaction.followUp(payload).catch(() => null);
       return;
     }
 
-    await interaction.reply(payload);
+    await interaction.reply(payload).catch(() => null);
   }
 });
 

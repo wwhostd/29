@@ -11,6 +11,7 @@ export const config = {
   token: process.env.DISCORD_TOKEN,
   clientId: process.env.DISCORD_CLIENT_ID,
   guildId: process.env.DISCORD_GUILD_ID,
+  panelChannelId: process.env.MUSIC_PANEL_CHANNEL_ID,
   defaultVolume: Math.max(0, Math.min(1, toNumber(process.env.DEFAULT_VOLUME, 0.6)))
 };
 
