@@ -12,6 +12,9 @@ export const config = {
   clientId: process.env.DISCORD_CLIENT_ID,
   guildId: process.env.DISCORD_GUILD_ID,
   panelChannelId: process.env.MUSIC_PANEL_CHANNEL_ID,
+  requestChannelId: process.env.MUSIC_REQUEST_CHANNEL_ID,
+  playlistManagerRoleId: process.env.PLAYLIST_MANAGER_ROLE_ID,
+  panelRefreshSeconds: Math.max(5, toNumber(process.env.PANEL_REFRESH_SECONDS, 15)),
   defaultVolume: Math.max(0, Math.min(1, toNumber(process.env.DEFAULT_VOLUME, 0.6)))
 };
 

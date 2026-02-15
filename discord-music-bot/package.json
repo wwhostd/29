@@ -1,20 +1,21 @@
 {
   "name": "discord-music-bot-pro",
-  "version": "1.0.0",
-  "description": "Professional Discord music bot with slash commands, queue management, and rich embeds.",
+  "version": "2.0.0",
+  "description": "Professional Discord music bot with advanced control panel, playlists and request channel.",
   "type": "module",
   "main": "src/index.js",
   "scripts": {
     "dev": "node --watch src/index.js",
     "start": "node src/index.js",
     "deploy": "node scripts/deploy-commands.js",
-    "lint": "node --check src/index.js && node --check src/commands/index.js && node --check src/utils/player.js"
+    "lint": "node --check src/index.js && node --check src/commands/index.js && node --check src/utils/player.js && node --check src/utils/playlists.js && node --check src/utils/embeds.js && node --check scripts/deploy-commands.js"
   },
   "keywords": [
     "discord",
     "music",
     "bot",
-    "slash-commands"
+    "panel",
+    "playlist"
   ],
   "author": "",
   "license": "MIT",
@@ -25,6 +26,8 @@
     "@discordjs/voice": "^0.18.0",
     "discord.js": "^14.17.3",
     "dotenv": "^16.4.7",
-    "play-dl": "^1.9.7"
+    "opusscript": "^0.1.1",
+    "play-dl": "^1.9.7",
+    "tweetnacl": "^1.0.3"
   }
 }

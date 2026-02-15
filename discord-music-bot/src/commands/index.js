@@ -5,22 +5,46 @@ import {
   ModalBuilder,
   PermissionFlagsBits,
   SlashCommandBuilder,
+  StringSelectMenuBuilder,
   TextInputBuilder,
   TextInputStyle
 } from 'discord.js';
 import { config } from '../config.js';
 import { errorEmbed, infoEmbed, panelEmbed, successEmbed } from '../utils/embeds.js';
+import { PlaylistStore } from '../utils/playlists.js';
+
+const playlistStore = new PlaylistStore();
 
 export const PANEL_IDS = {
-  message: 'music:panel:message',
-  add: 'music:panel:add',
+  addSong: 'music:panel:add-song',
+  join: 'music:panel:join',
+  leave: 'music:panel:leave',
   pause: 'music:panel:pause',
   resume: 'music:panel:resume',
   skip: 'music:panel:skip',
-  queue: 'music:panel:queue',
   stop: 'music:panel:stop',
-  modal: 'music:panel:add-modal',
-  modalQuery: 'music:panel:add-modal-query'
+  volUp: 'music:panel:vol-up',
+  volDown: 'music:panel:vol-down',
+  playlistAction: 'music:panel:playlist-action',
+  playlistCreateModal: 'music:panel:playlist-create-modal',
+  playlistCreateName: 'music:panel:playlist-create-name',
+  playlistDeleteModal: 'music:panel:playlist-delete-modal',
+  playlistDeleteName: 'music:panel:playlist-delete-name',
+  playlistAddModal: 'music:panel:playlist-add-modal',
+  playlistAddName: 'music:panel:playlist-add-name',
+  playlistAddQuery: 'music:panel:playlist-add-query',
+  playlistRemoveModal: 'music:panel:playlist-remove-modal',
+  playlistRemoveName: 'music:panel:playlist-remove-name',
+  playlistRemoveIndex: 'music:panel:playlist-remove-index',
+  playlistPlayModal: 'music:panel:playlist-play-modal',
+  playlistPlayName: 'music:panel:playlist-play-name',
+  addModal: 'music:panel:add-modal',
+  addModalQuery: 'music:panel:add-modal-query'
+};
+
+const hasPlaylistRole = (member) => {
+  if (!config.playlistManagerRoleId) return true;
+  return member.roles.cache.has(config.playlistManagerRoleId);
 };
 
 const ensureVoice = (interaction) => {
@@ -29,7 +53,7 @@ const ensureVoice = (interaction) => {
     return {
       ok: false,
       reply: {
-        embeds: [errorEmbed('Voice Channel Required', 'ادخل روم صوتي اولاً وبعدها جرّب الأمر.')],
+        embeds: [errorEmbed('Voice Channel Required', 'لازم تدخل روم صوتي عشان تستخدم الموسيقى.')],
         ephemeral: true
       }
     };
@@ -38,300 +62,425 @@ const ensureVoice = (interaction) => {
   return { ok: true, voiceChannel };
 };
 
+const enforceTrackOwner = (interaction, player) => {
+  if (!player.current || player.canControl(interaction.user.id)) return { ok: true };
+  return {
+    ok: false,
+    reply: {
+      embeds: [errorEmbed('Control Locked', 'فقط الشخص اللي شغّل الأغنية الحالية يقدر يوقف/يتخطى.')],
+      ephemeral: true
+    }
+  };
+};
+
 const queueResponse = (player) => {
   const now = player.current;
   const queued = player.getQueuePreview();
 
   if (!now && queued.length === 0) {
-    return {
-      embeds: [infoEmbed('Queue Empty', 'حالياً لا توجد أغانٍ في الطابور.')],
-      ephemeral: true
-    };
+    return { embeds: [infoEmbed('Queue Empty', 'الطابور فاضي حالياً.')], ephemeral: true };
   }
 
-  const lines = queued.map(
-    (track, index) => `${index + 1}. [${track.title}](${track.url}) - \`${track.duration}\``
-  );
-
-  return {
-    embeds: [
-      infoEmbed(
-        'Queue',
-        `${now ? `**Now:** [${now.title}](${now.url}) - \`${now.duration}\`\n\n` : ''}${
-          lines.join('\n') || 'لا توجد عناصر إضافية.'
-        }`
-      )
-    ]
-  };
+  const list = queued.map((track, idx) => `${idx + 1}. [${track.title}](${track.url}) - \`${track.duration}\``).join('\n');
+  const description = `${now ? `**Now:** [${now.title}](${now.url}) - \`${now.duration}\`\n\n` : ''}${list || 'لا توجد عناصر إضافية.'}`;
+  return { embeds: [infoEmbed('Queue', description)] };
 };
 
 export const buildPanelComponents = () => {
   const row1 = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(PANEL_IDS.add).setLabel('Add Song').setStyle(ButtonStyle.Success).setEmoji('➕'),
-    new ButtonBuilder().setCustomId(PANEL_IDS.pause).setLabel('Pause').setStyle(ButtonStyle.Secondary).setEmoji('⏸️'),
-    new ButtonBuilder().setCustomId(PANEL_IDS.resume).setLabel('Resume').setStyle(ButtonStyle.Secondary).setEmoji('▶️')
+    new ButtonBuilder().setCustomId(PANEL_IDS.addSong).setLabel('Add Song').setStyle(ButtonStyle.Success).setEmoji('➕'),
+    new ButtonBuilder().setCustomId(PANEL_IDS.join).setLabel('Join').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(PANEL_IDS.leave).setLabel('Leave').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(PANEL_IDS.pause).setLabel('Pause').setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder().setCustomId(PANEL_IDS.resume).setLabel('Resume').setStyle(ButtonStyle.Secondary)
   );
 
   const row2 = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId(PANEL_IDS.skip).setLabel('Skip').setStyle(ButtonStyle.Primary).setEmoji('⏭️'),
-    new ButtonBuilder().setCustomId(PANEL_IDS.queue).setLabel('Queue').setStyle(ButtonStyle.Primary).setEmoji('📜'),
-    new ButtonBuilder().setCustomId(PANEL_IDS.stop).setLabel('Stop').setStyle(ButtonStyle.Danger).setEmoji('⏹️')
+    new ButtonBuilder().setCustomId(PANEL_IDS.skip).setLabel('Next').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(PANEL_IDS.stop).setLabel('Stop').setStyle(ButtonStyle.Danger),
+    new ButtonBuilder().setCustomId(PANEL_IDS.volUp).setLabel('Vol +').setStyle(ButtonStyle.Primary),
+    new ButtonBuilder().setCustomId(PANEL_IDS.volDown).setLabel('Vol -').setStyle(ButtonStyle.Primary)
   );
 
-  return [row1, row2];
+  const row3 = new ActionRowBuilder().addComponents(
+    new StringSelectMenuBuilder()
+      .setCustomId(PANEL_IDS.playlistAction)
+      .setPlaceholder('Playlist Manager')
+      .addOptions(
+        { label: 'Create Playlist', value: 'create' },
+        { label: 'Delete Playlist', value: 'delete' },
+        { label: 'Add Song to Playlist', value: 'add' },
+        { label: 'Remove Song from Playlist', value: 'remove' },
+        { label: 'List Playlists', value: 'list' },
+        { label: 'Play Playlist (Ordered)', value: 'play_ordered' },
+        { label: 'Play Playlist (Shuffle)', value: 'play_shuffle' }
+      )
+  );
+
+  return [row1, row2, row3];
 };
 
 const enqueueTrack = async (interaction, player, query) => {
   const gate = ensureVoice(interaction);
-  if (!gate.ok) {
-    return gate.reply;
+  if (!gate.ok) return gate.reply;
+
+  await player.connect(gate.voiceChannel);
+  const track = await player.enqueue(query, interaction.user.tag, interaction.user.id);
+  return {
+    embeds: [
+      successEmbed('Added to Queue', `**[${track.title}](${track.url})**\nالمدة: \`${track.duration}\`\nالطلب: **${track.requestedBy}**`)
+        .setThumbnail(track.thumbnail ?? null)
+    ]
+  };
+};
+
+const createModal = (id, title, fields) => {
+  const modal = new ModalBuilder().setCustomId(id).setTitle(title);
+  for (const field of fields) {
+    modal.addComponents(
+      new ActionRowBuilder().addComponents(
+        new TextInputBuilder()
+          .setCustomId(field.id)
+          .setLabel(field.label)
+          .setPlaceholder(field.placeholder ?? '')
+          .setStyle(TextInputStyle.Short)
+          .setRequired(field.required ?? true)
+          .setMaxLength(field.maxLength ?? 200)
+      )
+    );
   }
+  return modal;
+};
 
-  try {
-    await player.connect(gate.voiceChannel);
-    const track = await player.enqueue(query, interaction.user.tag);
-
-    return {
-      embeds: [
-        successEmbed(
-          'Added to Queue',
-          `**[${track.title}](${track.url})**\nالمدة: \`${track.duration}\`\nطلب بواسطة: **${track.requestedBy}**`
-        ).setThumbnail(track.thumbnail ?? null)
-      ]
-    };
-  } catch {
-    return {
-      embeds: [errorEmbed('Playback Error', 'تعذر تشغيل الأغنية. تأكد من الرابط أو جرّب اسم مختلف.')],
+const ensurePanelChannel = (interaction) => {
+  if (!config.panelChannelId) return { ok: true };
+  if (interaction.channelId === config.panelChannelId) return { ok: true };
+  return {
+    ok: false,
+    reply: {
+      embeds: [errorEmbed('Panel Channel Only', 'استخدم البانل في الروم المخصص فقط.')],
       ephemeral: true
-    };
-  }
+    }
+  };
 };
 
 export const handlePanelButton = async (interaction, musicManager) => {
   if (!Object.values(PANEL_IDS).includes(interaction.customId)) return false;
-
-  const player = musicManager.getPlayer(interaction.guildId);
-
-  if (config.panelChannelId && interaction.channelId !== config.panelChannelId) {
-    await interaction.reply({
-      embeds: [errorEmbed('Panel Channel Only', 'استخدم لوحة التحكم المخصصة في الروم المحدد فقط.')],
-      ephemeral: true
-    });
+  const channelGate = ensurePanelChannel(interaction);
+  if (!channelGate.ok) {
+    await interaction.reply(channelGate.reply);
     return true;
   }
 
-  if (interaction.customId === PANEL_IDS.add) {
-    const modal = new ModalBuilder().setCustomId(PANEL_IDS.modal).setTitle('Add Song');
-    const queryInput = new TextInputBuilder()
-      .setCustomId(PANEL_IDS.modalQuery)
-      .setLabel('رابط YouTube أو اسم الأغنية')
-      .setPlaceholder('مثال: Eminem - Mockingbird')
-      .setStyle(TextInputStyle.Short)
-      .setRequired(true)
-      .setMaxLength(200);
+  const player = musicManager.getPlayer(interaction.guildId);
 
-    modal.addComponents(new ActionRowBuilder().addComponents(queryInput));
-    await interaction.showModal(modal);
+  if (interaction.customId === PANEL_IDS.addSong) {
+    await interaction.showModal(createModal(PANEL_IDS.addModal, 'Add Song', [{ id: PANEL_IDS.addModalQuery, label: 'رابط أو اسم الأغنية' }]));
+    return true;
+  }
+
+  if (interaction.customId === PANEL_IDS.join) {
+    const gate = ensureVoice(interaction);
+    if (!gate.ok) {
+      await interaction.reply(gate.reply);
+      return true;
+    }
+    await player.connect(gate.voiceChannel);
+    await interaction.reply({ embeds: [successEmbed('Joined', 'دخلت الروم الصوتي بنجاح.')] });
+    return true;
+  }
+
+  if (interaction.customId === PANEL_IDS.leave) {
+    musicManager.destroyPlayer(interaction.guildId);
+    await interaction.reply({ embeds: [infoEmbed('Disconnected', 'تم الخروج من الروم الصوتي.')] });
     return true;
   }
 
   if (interaction.customId === PANEL_IDS.pause) {
-    const success = player.pause();
-    await interaction.reply({
-      embeds: [success ? infoEmbed('Paused', 'تم إيقاف التشغيل مؤقتاً.') : errorEmbed('Pause Failed', 'لا يوجد شيء قيد التشغيل.')],
-      ephemeral: !success
-    });
+    const lock = enforceTrackOwner(interaction, player);
+    if (!lock.ok) {
+      await interaction.reply(lock.reply);
+      return true;
+    }
+    const ok = player.pause();
+    await interaction.reply({ embeds: [ok ? infoEmbed('Paused', 'تم الإيقاف المؤقت.') : errorEmbed('Pause Failed', 'لا يوجد تشغيل.')], ephemeral: !ok });
     return true;
   }
 
   if (interaction.customId === PANEL_IDS.resume) {
-    const success = player.resume();
-    await interaction.reply({
-      embeds: [success ? successEmbed('Resumed', 'تم استكمال التشغيل.') : errorEmbed('Resume Failed', 'لا يوجد تشغيل موقوف.')],
-      ephemeral: !success
-    });
+    const ok = player.resume();
+    await interaction.reply({ embeds: [ok ? successEmbed('Resumed', 'تم الاستكمال.') : errorEmbed('Resume Failed', 'لا يوجد إيقاف مؤقت.')], ephemeral: !ok });
     return true;
   }
 
   if (interaction.customId === PANEL_IDS.skip) {
-    const success = player.skip();
-    await interaction.reply({
-      embeds: [success ? infoEmbed('Skipped', 'تم تخطي الأغنية الحالية.') : errorEmbed('Skip Failed', 'لا يوجد تشغيل حالياً.')],
-      ephemeral: !success
-    });
-    return true;
-  }
-
-  if (interaction.customId === PANEL_IDS.queue) {
-    await interaction.reply(queueResponse(player));
+    const lock = enforceTrackOwner(interaction, player);
+    if (!lock.ok) {
+      await interaction.reply(lock.reply);
+      return true;
+    }
+    const ok = player.skip();
+    await interaction.reply({ embeds: [ok ? infoEmbed('Skipped', 'تم تشغيل الأغنية التالية.') : errorEmbed('Skip Failed', 'لا يوجد تشغيل.')], ephemeral: !ok });
     return true;
   }
 
   if (interaction.customId === PANEL_IDS.stop) {
+    const lock = enforceTrackOwner(interaction, player);
+    if (!lock.ok) {
+      await interaction.reply(lock.reply);
+      return true;
+    }
     player.stop();
-    await interaction.reply({ embeds: [infoEmbed('Stopped', 'تم مسح الطابور وإيقاف الموسيقى.')] });
+    await interaction.reply({ embeds: [infoEmbed('Stopped', 'تم إيقاف الموسيقى ومسح الطابور.')] });
+    return true;
+  }
+
+  if (interaction.customId === PANEL_IDS.volUp) {
+    const v = player.setVolume(player.volume + 0.1);
+    await interaction.reply({ embeds: [successEmbed('Volume', `تم رفع الصوت إلى **${Math.round(v * 100)}%**`)] });
+    return true;
+  }
+
+  if (interaction.customId === PANEL_IDS.volDown) {
+    const v = player.setVolume(player.volume - 0.1);
+    await interaction.reply({ embeds: [successEmbed('Volume', `تم خفض الصوت إلى **${Math.round(v * 100)}%**`)] });
     return true;
   }
 
   return false;
 };
 
-export const handlePanelModal = async (interaction, musicManager) => {
-  if (interaction.customId !== PANEL_IDS.modal) return false;
+export const handlePanelSelectMenu = async (interaction, musicManager) => {
+  if (interaction.customId !== PANEL_IDS.playlistAction) return false;
 
-  const player = musicManager.getPlayer(interaction.guildId);
-  const query = interaction.fields.getTextInputValue(PANEL_IDS.modalQuery);
-  const payload = await enqueueTrack(interaction, player, query);
-  await interaction.reply(payload);
+  const channelGate = ensurePanelChannel(interaction);
+  if (!channelGate.ok) {
+    await interaction.reply(channelGate.reply);
+    return true;
+  }
+
+  const action = interaction.values[0];
+
+  if (action === 'list') {
+    const playlists = playlistStore.listPlaylists(interaction.guildId);
+    const desc = playlists.length
+      ? playlists.map((p) => `• **${p.name}** (${p.tracks.length} tracks)`).join('\n')
+      : 'ما فيه بلاي ليستات حالياً.';
+
+    await interaction.reply({ embeds: [infoEmbed('Playlists', desc)], ephemeral: true });
+    return true;
+  }
+
+  if (action.startsWith('play_')) {
+    const mode = action === 'play_shuffle' ? 'shuffle' : 'ordered';
+    await interaction.showModal(createModal(PANEL_IDS.playlistPlayModal, 'Play Playlist', [{ id: PANEL_IDS.playlistPlayName, label: 'اسم القائمة' }]));
+    interaction.client.__playlistPlayMode = interaction.client.__playlistPlayMode ?? {};
+    interaction.client.__playlistPlayMode[interaction.user.id] = mode;
+    return true;
+  }
+
+  if (!hasPlaylistRole(interaction.member)) {
+    await interaction.reply({
+      embeds: [errorEmbed('Permission Denied', 'ما عندك الرول المطلوب لإدارة البلاي ليست.')],
+      ephemeral: true
+    });
+    return true;
+  }
+
+  if (action === 'create') {
+    await interaction.showModal(createModal(PANEL_IDS.playlistCreateModal, 'Create Playlist', [{ id: PANEL_IDS.playlistCreateName, label: 'اسم القائمة' }]));
+    return true;
+  }
+
+  if (action === 'delete') {
+    await interaction.showModal(createModal(PANEL_IDS.playlistDeleteModal, 'Delete Playlist', [{ id: PANEL_IDS.playlistDeleteName, label: 'اسم القائمة' }]));
+    return true;
+  }
+
+  if (action === 'add') {
+    await interaction.showModal(
+      createModal(PANEL_IDS.playlistAddModal, 'Add Song to Playlist', [
+        { id: PANEL_IDS.playlistAddName, label: 'اسم القائمة' },
+        { id: PANEL_IDS.playlistAddQuery, label: 'رابط/اسم الأغنية' }
+      ])
+    );
+    return true;
+  }
+
+  if (action === 'remove') {
+    await interaction.showModal(
+      createModal(PANEL_IDS.playlistRemoveModal, 'Remove Song from Playlist', [
+        { id: PANEL_IDS.playlistRemoveName, label: 'اسم القائمة' },
+        { id: PANEL_IDS.playlistRemoveIndex, label: 'رقم الأغنية (1,2,3...)', maxLength: 6 }
+      ])
+    );
+    return true;
+  }
+
+  await interaction.reply({ embeds: [errorEmbed('Unknown Action', 'إجراء غير مدعوم.')], ephemeral: true });
   return true;
 };
 
+export const handlePanelModal = async (interaction, musicManager) => {
+  const player = musicManager.getPlayer(interaction.guildId);
+
+  if (interaction.customId === PANEL_IDS.addModal) {
+    const query = interaction.fields.getTextInputValue(PANEL_IDS.addModalQuery);
+    try {
+      const payload = await enqueueTrack(interaction, player, query);
+      await interaction.reply(payload);
+    } catch {
+      await interaction.reply({ embeds: [errorEmbed('Playback Error', 'تعذر تشغيل الأغنية المطلوبة.')], ephemeral: true });
+    }
+    return true;
+  }
+
+  if (interaction.customId === PANEL_IDS.playlistCreateModal) {
+    try {
+      const name = interaction.fields.getTextInputValue(PANEL_IDS.playlistCreateName);
+      playlistStore.createPlaylist(interaction.guildId, name, interaction.user.id);
+      await interaction.reply({ embeds: [successEmbed('Playlist Created', `تم إنشاء قائمة **${name}**`)], ephemeral: true });
+    } catch (error) {
+      await interaction.reply({ embeds: [errorEmbed('Create Failed', error.message)], ephemeral: true });
+    }
+    return true;
+  }
+
+  if (interaction.customId === PANEL_IDS.playlistDeleteModal) {
+    try {
+      const name = interaction.fields.getTextInputValue(PANEL_IDS.playlistDeleteName);
+      playlistStore.deletePlaylist(interaction.guildId, name);
+      await interaction.reply({ embeds: [successEmbed('Playlist Deleted', `تم حذف قائمة **${name}**`)], ephemeral: true });
+    } catch (error) {
+      await interaction.reply({ embeds: [errorEmbed('Delete Failed', error.message)], ephemeral: true });
+    }
+    return true;
+  }
+
+  if (interaction.customId === PANEL_IDS.playlistAddModal) {
+    try {
+      const name = interaction.fields.getTextInputValue(PANEL_IDS.playlistAddName);
+      const query = interaction.fields.getTextInputValue(PANEL_IDS.playlistAddQuery);
+      const track = await player.resolveTrack(query, interaction.user.tag, interaction.user.id);
+      const playlist = playlistStore.addTrack(interaction.guildId, name, track);
+      await interaction.reply({
+        embeds: [successEmbed('Playlist Updated', `تمت إضافة **${track.title}** إلى **${playlist.name}**`)],
+        ephemeral: true
+      });
+    } catch (error) {
+      await interaction.reply({ embeds: [errorEmbed('Add Failed', error.message)], ephemeral: true });
+    }
+    return true;
+  }
+
+  if (interaction.customId === PANEL_IDS.playlistRemoveModal) {
+    try {
+      const name = interaction.fields.getTextInputValue(PANEL_IDS.playlistRemoveName);
+      const index = Number(interaction.fields.getTextInputValue(PANEL_IDS.playlistRemoveIndex)) - 1;
+      const removed = playlistStore.removeTrack(interaction.guildId, name, index);
+      await interaction.reply({ embeds: [successEmbed('Playlist Updated', `تم حذف **${removed.title}** من **${name}**`)], ephemeral: true });
+    } catch (error) {
+      await interaction.reply({ embeds: [errorEmbed('Remove Failed', error.message)], ephemeral: true });
+    }
+    return true;
+  }
+
+  if (interaction.customId === PANEL_IDS.playlistPlayModal) {
+    try {
+      const gate = ensureVoice(interaction);
+      if (!gate.ok) {
+        await interaction.reply(gate.reply);
+        return true;
+      }
+
+      const name = interaction.fields.getTextInputValue(PANEL_IDS.playlistPlayName);
+      const playlist = playlistStore.getPlaylist(interaction.guildId, name);
+      if (!playlist) throw new Error('Playlist not found.');
+      if (!playlist.tracks.length) throw new Error('Playlist is empty.');
+
+      const mode = interaction.client.__playlistPlayMode?.[interaction.user.id] ?? 'ordered';
+      await player.connect(gate.voiceChannel);
+      await player.enqueuePlaylist(playlist.tracks, mode, interaction.user.tag, interaction.user.id);
+
+      await interaction.reply({
+        embeds: [successEmbed('Playlist Queued', `تمت إضافة قائمة **${playlist.name}** (${playlist.tracks.length} tracks) بنمط **${mode}**`)]
+      });
+    } catch (error) {
+      await interaction.reply({ embeds: [errorEmbed('Play Playlist Failed', error.message)], ephemeral: true });
+    }
+    return true;
+  }
+
+  return false;
+};
+
 export const slashCommands = [
-  new SlashCommandBuilder()
-    .setName('play')
-    .setDescription('تشغيل أغنية من YouTube عبر الرابط أو الاسم.')
-    .addStringOption((option) =>
-      option
-        .setName('query')
-        .setDescription('الرابط أو اسم الأغنية')
-        .setRequired(true)
-    ),
-  new SlashCommandBuilder().setName('pause').setDescription('إيقاف مؤقت.'),
-  new SlashCommandBuilder().setName('resume').setDescription('استكمال التشغيل.'),
-  new SlashCommandBuilder().setName('skip').setDescription('تخطي الأغنية الحالية.'),
-  new SlashCommandBuilder().setName('stop').setDescription('إيقاف البوت ومسح الطابور.'),
-  new SlashCommandBuilder().setName('queue').setDescription('عرض قائمة الانتظار.'),
-  new SlashCommandBuilder().setName('nowplaying').setDescription('الأغنية الحالية.'),
-  new SlashCommandBuilder()
-    .setName('volume')
-    .setDescription('تغيير الصوت من 0 إلى 200%.')
-    .addIntegerOption((option) =>
-      option
-        .setName('percent')
-        .setDescription('مثال: 100')
-        .setRequired(true)
-        .setMinValue(0)
-        .setMaxValue(200)
-    ),
-  new SlashCommandBuilder().setName('loop').setDescription('تفعيل/تعطيل تكرار الأغنية الحالية.'),
-  new SlashCommandBuilder()
-    .setName('disconnect')
-    .setDescription('إخراج البوت من الروم الصوتي.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
-  new SlashCommandBuilder()
-    .setName('setup-panel')
-    .setDescription('إنشاء بانل التحكم الموسيقي داخل الروم المخصص.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
+  new SlashCommandBuilder().setName('setup-panel').setDescription('إرسال لوحة التحكم في الروم المحدد').setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild),
+  new SlashCommandBuilder().setName('queue').setDescription('عرض الطابور الحالي'),
+  new SlashCommandBuilder().setName('nowplaying').setDescription('عرض الأغنية الحالية'),
+  new SlashCommandBuilder().setName('disconnect').setDescription('إخراج البوت من الروم الصوتي').setDefaultMemberPermissions(PermissionFlagsBits.ManageGuild)
 ].map((command) => command.toJSON());
 
 export const handleCommand = async (interaction, musicManager) => {
-  const command = interaction.commandName;
-  const guildId = interaction.guildId;
-  const player = musicManager.getPlayer(guildId);
+  const player = musicManager.getPlayer(interaction.guildId);
 
-  if (command === 'play') {
-    await interaction.deferReply();
-    const query = interaction.options.getString('query', true);
-    return interaction.editReply(await enqueueTrack(interaction, player, query));
-  }
-
-  if (command === 'setup-panel') {
+  if (interaction.commandName === 'setup-panel') {
     if (!config.panelChannelId) {
-      return interaction.reply({
-        embeds: [errorEmbed('Missing Config', 'حدد `MUSIC_PANEL_CHANNEL_ID` داخل ملف `.env` أولاً.')],
-        ephemeral: true
-      });
+      return interaction.reply({ embeds: [errorEmbed('Missing Config', 'حدد MUSIC_PANEL_CHANNEL_ID في .env')], ephemeral: true });
     }
 
     const channel = await interaction.guild.channels.fetch(config.panelChannelId).catch(() => null);
     if (!channel?.isTextBased()) {
-      return interaction.reply({
-        embeds: [errorEmbed('Invalid Channel', 'تعذر الوصول إلى روم البانل. تأكد من ID وصلاحيات البوت.')],
-        ephemeral: true
-      });
+      return interaction.reply({ embeds: [errorEmbed('Invalid Channel', 'تأكد من روم البانل وصلاحيات البوت.')], ephemeral: true });
     }
 
-    await channel.send({
-      embeds: [panelEmbed()],
-      components: buildPanelComponents()
-    });
+    const message = await channel.send({ embeds: [panelEmbed(player)], components: buildPanelComponents() });
+    interaction.client.__panelMessageMap = interaction.client.__panelMessageMap ?? {};
+    interaction.client.__panelMessageMap[interaction.guildId] = { channelId: channel.id, messageId: message.id };
 
-    return interaction.reply({
-      embeds: [successEmbed('Panel Created', `تم إرسال لوحة التحكم بنجاح في <#${config.panelChannelId}>`)],
-      ephemeral: true
-    });
+    return interaction.reply({ embeds: [successEmbed('Panel Ready', `تم إرسال لوحة التحكم في <#${channel.id}>`)], ephemeral: true });
   }
 
-  if (command === 'pause') {
-    const success = player.pause();
-    return interaction.reply({
-      embeds: [success ? infoEmbed('Paused', 'تم إيقاف التشغيل مؤقتاً.') : errorEmbed('Pause Failed', 'لا يوجد شيء قيد التشغيل.')],
-      ephemeral: !success
-    });
+  if (interaction.commandName === 'queue') return interaction.reply(queueResponse(player));
+
+  if (interaction.commandName === 'nowplaying') {
+    return interaction.reply({ embeds: [panelEmbed(player)], ephemeral: true });
   }
 
-  if (command === 'resume') {
-    const success = player.resume();
-    return interaction.reply({
-      embeds: [success ? successEmbed('Resumed', 'تم استكمال التشغيل.') : errorEmbed('Resume Failed', 'لا يوجد تشغيل موقوف.')],
-      ephemeral: !success
-    });
-  }
-
-  if (command === 'skip') {
-    const success = player.skip();
-    return interaction.reply({
-      embeds: [success ? infoEmbed('Skipped', 'تم تخطي الأغنية الحالية.') : errorEmbed('Skip Failed', 'لا يوجد تشغيل حالياً.')],
-      ephemeral: !success
-    });
-  }
-
-  if (command === 'stop') {
-    player.stop();
-    return interaction.reply({ embeds: [infoEmbed('Stopped', 'تم مسح الطابور وإيقاف الموسيقى.')] });
-  }
-
-  if (command === 'queue') {
-    return interaction.reply(queueResponse(player));
-  }
-
-  if (command === 'nowplaying') {
-    if (!player.current) {
-      return interaction.reply({
-        embeds: [infoEmbed('Nothing Playing', 'لا يوجد شيء قيد التشغيل حالياً.')],
-        ephemeral: true
-      });
-    }
-
-    const current = player.current;
-    return interaction.reply({
-      embeds: [
-        infoEmbed(
-          'Now Playing',
-          `**[${current.title}](${current.url})**\nالمدة: \`${current.duration}\`\nطلب بواسطة: **${current.requestedBy}**`
-        ).setThumbnail(current.thumbnail ?? null)
-      ]
-    });
-  }
-
-  if (command === 'volume') {
-    const percent = interaction.options.getInteger('percent', true);
-    const updated = player.setVolume(percent / 100);
-    return interaction.reply({ embeds: [successEmbed('Volume Updated', `تم ضبط الصوت إلى **${Math.round(updated * 100)}%**.`)] });
-  }
-
-  if (command === 'loop') {
-    const enabled = player.toggleLoop();
-    return interaction.reply({ embeds: [infoEmbed('Loop Mode', enabled ? 'تم تفعيل التكرار للأغنية الحالية.' : 'تم تعطيل التكرار.')] });
-  }
-
-  if (command === 'disconnect') {
-    musicManager.destroyPlayer(guildId);
+  if (interaction.commandName === 'disconnect') {
+    musicManager.destroyPlayer(interaction.guildId);
     return interaction.reply({ embeds: [successEmbed('Disconnected', 'تم إخراج البوت من الروم الصوتي.')] });
   }
 
-  return interaction.reply({
-    embeds: [errorEmbed('Unknown Command', 'هذا الأمر غير مدعوم حالياً.')],
-    ephemeral: true
-  });
+  return interaction.reply({ embeds: [errorEmbed('Unknown', 'أمر غير معروف.')], ephemeral: true });
+};
+
+export const handleRequestMessage = async (message, musicManager) => {
+  if (message.author.bot) return false;
+  if (!config.requestChannelId || message.channelId !== config.requestChannelId) return false;
+
+  const gate = ensureVoice({ member: message.member });
+  if (!gate.ok) {
+    await message.reply({ embeds: [errorEmbed('Voice Required', 'ادخل روم صوتي أولاً ثم أرسل الأغنية.')] });
+    return true;
+  }
+
+  const player = musicManager.getPlayer(message.guildId);
+  const query = message.content.trim();
+  if (!query) return true;
+
+  await message.delete().catch(() => null);
+  const searchingMsg = await message.channel.send({ embeds: [infoEmbed('Searching...', `جاري البحث عن: **${query}**`)] });
+
+  try {
+    await player.connect(gate.voiceChannel);
+    const track = await player.enqueue(query, message.author.tag, message.author.id);
+    await searchingMsg.edit({
+      embeds: [successEmbed('Queued', `تمت إضافة **[${track.title}](${track.url})**\nالمدة: \`${track.duration}\``).setThumbnail(track.thumbnail ?? null)]
+    });
+  } catch {
+    await searchingMsg.edit({ embeds: [errorEmbed('Search Failed', 'تعذر البحث/تشغيل الأغنية. جرب رابط آخر أو اسم مختلف.')] });
+  }
+
+  return true;
 };

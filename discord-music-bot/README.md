@@ -1,30 +1,44 @@
-# Discord Music Bot Pro (Arabic Friendly)
+# Discord Music Bot Pro (YouTube + SoundCloud)
 
-بوت ديسكورد احترافي لتشغيل الأغاني من YouTube باستخدام **Slash Commands + Control Panel** مع نظام Queue كامل وواجهة Embed جميلة.
+بوت أغاني احترافي جداً لديسكورد مع **لوحة تحكم ثابتة داخل روم مخصص** + **روم طلبات سريع** + **إدارة قوائم تشغيل (Playlists)** بصلاحيات رول مخصص.
 
-## المميزات
+## أهم المزايا
 
-- تشغيل بالبحث أو بالرابط (`/play`) أو من خلال زر **Add Song** في البانل.
-- **بانل تحكم احترافي** داخل روم محدد (أزرار: Add / Pause / Resume / Skip / Queue / Stop).
-- Queue احترافي مع عرض الأغنية الحالية والقادمة.
-- عند إضافة الأغنية تبدأ مباشرة إذا البوت فاضي (Auto Play).
-- أوامر تشغيل أساسية: إيقاف مؤقت، استكمال، تخطي، إيقاف كامل.
-- التحكم بالصوت (`/volume`) من 0% إلى 200%.
-- تفعيل/إلغاء التكرار (`/loop`).
-- فصل البوت من القناة (`/disconnect`).
-- رسائل واضحة ومرتبة باستخدام Discord Embeds.
+- بانل احترافي بـ Embed يتحدث تلقائياً ويعرض:
+  - اسم الأغنية الحالية + الصورة.
+  - شريط تقدم (timeline slider style).
+  - مستوى الصوت وعدد العناصر في الطابور.
+- تحكم مباشر من البانل:
+  - Join / Leave
+  - Pause / Resume
+  - Next (Skip) / Stop
+  - Vol+ / Vol-
+  - Add Song
+- نظام Playlist كامل من البانل:
+  - Create Playlist
+  - Delete Playlist
+  - Add Song to Playlist
+  - Remove Song from Playlist
+  - List Playlists
+  - Play Playlist (Ordered / Shuffle)
+- روم طلبات مخصص:
+  - أرسل رابط YouTube أو SoundCloud أو اسم الأغنية فقط.
+  - البوت يحذف رسالة المستخدم ثم يرسل رسالة بحث احترافية.
+- قفل التحكم بالأغنية:
+  - فقط الشخص الذي شغّل الأغنية الحالية يقدر Stop / Skip (حسب طلبك).
+- إدارة صلاحيات Playlist عبر رول واحد تحدده أنت في `.env`.
 
 ## المتطلبات
 
-- Node.js 20 أو أحدث.
-- Discord Bot Token + Application Client ID.
-- إعطاء البوت الصلاحيات التالية على السيرفر:
+- Node.js 20+
+- صلاحيات البوت:
   - View Channels
+  - Send Messages
+  - Manage Messages (لحذف رسالة المستخدم في روم الطلبات)
+  - Embed Links
   - Connect
   - Speak
-  - Send Messages
   - Use Slash Commands
-  - Embed Links
 
 ## التثبيت
 
@@ -34,24 +48,24 @@ npm install
 cp .env.example .env
 ```
 
-ثم عدّل ملف `.env`:
+## الإعدادات
 
 ```env
 DISCORD_TOKEN=...
 DISCORD_CLIENT_ID=...
-DISCORD_GUILD_ID=... # اختياري لتحديث الأوامر فوراً على سيرفر محدد
-MUSIC_PANEL_CHANNEL_ID=... # روم نصي مخصص للبانل
+DISCORD_GUILD_ID=...
+MUSIC_PANEL_CHANNEL_ID=...        # روم اللوحة
+MUSIC_REQUEST_CHANNEL_ID=...      # روم الطلبات بالرسائل
+PLAYLIST_MANAGER_ROLE_ID=...      # الرول المخول لإدارة البلاي ليست
+PANEL_REFRESH_SECONDS=15          # تحديث تلقائي للوحة
 DEFAULT_VOLUME=0.6
 ```
 
-## نشر أوامر السلاش
+## نشر الأوامر
 
 ```bash
 npm run deploy
 ```
-
-> إذا وضعت `DISCORD_GUILD_ID` سيتم النشر على نفس السيرفر بسرعة.
-> بدونها سيتم النشر Global وقد يتأخر ظهور الأوامر.
 
 ## التشغيل
 
@@ -59,40 +73,21 @@ npm run deploy
 npm start
 ```
 
-## تفعيل البانل (مرة واحدة)
+## خطوات الاستخدام السريعة
 
-بعد تشغيل البوت واكتمال نشر الأوامر:
+1. شغل البوت.
+2. نفذ `/setup-panel`.
+3. ادخل روم صوتي.
+4. من روم البانل اضغط **Add Song** أو اكتب في روم الطلبات رابط/اسم أغنية.
+5. لإدارة القوائم استخدم قائمة **Playlist Manager** داخل البانل.
 
-1. نفّذ الأمر `/setup-panel` (يتطلب صلاحية Manage Server).
-2. البوت سيرسل لوحة التحكم داخل الروم المحدد في `MUSIC_PANEL_CHANNEL_ID`.
-3. المستخدم يضغط **Add Song** ويكتب اسم/رابط الأغنية مباشرة من Modal.
+## ملاحظات تقنية
 
-## أوامر البوت
+- يدعم YouTube و SoundCloud.
+- البحث النصي يجرب YouTube ثم SoundCloud.
+- القوائم تُحفظ محلياً في: `data/playlists.json`.
+- إذا واجهت مشكلة "البوت ما يتكلم":
+  - تأكد من صلاحيات `Speak` و `Connect`.
+  - تأكد من تثبيت dependencies كاملة (`npm install`).
+  - تأكد أنك داخل روم صوتي قبل الطلب.
 
-- `/play query:<name|url>` تشغيل أغنية.
-- `/pause` إيقاف مؤقت.
-- `/resume` استكمال.
-- `/skip` تخطي الحالي.
-- `/stop` إيقاف ومسح الطابور.
-- `/queue` عرض الطابور.
-- `/nowplaying` عرض الحالي.
-- `/volume percent:<0-200>` تغيير الصوت.
-- `/loop` تشغيل/إيقاف التكرار.
-- `/disconnect` إخراج البوت من الروم.
-- `/setup-panel` إرسال بانل التحكم للروم المخصص.
-
-## بنية المشروع
-
-```text
-discord-music-bot/
-├─ src/
-│  ├─ index.js
-│  ├─ config.js
-│  ├─ commands/index.js
-│  └─ utils/
-│     ├─ player.js
-│     └─ embeds.js
-├─ scripts/deploy-commands.js
-├─ .env.example
-└─ package.json
-```
